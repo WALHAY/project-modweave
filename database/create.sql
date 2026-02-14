@@ -6,6 +6,7 @@ create table modweave.users (
     nickname varchar(255) unique,
     email varchar(255) unique,
     passhash varchar,
+    salt varchar,
     register_date date,
     is_admin boolean
 );

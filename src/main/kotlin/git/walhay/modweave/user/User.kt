@@ -1,9 +1,12 @@
 package git.walhay.modweave.user
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import git.walhay.modweave.mods.Mod
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
@@ -13,33 +16,31 @@ import java.sql.Date
 
 @Entity(name = "users")
 @Table(schema = "modweave", name = "users")
-open class User {
+data class User (
     @Id
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "login", nullable = false)
-    open lateinit var login: String
+    @Column(name = "login")
+    val login: String,
 
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "nickname", unique = true)
-    open lateinit var nickname: String
+    @Column(name = "nickname", unique = true, nullable = false)
+    val username: String,
 
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "email", unique = true)
-    open lateinit var email: String
+    @Column(name = "email", unique = true, nullable = false)
+    val email: String,
 
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(name = "passhash")
-    private lateinit var passhash: String
+    @Column(name = "passhash", nullable = false)
+    @JsonBackReference
+    val passhash: String,
 
-    @JdbcTypeCode(SqlTypes.DATE)
-    @Column(name = "register_date")
-    open lateinit var register_date: Date
+    @Column(name = "register_date", nullable = false)
+    val register_date: Date,
 
-    @JdbcTypeCode(SqlTypes.BOOLEAN)
     @Column(name = "is_admin")
-    open var is_admin: Boolean? = false
+    val is_admin: Boolean = false,
 
     @OneToMany(mappedBy = "publisher", orphanRemoval = true)
     @JsonManagedReference
-    open var mods: MutableSet<Mod> = mutableSetOf()
+    val mods: MutableSet<Mod> = mutableSetOf()
+) {
+    constructor() : this("", "", "", "", Date(System.currentTimeMillis()), false) {
+    }
 }
