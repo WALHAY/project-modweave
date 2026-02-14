@@ -10,15 +10,12 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/profile")
-class UserController {
+class UserController @Autowired constructor(private val userRepository: UserRepository) {
+  @GetMapping("/{login}")
+  @ResponseBody
+  fun getUser(@PathVariable login: String): User? = userRepository.findById(login).get()
 
-    @Autowired
-    private var userRepository: UserRepository? = null
-
-    @GetMapping("/{login}")
-    @ResponseBody
-    fun getUser(@PathVariable login: String): User? = userRepository?.findById(login)?.get()
-
-    @GetMapping("/{login}/mods")
-    fun getUserMods(@PathVariable login: String): MutableSet<Mod>? = userRepository?.findById(login)?.get()?.mods
+  @GetMapping("/{login}/mods")
+  fun getUserMods(@PathVariable login: String): MutableSet<Mod>? =
+      userRepository.findById(login).get().mods
 }

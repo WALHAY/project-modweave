@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface GameRepository : CrudRepository<Game, Long> {
 
-    fun findByName(name: String): Game
+  fun findByName(name: String): Game
 }

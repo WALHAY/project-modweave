@@ -3,6 +3,4 @@ package git.walhay.modweave.user
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
-@Repository
-interface UserRepository : CrudRepository<User, String> {
-}
+@Repository interface UserRepository : CrudRepository<User, String> {}

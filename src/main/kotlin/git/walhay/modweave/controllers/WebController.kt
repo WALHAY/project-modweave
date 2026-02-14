@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 @Controller
 class WebController {
 
-    @GetMapping("/login")
-    fun login(): String = "login.html"
+  @GetMapping("/login") fun login(): String = "login.html"
 
-    @GetMapping("/")
-    fun index(): String = "index.html"
+  @GetMapping("/") fun index(): String = "index.html"
 }

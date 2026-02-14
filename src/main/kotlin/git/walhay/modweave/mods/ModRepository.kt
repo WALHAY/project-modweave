@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ModRepository : CrudRepository<Mod, Long> {
 
-    fun findByGame(game: Game): Set<Mod>
+  fun findByGame(game: Game): Set<Mod>
 
-    fun findAll(pageable: Pageable): List<Mod>
+  fun findAll(pageable: Pageable): List<Mod>
 }
