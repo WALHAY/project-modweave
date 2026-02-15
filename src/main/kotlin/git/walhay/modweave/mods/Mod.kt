@@ -23,11 +23,11 @@ data class Mod(
     @Column(name = "description") val description: String,
     @ManyToOne(optional = false)
     @JoinColumn(name = "publisher_login", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("user-mods")
     val publisher: User,
     @ManyToOne(optional = false)
     @JoinColumn(name = "game_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("game-mods")
     val game: Game
 ) {
   constructor() : this(null, "", "", User(), Game())

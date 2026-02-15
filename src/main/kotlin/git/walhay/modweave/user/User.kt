@@ -20,7 +20,7 @@ data class User(
     @Column(name = "register_date", nullable = false) val register_date: Date,
     @Column(name = "is_admin") val is_admin: Boolean = false,
     @OneToMany(mappedBy = "publisher", orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("user-mods")
     val mods: MutableSet<Mod> = mutableSetOf()
 ) {
   constructor() : this("", "", "", "", Date(System.currentTimeMillis()), false)

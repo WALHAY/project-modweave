@@ -20,7 +20,7 @@ data class Game(
     @Column(name = "name") val name: String,
     @Column(name = "description") val description: String,
     @OneToMany(mappedBy = "game", orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("game-mods")
     val mods: MutableList<Mod> = mutableListOf()
 ) {
   constructor() : this(null, "", "")
