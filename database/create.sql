@@ -1,42 +1,30 @@
-drop schema modweave cascade;
+drop schema if exists modweave cascade;
 create schema modweave;
 
 create table modweave.users (
     login varchar(255) primary key,
-    username varchar(255) unique,
-    email varchar(255) unique,
-    passhash varchar,
-    salt varchar,
-    register_date date,
+    username varchar(255) unique not null,
+    email varchar(255) unique not null,
+    passhash varchar not null,
+    register_date timestamp default current_date not null,
     is_admin boolean
 );
 
-insert into modweave.users
-values ('asd', 'asd', 'asd@asd.asd', 'asd', current_date, true);
-
 create table modweave.games (
-    id int primary key,
-    name varchar(255),
+    id serial primary key,
+    name varchar(255) not null,
     description text
 );
 
-insert into modweave.games
-values (0, 'membuddha', 'game about some religious shit'),
-(1, 'zizka', 'game about kakayato zizka');
-
 create table modweave.mods (
-    id int primary key,
-    name varchar(255),
+    id serial primary key,
+    name varchar(255) not null,
     description text,
     game_id int,
     publisher_login varchar,
     foreign key(publisher_login) references modweave.users (login),
     foreign key(game_id) references modweave.games (id)
 );
-
-insert into modweave.mods
-values (0, 'Govno', 'Mod about govno', 0, 'asd'),
-(1, 'Gaziki', 'Mod about gaziki', 1, 'asd');
 
 create table modweave.mod_versions (
     version_name varchar primary key,
@@ -46,14 +34,22 @@ create table modweave.mod_versions (
 
 create table modweave.mod_files (
     file_key varchar primary key,
-    file_size int,
+    file_size int not null,
     hash varchar not null,
     mod_version varchar,
-    foreign key(file_key) references modweave.mod_versions (version_name)
+    foreign key(mod_version) references modweave.mod_versions (version_name)
 );
 
 create table modweave.categories (
-    name varchar,
-    mod_id id,
+    name varchar primary key,
+    mod_id int,
+    foreign key(mod_id) references modweave.mods (id)
+);
+
+create table modweave.comments (
+    id serial primary key,
+    user_login varchar(255),
+    mod_id int,
+    foreign key(user_login) references modweave.users (login),
     foreign key(mod_id) references modweave.mods (id)
 );
