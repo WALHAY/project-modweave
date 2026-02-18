@@ -40,7 +40,12 @@ constructor(
 
     updateDTO.username?.let { user.username = it }
     updateDTO.password?.let { user.password = passwordEncoder.encode(it)!! }
-    updateDTO.email?.let { user.email = it }
+    updateDTO.email?.let {
+      if (userRepository.existsByEmailIgnoreCase(it)) {
+        throw Exception("Email already used")
+      }
+      user.email = it
+    }
 
     userRepository.save(user)
 
