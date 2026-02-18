@@ -19,17 +19,21 @@ constructor(
     private val passwordEncoder: PasswordEncoder
 ) {
 
-  fun registerNewUser(registerDTO: UserRegisterDTO): User {
-    if (userRepository.existsByLoginIgnoreCase(registerDTO.login)) {
-      throw Exception()
+  fun registerNewUser(register: UserRegisterDTO): User {
+    if (userRepository.existsByLoginIgnoreCase(register.login)) {
+      throw Exception("Login already used")
+    }
+
+    if (userRepository.existsByEmailIgnoreCase(register.email)) {
+      throw Exception("Email already used")
     }
 
     val user =
         User(
-            registerDTO.login.lowercase(),
-            registerDTO.username,
-            registerDTO.email,
-            passwordEncoder.encode(registerDTO.password)!!)
+            register.login.lowercase(),
+            register.username,
+            register.email,
+            passwordEncoder.encode(register.password)!!)
     userRepository.save(user)
 
     return user
