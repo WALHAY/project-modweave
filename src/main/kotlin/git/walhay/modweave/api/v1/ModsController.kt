@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.v1
 
-import git.walhay.modweave.mods.ModRepository
+import git.walhay.modweave.repositories.ModRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.web.bind.annotation.*

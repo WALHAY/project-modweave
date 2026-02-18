@@ -1,6 +1,6 @@
-package git.walhay.modweave.security
+package git.walhay.modweave.configs
 
-import git.walhay.modweave.user.UserRepository
+import git.walhay.modweave.repositories.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -22,18 +22,19 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableWebSecurity
 class SecurityConfig @Autowired constructor(private val userRepository: UserRepository) {
 
-  @Bean fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+  @Bean
+  fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
   @Bean
   fun userDetailsService(): UserDetailsService = UserDetailsService { login ->
-    val user =
-        userRepository.findByIdOrNull(login)
-            ?: throw UsernameNotFoundException("User not found: $login")
+      val user =
+          userRepository.findByIdOrNull(login)
+              ?: throw UsernameNotFoundException("User not found: $login")
 
-    User.withUsername(user.login)
-        .password(user.password)
-        .roles(if (user.isAdmin) "ADMIN" else "USER")
-        .build()
+      User.withUsername(user.login)
+          .password(user.password)
+          .roles(if (user.isAdmin) "ADMIN" else "USER")
+          .build()
   }
 
   @Bean

@@ -1,5 +1,6 @@
-package git.walhay.modweave.games
+package git.walhay.modweave.repositories
 
+import git.walhay.modweave.models.Game
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.CrudRepository

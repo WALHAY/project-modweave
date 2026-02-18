@@ -1,18 +1,20 @@
 package git.walhay.modweave.api.v1
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import git.walhay.modweave.models.Game
+import git.walhay.modweave.repositories.GameRepository
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/games")
-class GameController {
+class GameController @Autowired constructor(
+    private val gameRepository: GameRepository
+){
 
     @GetMapping
-    fun getGames() {
-
-    }
+    fun getGames(@RequestParam page: Int, @RequestParam pageSize: Int): Page<Game> = gameRepository.findAll(PageRequest.of(page, pageSize))
 
     @PostMapping
     fun addGame() {

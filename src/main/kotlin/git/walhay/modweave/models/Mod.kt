@@ -1,16 +1,8 @@
-package git.walhay.modweave.mods
+package git.walhay.modweave.models
 
 import com.fasterxml.jackson.annotation.JsonBackReference
-import git.walhay.modweave.games.Game
-import git.walhay.modweave.user.User
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.Table
+import com.fasterxml.jackson.annotation.JsonManagedReference
+import jakarta.persistence.*
 
 @Entity
 @Table(schema = "modweave", name = "mods")
@@ -28,7 +20,15 @@ data class Mod(
     @ManyToOne(optional = false)
     @JoinColumn(name = "game_id", nullable = false)
     @JsonBackReference("game-mods")
-    val game: Game
+    val game: Game,
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "mods_categories",
+        joinColumns = [JoinColumn(name = "mod_id")],
+        inverseJoinColumns = [JoinColumn(name = "category_name")]
+    )
+    @JsonManagedReference
+    val categories: Set<Category> = mutableSetOf()
 ) {
   constructor() : this(null, "", "", User(), Game())
 }

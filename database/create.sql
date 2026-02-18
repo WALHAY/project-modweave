@@ -42,9 +42,16 @@ create table modweave.mod_files (
 
 create table modweave.categories (
     name varchar primary key,
-    mod_id int,
-    foreign key(mod_id) references modweave.mods (id)
+    description text
 );
+
+create table modweave.mods_categories (
+    id serial primary key,
+    mod_id int,
+    category_name varchar,
+    foreign key(mod_id) references modweave.mods (id),
+    foreign key(category_name) references modweave.categories (name)
+)
 
 create table modweave.comments (
     id serial primary key,

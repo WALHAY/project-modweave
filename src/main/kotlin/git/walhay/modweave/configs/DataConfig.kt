@@ -1,4 +1,4 @@
-package git.walhay.modweave
+package git.walhay.modweave.configs
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

@@ -1,8 +1,7 @@
-package git.walhay.modweave.user
+package git.walhay.modweave.models
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonManagedReference
-import git.walhay.modweave.mods.Mod
 import jakarta.persistence.*
 import java.sql.Timestamp
 

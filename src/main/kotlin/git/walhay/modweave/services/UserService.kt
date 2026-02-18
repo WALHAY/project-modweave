@@ -1,6 +1,8 @@
-package git.walhay.modweave.user
+package git.walhay.modweave.services
 
 import git.walhay.modweave.dto.RegisterForm
+import git.walhay.modweave.models.User
+import git.walhay.modweave.repositories.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -25,7 +27,8 @@ constructor(
             registerForm.login.lowercase(),
             registerForm.username,
             registerForm.email,
-            passwordEncoder.encode(registerForm.password)!!)
+            passwordEncoder.encode(registerForm.password)!!
+        )
     userRepository.save(user)
   }
 }
