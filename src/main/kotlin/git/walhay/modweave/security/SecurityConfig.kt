@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -30,8 +31,8 @@ class SecurityConfig @Autowired constructor(private val userRepository: UserRepo
             ?: throw UsernameNotFoundException("User not found: $login")
 
     User.withUsername(user.login)
-        .password(user.passhash)
-        .roles(if (user.is_admin) "ADMIN" else "USER")
+        .password(user.password)
+        .roles(if (user.isAdmin) "ADMIN" else "USER")
         .build()
   }
 
@@ -43,13 +44,12 @@ class SecurityConfig @Autowired constructor(private val userRepository: UserRepo
   fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
       authorizeHttpRequests {
+          authorize(HttpMethod.GET, "/api/v1/**", permitAll)
         authorize("/", permitAll)
-        authorize("/mods", authenticated)
-        authorize("/register", permitAll)
-          authorize(anyRequest, authenticated)
+        authorize(anyRequest, authenticated)
       }
       formLogin { loginPage = "/login" }
-      csrf { disable() }
+        csrf { disable() }
       httpBasic {}
     }
 

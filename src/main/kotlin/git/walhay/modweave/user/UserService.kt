@@ -1,6 +1,6 @@
 package git.walhay.modweave.user
 
-import git.walhay.modweave.controllers.RegisterForm
+import git.walhay.modweave.dto.RegisterForm
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
