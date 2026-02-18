@@ -28,8 +28,8 @@ class SecurityConfig @Autowired constructor(private val userRepository: UserRepo
   @Bean
   fun userDetailsService(): UserDetailsService = UserDetailsService { login ->
       val user =
-          userRepository.findByIdOrNull(login)
-              ?: throw UsernameNotFoundException("User not found: $login")
+          userRepository.findByIdOrNull(login.lowercase())
+              ?: throw UsernameNotFoundException("User not found: ${login.lowercase()}")
 
       User.withUsername(user.login)
           .password(user.password)
@@ -46,7 +46,7 @@ class SecurityConfig @Autowired constructor(private val userRepository: UserRepo
     http {
       authorizeHttpRequests {
           authorize(HttpMethod.GET, "/api/v1/**", permitAll)
-        authorize("/", permitAll)
+          authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
         authorize(anyRequest, authenticated)
       }
       formLogin { loginPage = "/login" }

@@ -1,19 +1,34 @@
 package git.walhay.modweave.api.v1
 
-import git.walhay.modweave.dto.RegisterForm
+import git.walhay.modweave.dto.UserRegisterDTO
+import git.walhay.modweave.dto.UserUpdateDTO
+import git.walhay.modweave.models.User
+import git.walhay.modweave.repositories.UserRepository
 import git.walhay.modweave.services.UserService
+import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.data.domain.PageRequest
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1")
-class UserController @Autowired constructor(private val userService: UserService) {
+@RequestMapping("/api/v1/users")
+class UserController @Autowired constructor(private val userService: UserService,
+    private val userRepository: UserRepository) {
 
-  @PostMapping("/register")
-  fun registerUser(@ModelAttribute registerForm: RegisterForm) {
-    userService.registerNewUser(registerForm)
-  }
+    @GetMapping
+    fun getUsers(@RequestParam page: Int, @RequestParam pageSize: Int) = userRepository.findAll(PageRequest.of(page, pageSize))
+
+    @GetMapping("/{login}")
+    fun getUser(@PathVariable login: String) = userRepository.findById(login.lowercase())
+
+  @PostMapping
+  fun registerUser(@ModelAttribute @Valid registerForm: UserRegisterDTO) = userService.registerNewUser(registerForm)
+
+    @PatchMapping
+    fun changeUserInfo(@ModelAttribute @Valid userUpdateDTO: UserUpdateDTO): User {
+        return SecurityContextHolder.getContext().authentication?.name?.let {
+            userService.updateUserProfile(it, userUpdateDTO)
+        } ?: throw Exception("Authentication fail")
+    }
 }

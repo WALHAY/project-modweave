@@ -9,9 +9,9 @@ import java.sql.Timestamp
 @Table(schema = "modweave", name = "users")
 data class User(
     @Id @Column(name = "login") val login: String,
-    @Column(name = "username", unique = true, nullable = false) val username: String,
-    @Column(name = "email", unique = true, nullable = false) val email: String,
-    @Column(name = "password", nullable = false) @JsonBackReference val password: String,
+    @Column(name = "username", unique = true, nullable = false) var username: String,
+    @Column(name = "email", unique = true, nullable = false) var email: String,
+    @Column(name = "password", nullable = false) @JsonBackReference var password: String,
     @Column(name = "register_date", nullable = false) val registerDate: Timestamp,
     @Column(name = "is_admin") val isAdmin: Boolean = false,
     @OneToMany(mappedBy = "publisher", orphanRemoval = true)
