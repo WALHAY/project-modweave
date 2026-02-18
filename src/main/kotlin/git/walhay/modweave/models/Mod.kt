@@ -25,8 +25,7 @@ data class Mod(
     @JoinTable(
         name = "mods_categories",
         joinColumns = [JoinColumn(name = "mod_id")],
-        inverseJoinColumns = [JoinColumn(name = "category_name")]
-    )
+        inverseJoinColumns = [JoinColumn(name = "category_name")])
     @JsonManagedReference
     val categories: Set<Category> = mutableSetOf()
 ) {

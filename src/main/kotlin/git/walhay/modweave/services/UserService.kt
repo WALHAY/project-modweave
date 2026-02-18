@@ -29,22 +29,21 @@ constructor(
             registerDTO.login.lowercase(),
             registerDTO.username,
             registerDTO.email,
-            passwordEncoder.encode(registerDTO.password)!!
-        )
+            passwordEncoder.encode(registerDTO.password)!!)
     userRepository.save(user)
 
-      return user
+    return user
   }
 
-    fun updateUserProfile(login: String, updateDTO: UserUpdateDTO): User {
-        val user: User = userRepository.findByIdOrNull(login) ?: throw Exception()
+  fun updateUserProfile(login: String, updateDTO: UserUpdateDTO): User {
+    val user: User = userRepository.findByIdOrNull(login) ?: throw Exception()
 
-        updateDTO.username?.let { user.username = it }
-        updateDTO.password?.let { user.password = passwordEncoder.encode(it)!! }
-        updateDTO.email?.let { user.email = it }
+    updateDTO.username?.let { user.username = it }
+    updateDTO.password?.let { user.password = passwordEncoder.encode(it)!! }
+    updateDTO.email?.let { user.email = it }
 
-        userRepository.save(user)
+    userRepository.save(user)
 
-        return user
-    }
+    return user
+  }
 }

@@ -9,15 +9,11 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/games")
-class GameController @Autowired constructor(
-    private val gameRepository: GameRepository
-){
+class GameController @Autowired constructor(private val gameRepository: GameRepository) {
 
-    @GetMapping
-    fun getGames(@RequestParam page: Int, @RequestParam pageSize: Int): Page<Game> = gameRepository.findAll(PageRequest.of(page, pageSize))
+  @GetMapping
+  fun getGames(@RequestParam page: Int, @RequestParam pageSize: Int): Page<Game> =
+      gameRepository.findAll(PageRequest.of(page, pageSize))
 
-    @PostMapping
-    fun addGame() {
-
-    }
+  @PostMapping fun addGame() {}
 }

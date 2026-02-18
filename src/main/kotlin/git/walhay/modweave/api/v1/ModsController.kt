@@ -7,15 +7,11 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/mods")
-class ModsController @Autowired constructor(
-    private val modRepository: ModRepository
-){
+class ModsController @Autowired constructor(private val modRepository: ModRepository) {
 
-    @GetMapping
-    fun getMods(@RequestParam page: Int, @RequestParam pageSize: Int) = modRepository.findAll(PageRequest.of(page, pageSize))
+  @GetMapping
+  fun getMods(@RequestParam page: Int, @RequestParam pageSize: Int) =
+      modRepository.findAll(PageRequest.of(page, pageSize))
 
-    @PostMapping
-    fun uploadMod() {
-
-    }
+  @PostMapping fun uploadMod() {}
 }

@@ -22,19 +22,18 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableWebSecurity
 class SecurityConfig @Autowired constructor(private val userRepository: UserRepository) {
 
-  @Bean
-  fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+  @Bean fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
   @Bean
   fun userDetailsService(): UserDetailsService = UserDetailsService { login ->
-      val user =
-          userRepository.findByIdOrNull(login.lowercase())
-              ?: throw UsernameNotFoundException("User not found: ${login.lowercase()}")
+    val user =
+        userRepository.findByIdOrNull(login.lowercase())
+            ?: throw UsernameNotFoundException("User not found: ${login.lowercase()}")
 
-      User.withUsername(user.login)
-          .password(user.password)
-          .roles(if (user.isAdmin) "ADMIN" else "USER")
-          .build()
+    User.withUsername(user.login)
+        .password(user.password)
+        .roles(if (user.isAdmin) "ADMIN" else "USER")
+        .build()
   }
 
   @Bean
@@ -45,12 +44,12 @@ class SecurityConfig @Autowired constructor(private val userRepository: UserRepo
   fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
       authorizeHttpRequests {
-          authorize(HttpMethod.GET, "/api/v1/**", permitAll)
-          authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
+        authorize(HttpMethod.GET, "/api/v1/**", permitAll)
+        authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
         authorize(anyRequest, authenticated)
       }
       formLogin { loginPage = "/login" }
-        csrf { disable() }
+      csrf { disable() }
       httpBasic {}
     }
 

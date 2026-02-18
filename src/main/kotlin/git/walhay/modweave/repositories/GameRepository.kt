@@ -11,5 +11,5 @@ interface GameRepository : CrudRepository<Game, Long> {
 
   fun findByName(name: String): Game
 
-    fun findAll(pageable: Pageable): Page<Game>
+  fun findAll(pageable: Pageable): Page<Game>
 }

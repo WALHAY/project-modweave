@@ -13,22 +13,25 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/users")
-class UserController @Autowired constructor(private val userService: UserService,
-    private val userRepository: UserRepository) {
+class UserController
+@Autowired
+constructor(private val userService: UserService, private val userRepository: UserRepository) {
 
-    @GetMapping
-    fun getUsers(@RequestParam page: Int, @RequestParam pageSize: Int) = userRepository.findAll(PageRequest.of(page, pageSize))
+  @GetMapping
+  fun getUsers(@RequestParam page: Int, @RequestParam pageSize: Int) =
+      userRepository.findAll(PageRequest.of(page, pageSize))
 
-    @GetMapping("/{login}")
-    fun getUser(@PathVariable login: String) = userRepository.findById(login.lowercase())
+  @GetMapping("/{login}")
+  fun getUser(@PathVariable login: String) = userRepository.findById(login.lowercase())
 
   @PostMapping
-  fun registerUser(@ModelAttribute @Valid registerForm: UserRegisterDTO) = userService.registerNewUser(registerForm)
+  fun registerUser(@ModelAttribute @Valid registerForm: UserRegisterDTO) =
+      userService.registerNewUser(registerForm)
 
-    @PatchMapping
-    fun changeUserInfo(@ModelAttribute @Valid userUpdateDTO: UserUpdateDTO): User {
-        return SecurityContextHolder.getContext().authentication?.name?.let {
-            userService.updateUserProfile(it, userUpdateDTO)
-        } ?: throw Exception("Authentication fail")
-    }
+  @PatchMapping
+  fun changeUserInfo(@ModelAttribute @Valid userUpdateDTO: UserUpdateDTO): User {
+    return SecurityContextHolder.getContext().authentication?.name?.let {
+      userService.updateUserProfile(it, userUpdateDTO)
+    } ?: throw Exception("Authentication fail")
+  }
 }
