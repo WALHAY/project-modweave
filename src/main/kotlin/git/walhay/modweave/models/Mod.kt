@@ -27,7 +27,10 @@ data class Mod(
         joinColumns = [JoinColumn(name = "mod_id")],
         inverseJoinColumns = [JoinColumn(name = "category_name")])
     @JsonManagedReference
-    val categories: Set<Category> = mutableSetOf()
+    val categories: Set<Category> = mutableSetOf(),
+    @OneToMany(mappedBy = "mod", orphanRemoval = true)
+    @JsonManagedReference("mod-version")
+    val versions: List<Version> = mutableListOf()
 ) {
   constructor() : this(null, "", "", User(), Game())
 }

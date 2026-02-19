@@ -29,13 +29,15 @@ create table modweave.mods (
 create table modweave.mod_versions (
     version_name varchar primary key,
     changes text,
-    upload_date date
+    upload_date date,
+    bucket_key varchar,
+    mod_id int,
+    foreign key(mod_id) references modweave.mods (id)
 );
 
 create table modweave.mod_files (
-    file_key varchar primary key,
-    file_size int not null,
-    hash varchar not null,
+    id serial primary key,
+    file_key varchar,
     mod_version varchar,
     foreign key(mod_version) references modweave.mod_versions (version_name)
 );
@@ -51,7 +53,7 @@ create table modweave.mods_categories (
     category_name varchar,
     foreign key(mod_id) references modweave.mods (id),
     foreign key(category_name) references modweave.categories (name)
-)
+);
 
 create table modweave.comments (
     id serial primary key,
