@@ -9,7 +9,7 @@ data class Game(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    val id: Long? = null,
+    var id: Long? = null,
     @Column(name = "name") val name: String,
     @Column(name = "description") val description: String,
     @OneToMany(mappedBy = "game", orphanRemoval = true)
@@ -17,4 +17,5 @@ data class Game(
     val mods: MutableList<Mod> = mutableListOf()
 ) {
   constructor() : this(null, "", "")
+    constructor(name: String, description: String) : this(null, name, description)
 }

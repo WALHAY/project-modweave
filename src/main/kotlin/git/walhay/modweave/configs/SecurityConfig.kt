@@ -46,6 +46,7 @@ class SecurityConfig @Autowired constructor(private val userRepository: UserRepo
       authorizeHttpRequests {
         authorize(HttpMethod.GET, "/api/v1/**", permitAll)
         authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
+          authorize(HttpMethod.POST, "/api/v1/games", hasRole("ADMIN"))
         authorize(anyRequest, authenticated)
       }
       formLogin { loginPage = "/login" }
