@@ -17,5 +17,6 @@ data class Game(
     val mods: MutableList<Mod> = mutableListOf()
 ) {
   constructor() : this(null, "", "")
-    constructor(name: String, description: String) : this(null, name, description)
+
+  constructor(name: String, description: String) : this(null, name, description)
 }

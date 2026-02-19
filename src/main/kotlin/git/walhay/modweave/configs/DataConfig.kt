@@ -18,7 +18,10 @@ class DataConfig {
         setDriverClassName("org.postgresql.Driver")
       }
 
-    @Bean
-    fun minioClient(): MinioClient = MinioClient.builder().endpoint("http://localhost:9000")
-            .credentials("miniouser", "miniopass").build()
+  @Bean
+  fun minioClient(): MinioClient =
+      MinioClient.builder()
+          .endpoint("http://localhost:9000")
+          .credentials("miniouser", "miniopass")
+          .build()
 }

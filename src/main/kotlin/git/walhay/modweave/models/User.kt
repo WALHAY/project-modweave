@@ -27,9 +27,10 @@ data class User(
       password: String
   ) : this(login, username, email, password, Timestamp(System.currentTimeMillis()), false)
 
-    @PrePersist @PreUpdate
-    fun normalize() {
-        login = login.lowercase()
-        email = email.lowercase()
-    }
+  @PrePersist
+  @PreUpdate
+  fun normalize() {
+    login = login.lowercase()
+    email = email.lowercase()
+  }
 }

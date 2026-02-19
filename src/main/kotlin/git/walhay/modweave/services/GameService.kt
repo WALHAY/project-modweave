@@ -9,11 +9,11 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class GameService @Autowired constructor(private val gameRepository: GameRepository){
+class GameService @Autowired constructor(private val gameRepository: GameRepository) {
 
-    fun addNewGame(addGame: AddGameDTO): Game {
-        val game = Game(addGame.name, addGame.description)
+  fun addNewGame(addGame: AddGameDTO): Game {
+    val game = Game(addGame.name, addGame.description)
 
-        return gameRepository.save(game)
-    }
+    return gameRepository.save(game)
+  }
 }

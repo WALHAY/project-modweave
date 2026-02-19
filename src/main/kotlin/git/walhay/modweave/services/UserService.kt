@@ -27,15 +27,10 @@ constructor(
       throw Exception("Email already used")
     }
 
-      val encodedPass = passwordEncoder.encode(register.password) ?: throw Exception("Failed to encode password")
+    val encodedPass =
+        passwordEncoder.encode(register.password) ?: throw Exception("Failed to encode password")
 
-    val user =
-        User(
-            register.login,
-            register.username,
-            register.email,
-            encodedPass
-            )
+    val user = User(register.login, register.username, register.email, encodedPass)
 
     return userRepository.save(user)
   }
@@ -43,9 +38,10 @@ constructor(
   fun updateUserProfile(login: String, update: UserUpdateDTO): User {
     val user: User = userRepository.findByLoginIgnoreCase(login) ?: throw Exception()
 
-
     update.username?.let { user.username = it }
-    update.password?.let { user.password = passwordEncoder.encode(it) ?: throw Exception("Unable to encode password") }
+    update.password?.let {
+      user.password = passwordEncoder.encode(it) ?: throw Exception("Unable to encode password")
+    }
     update.email?.let {
       if (userRepository.existsByEmailIgnoreCase(it)) {
         throw Exception("Email already used")
