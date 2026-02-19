@@ -12,12 +12,15 @@ import java.sql.Date
 @Service
 @Transactional
 class VersionService @Autowired constructor(
-    private val versionRepository: VersionRepository
+    private val versionRepository: VersionRepository,
+    private val fileService: FileService
 ) {
 
     fun initModVersion(mod: Mod, modUploadDTO: ModUploadDTO): Version {
-        val version = Version(modUploadDTO.versionName, "", Date(System.currentTimeMillis()), "", mod)
+        val version = Version(modUploadDTO.versionName, "", Date(System.currentTimeMillis()), "mods", mod)
+        val savedVersion = versionRepository.save(version)
 
-        return versionRepository.save(version)
+        fileService.uploadNewFiles(savedVersion, modUploadDTO.files)
+        return savedVersion
     }
 }

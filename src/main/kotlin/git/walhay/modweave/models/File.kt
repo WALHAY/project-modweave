@@ -8,6 +8,7 @@ import jakarta.persistence.*
 data class File(
     @Id
     @Column("id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
     @Column("file_key")
     val fileKey: String,

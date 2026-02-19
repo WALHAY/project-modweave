@@ -1,5 +1,6 @@
 volumes:
   postgres:
+  minio:
 
 services:
   postgres:
@@ -14,6 +15,20 @@ services:
       - ./postgres:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - mynetwork
+
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: miniouser
+      MINIO_ROOT_PASSWORD: miniopass
+    volumes:
+      - ./minio:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
     networks:
       - mynetwork
 
