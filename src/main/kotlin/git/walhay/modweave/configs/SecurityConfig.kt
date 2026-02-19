@@ -44,9 +44,10 @@ class SecurityConfig @Autowired constructor(private val userRepository: UserRepo
   fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
       authorizeHttpRequests {
-        authorize(HttpMethod.GET, "/api/v1/**", permitAll)
-        authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
           authorize(HttpMethod.POST, "/api/v1/games", hasRole("ADMIN"))
+        authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
+          authorize(HttpMethod.GET, "/api/v1/**", permitAll)
+          authorize(HttpMethod.GET, "/api/v1/mods/**", permitAll)
         authorize(anyRequest, authenticated)
       }
       formLogin { loginPage = "/login" }
