@@ -5,7 +5,6 @@ import git.walhay.modweave.dto.UserUpdateDTO
 import git.walhay.modweave.models.User
 import git.walhay.modweave.repositories.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -28,23 +27,28 @@ constructor(
       throw Exception("Email already used")
     }
 
+      val encodedPass = passwordEncoder.encode(register.password) ?: throw Exception("Failed to encode password")
+
     val user =
         User(
-            register.login.lowercase(),
+            register.login,
             register.username,
             register.email,
-            passwordEncoder.encode(register.password)!!)
+            encodedPass
+            )
+
     userRepository.save(user)
 
     return user
   }
 
-  fun updateUserProfile(login: String, updateDTO: UserUpdateDTO): User {
-    val user: User = userRepository.findByIdOrNull(login) ?: throw Exception()
+  fun updateUserProfile(login: String, update: UserUpdateDTO): User {
+    val user: User = userRepository.findByLoginIgnoreCase(login) ?: throw Exception()
 
-    updateDTO.username?.let { user.username = it }
-    updateDTO.password?.let { user.password = passwordEncoder.encode(it)!! }
-    updateDTO.email?.let {
+
+    update.username?.let { user.username = it }
+    update.password?.let { user.password = passwordEncoder.encode(it) ?: throw Exception("Unable to encode password") }
+    update.email?.let {
       if (userRepository.existsByEmailIgnoreCase(it)) {
         throw Exception("Email already used")
       }

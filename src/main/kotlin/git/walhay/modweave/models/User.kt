@@ -8,7 +8,7 @@ import java.sql.Timestamp
 @Entity(name = "users")
 @Table(schema = "modweave", name = "users")
 data class User(
-    @Id @Column(name = "login") val login: String,
+    @Id @Column(name = "login") var login: String,
     @Column(name = "username", unique = true, nullable = false) var username: String,
     @Column(name = "email", unique = true, nullable = false) var email: String,
     @Column(name = "password", nullable = false) @JsonBackReference var password: String,
@@ -26,4 +26,10 @@ data class User(
       email: String,
       password: String
   ) : this(login, username, email, password, Timestamp(System.currentTimeMillis()), false)
+
+    @PrePersist @PreUpdate
+    fun normalize() {
+        login = login.lowercase()
+        email = email.lowercase()
+    }
 }
