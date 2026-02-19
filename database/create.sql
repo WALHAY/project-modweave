@@ -5,7 +5,7 @@ create table modweave.users (
     login varchar(255) primary key,
     username varchar(255) unique not null,
     email varchar(255) unique not null,
-    passhash varchar not null,
+    password varchar not null,
     register_date timestamp default current_date not null,
     is_admin boolean
 );
