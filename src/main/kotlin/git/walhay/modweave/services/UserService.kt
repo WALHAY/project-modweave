@@ -37,9 +37,7 @@ constructor(
             encodedPass
             )
 
-    userRepository.save(user)
-
-    return user
+    return userRepository.save(user)
   }
 
   fun updateUserProfile(login: String, update: UserUpdateDTO): User {
@@ -55,8 +53,6 @@ constructor(
       user.email = it
     }
 
-    userRepository.save(user)
-
-    return user
+    return userRepository.save(user)
   }
 }
