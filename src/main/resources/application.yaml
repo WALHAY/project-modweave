@@ -2,5 +2,13 @@ spring:
   application:
     name: modweave
 
+minio:
+  endpoint: http://localhost:9000
+  credentials:
+    username: miniosecretuser123
+    password: miniosecretpass123
+  buckets:
+    mods: mods
+
 server:
   port: 8080

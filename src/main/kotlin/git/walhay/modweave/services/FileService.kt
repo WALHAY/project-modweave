@@ -9,6 +9,7 @@ import io.minio.MinioClient
 import io.minio.PutObjectArgs
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
@@ -16,12 +17,15 @@ import org.springframework.web.multipart.MultipartFile
 @Transactional
 class FileService
 @Autowired
-constructor(private val fileRepository: FileRepository, private val minioClient: MinioClient) {
+constructor(
+    private val fileRepository: FileRepository,
+    private val minioClient: MinioClient,
+    @Value($$"${minio.buckets.mods}") private val modsBucket: String
+) {
 
   fun uploadNewFiles(version: Version, files: List<MultipartFile>) {
-    val bucket = version.bucketKey
-    if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
-      minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build())
+    if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(modsBucket).build())) {
+      minioClient.makeBucket(MakeBucketArgs.builder().bucket(modsBucket).build())
     }
 
     for (file in files) {
@@ -30,7 +34,7 @@ constructor(private val fileRepository: FileRepository, private val minioClient:
           PutObjectArgs.builder()
               .contentType(file.contentType)
               .stream(file.inputStream, file.size, -1)
-              .bucket(bucket)
+              .bucket(modsBucket)
               .`object`(filename)
               .build())
 

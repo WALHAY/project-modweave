@@ -1,12 +1,20 @@
 package git.walhay.modweave.configs
 
 import io.minio.MinioClient
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.jdbc.datasource.DriverManagerDataSource
 
 @Configuration
-class DataConfig {
+class DataConfig
+@Autowired
+constructor(
+    @Value("\${minio.endpoint}") private val endpoint: String,
+    @Value("\${minio.username}") private val accessKey: String,
+    @Value("\${minio.password}") private val secretKey: String,
+) {
   @Bean
   fun dataSource() =
       DriverManagerDataSource().apply {
@@ -20,8 +28,5 @@ class DataConfig {
 
   @Bean
   fun minioClient(): MinioClient =
-      MinioClient.builder()
-          .endpoint("http://localhost:9000")
-          .credentials("miniouser", "miniopass")
-          .build()
+      MinioClient.builder().endpoint(endpoint).credentials(accessKey, secretKey).build()
 }

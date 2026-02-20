@@ -23,6 +23,7 @@ data class Mod(
     val game: Game,
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
+        schema = "modweave",
         name = "mods_categories",
         joinColumns = [JoinColumn(name = "mod_id")],
         inverseJoinColumns = [JoinColumn(name = "category_name")])

@@ -1,11 +1,15 @@
 package git.walhay.modweave.api.v1
 
 import git.walhay.modweave.dto.ModUploadDTO
+import git.walhay.modweave.dto.VersionUploadDTO
+import git.walhay.modweave.models.Version
 import git.walhay.modweave.repositories.ModRepository
 import git.walhay.modweave.services.ModService
+import git.walhay.modweave.services.VersionService
 import io.minio.GetPresignedObjectUrlArgs
 import io.minio.MinioClient
 import io.minio.http.Method
+import kotlin.jvm.optionals.getOrNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.core.context.SecurityContextHolder
@@ -18,6 +22,7 @@ class ModsController
 constructor(
     private val modRepository: ModRepository,
     private val modService: ModService,
+    private val versionService: VersionService,
     private val minioClient: MinioClient
 ) {
 
@@ -47,5 +52,15 @@ constructor(
             .`object`(fullname)
             .expiry(60 * 10)
             .build())
+  }
+
+  @PostMapping("/{modId}")
+  fun uploadVersion(
+      @ModelAttribute versionUploadDTO: VersionUploadDTO,
+      @PathVariable modId: Long
+  ): Version {
+    val mod = modRepository.findById(modId).getOrNull() ?: throw Exception()
+
+    return versionService.uploadNewModVersion(mod, versionUploadDTO)
   }
 }

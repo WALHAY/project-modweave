@@ -30,7 +30,6 @@ create table modweave.mod_versions (
     version_name varchar primary key,
     changes text,
     upload_date date,
-    bucket_key varchar,
     mod_id int,
     foreign key(mod_id) references modweave.mods (id)
 );

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 import java.sql.Timestamp
 
-@Entity(name = "users")
+@Entity
 @Table(schema = "modweave", name = "users")
 data class User(
     @Id @Column(name = "login") var login: String,

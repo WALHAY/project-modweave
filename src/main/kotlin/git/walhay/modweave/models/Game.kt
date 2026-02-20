@@ -10,7 +10,7 @@ data class Game(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     var id: Long? = null,
-    @Column(name = "name") val name: String,
+    @Column(name = "name", nullable = false) val name: String,
     @Column(name = "description") val description: String,
     @OneToMany(mappedBy = "game", orphanRemoval = true)
     @JsonManagedReference("game-mods")
