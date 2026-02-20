@@ -1,4 +1,4 @@
-package git.walhay.modweave.api.v1
+package git.walhay.modweave.controller
 
 import git.walhay.modweave.dto.ModUploadDTO
 import git.walhay.modweave.dto.VersionUploadDTO
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
 import kotlin.jvm.optionals.getOrNull
 
 @RestController
-@RequestMapping("/api/v1/mods")
+@RequestMapping("/mods")
 class ModsController
 @Autowired
 constructor(

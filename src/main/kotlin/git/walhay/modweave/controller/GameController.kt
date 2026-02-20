@@ -1,4 +1,4 @@
-package git.walhay.modweave.api.v1
+package git.walhay.modweave.controller
 
 import git.walhay.modweave.dto.AddGameDTO
 import git.walhay.modweave.models.Game
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 import kotlin.jvm.optionals.getOrNull
 
 @RestController
-@RequestMapping("/api/v1/games")
+@RequestMapping("/games")
 class GameController
 @Autowired
 constructor(private val gameRepository: GameRepository, private val gameService: GameService) {

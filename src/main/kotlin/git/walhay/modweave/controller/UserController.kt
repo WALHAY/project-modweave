@@ -1,4 +1,4 @@
-package git.walhay.modweave.api.v1
+package git.walhay.modweave.controller
 
 import git.walhay.modweave.dto.UserRegisterDTO
 import git.walhay.modweave.dto.UserUpdateDTO
@@ -12,7 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/users")
 class UserController
 @Autowired
 constructor(private val userService: UserService, private val userRepository: UserRepository) {
