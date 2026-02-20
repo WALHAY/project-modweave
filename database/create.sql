@@ -38,7 +38,7 @@ create table modweave.mod_versions (
 );
 
 create table modweave.mod_files (
-    id serial primary key,
+    id bigserial primary key,
     filename varchar not null,
     file_path varchar not null,
     metainfo jsonb,

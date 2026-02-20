@@ -7,11 +7,26 @@ import jakarta.persistence.*
 @Table(schema = "modweave", name = "mod_files")
 data class File(
     @Id
-    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     val id: Long? = null,
-    @Column("file_key") val fileKey: String,
-    @ManyToOne @JoinColumn("mod_version_id") @JsonBackReference("version-file") val version: Version
+
+    @Column(name = "filename", nullable = false)
+    val filename: String,
+
+    @Column(name = "file_path", nullable = false)
+    val filePath: String,
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "mod_version_id", nullable = false)
+    @JsonBackReference("version-file")
+    val version: Version,
+
+    @Column(name = "metainfo", columnDefinition = "jsonb")
+val metainfo: String? = null
 ) {
-  constructor() : this(null, "", Version())
+    constructor(filename: String, filePath: String, version: Version, metainfo: String? = null) :
+            this(null, filename, filePath, version, metainfo)
+
+    constructor() : this("", "", Version(), null)
 }
