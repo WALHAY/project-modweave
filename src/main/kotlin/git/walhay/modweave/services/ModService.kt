@@ -35,8 +35,9 @@ constructor(
     val categories = categoryRepository.findAllByNameIn(modUploadForm.categories)
 
     val versions: List<Version> = mutableListOf()
+      // TODO: add image path
     val mod =
-        Mod(modUploadForm.name, modUploadForm.description, user, game, categories, versions)
+        Mod(modUploadForm.name, modUploadForm.description, user, game, "", categories, versions)
     modRepository.save(mod)
     val initVersion = versionService.initModVersion(mod, modUploadForm)
     mod.versions + initVersion

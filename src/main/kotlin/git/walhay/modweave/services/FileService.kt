@@ -29,16 +29,16 @@ constructor(
     }
 
     for (file in files) {
-      val filename = "${version.mod.name}/${version.name}/${file.originalFilename}"
+      val filepath = "${version.mod.name}/${version.name}/${file.originalFilename}"
       minioClient.putObject(
           PutObjectArgs.builder()
               .contentType(file.contentType)
               .stream(file.inputStream, file.size, -1)
               .bucket(modsBucket)
-              .`object`(filename)
+              .`object`(filepath)
               .build())
 
-      val file = File(null, filename, version)
+      val file = File(file.name, filepath, version)
       fileRepository.save(file)
     }
   }

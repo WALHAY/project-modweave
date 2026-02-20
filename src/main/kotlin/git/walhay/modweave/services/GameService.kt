@@ -12,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional
 class GameService @Autowired constructor(private val gameRepository: GameRepository) {
 
   fun addNewGame(addGame: AddGameDTO): Game {
-    val game = Game(addGame.name, addGame.description)
+      // TODO: add image path
+    val game = Game(addGame.name, addGame.description, "")
 
     return gameRepository.save(game)
   }
