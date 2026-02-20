@@ -6,7 +6,6 @@ import git.walhay.modweave.models.Mod
 import git.walhay.modweave.models.Version
 import git.walhay.modweave.repositories.VersionRepository
 import jakarta.transaction.Transactional
-import java.sql.Date
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -20,7 +19,7 @@ constructor(
 ) {
 
   fun initModVersion(mod: Mod, modUploadDTO: ModUploadDTO): Version {
-    val version = Version(modUploadDTO.versionName, "", Date(System.currentTimeMillis()), mod)
+    val version = Version(modUploadDTO.versionName, "", mod)
     val savedVersion = versionRepository.save(version)
 
     fileService.uploadNewFiles(savedVersion, modUploadDTO.files)
@@ -30,7 +29,7 @@ constructor(
   fun uploadNewModVersion(mod: Mod, versionUploadDTO: VersionUploadDTO): Version {
     val version =
         Version(
-            versionUploadDTO.name, versionUploadDTO.changes, Date(System.currentTimeMillis()), mod)
+            versionUploadDTO.name, versionUploadDTO.changes, mod)
     return versionRepository.save(version)
   }
 }

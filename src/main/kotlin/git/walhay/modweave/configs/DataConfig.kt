@@ -12,8 +12,8 @@ class DataConfig
 @Autowired
 constructor(
     @Value("\${minio.endpoint}") private val endpoint: String,
-    @Value("\${minio.username}") private val accessKey: String,
-    @Value("\${minio.password}") private val secretKey: String,
+    @Value("\${minio.credentials.username}") private val accessKey: String,
+    @Value("\${minio.credentials.password}") private val secretKey: String,
 ) {
   @Bean
   fun dataSource() =

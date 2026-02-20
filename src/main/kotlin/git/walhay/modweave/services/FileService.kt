@@ -29,7 +29,7 @@ constructor(
     }
 
     for (file in files) {
-      val filename = "${version.mod.name}/${version.versionName}/${file.originalFilename}"
+      val filename = "${version.mod.name}/${version.name}/${file.originalFilename}"
       minioClient.putObject(
           PutObjectArgs.builder()
               .contentType(file.contentType)

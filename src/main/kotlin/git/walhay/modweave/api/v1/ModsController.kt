@@ -9,11 +9,11 @@ import git.walhay.modweave.services.VersionService
 import io.minio.GetPresignedObjectUrlArgs
 import io.minio.MinioClient
 import io.minio.http.Method
-import kotlin.jvm.optionals.getOrNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
+import kotlin.jvm.optionals.getOrNull
 
 @RestController
 @RequestMapping("/api/v1/mods")
@@ -39,7 +39,7 @@ constructor(
 
   @GetMapping("/{modId}")
   fun downloadFile(
-      @PathVariable modId: Long,
+      @PathVariable modId: String,
       @RequestParam(required = true) version: String,
       @RequestParam(required = true) filename: String
   ): String {
@@ -57,7 +57,7 @@ constructor(
   @PostMapping("/{modId}")
   fun uploadVersion(
       @ModelAttribute versionUploadDTO: VersionUploadDTO,
-      @PathVariable modId: Long
+      @PathVariable modId: String
   ): Version {
     val mod = modRepository.findById(modId).getOrNull() ?: throw Exception()
 

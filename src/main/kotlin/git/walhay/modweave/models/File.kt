@@ -11,7 +11,7 @@ data class File(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
     @Column("file_key") val fileKey: String,
-    @ManyToOne @JoinColumn("mod_version") @JsonBackReference("version-file") val version: Version
+    @ManyToOne @JoinColumn("mod_version_id") @JsonBackReference("version-file") val version: Version
 ) {
   constructor() : this(null, "", Version())
 }

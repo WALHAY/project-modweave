@@ -2,13 +2,14 @@ package git.walhay.modweave.dto
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.Size
 import org.springframework.web.multipart.MultipartFile
 
 data class ModUploadDTO(
-    @NotBlank val name: String,
+    @NotBlank @Size(min = 3) val name: String,
     val description: String,
     val categories: Set<String> = mutableSetOf(),
     @NotBlank val versionName: String,
     @NotEmpty val files: List<MultipartFile> = mutableListOf(),
-    @NotBlank val game: Long
+    @NotBlank val game: String
 )

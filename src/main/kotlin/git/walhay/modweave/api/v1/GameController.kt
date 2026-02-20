@@ -4,11 +4,12 @@ import git.walhay.modweave.dto.AddGameDTO
 import git.walhay.modweave.models.Game
 import git.walhay.modweave.repositories.GameRepository
 import git.walhay.modweave.services.GameService
-import kotlin.jvm.optionals.getOrNull
+import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.web.bind.annotation.*
+import kotlin.jvm.optionals.getOrNull
 
 @RestController
 @RequestMapping("/api/v1/games")
@@ -21,8 +22,8 @@ constructor(private val gameRepository: GameRepository, private val gameService:
       gameRepository.findAll(PageRequest.of(page, pageSize))
 
   @GetMapping("/{gameId}")
-  fun getGame(@PathVariable gameId: Long): Game? = gameRepository.findById(gameId).getOrNull()
+  fun getGame(@PathVariable gameId: String): Game? = gameRepository.findById(gameId).getOrNull()
 
   @PostMapping
-  fun addGame(@ModelAttribute addGame: AddGameDTO): Game = gameService.addNewGame(addGame)
+  fun addGame(@Valid @ModelAttribute addGame: AddGameDTO): Game = gameService.addNewGame(addGame)
 }
