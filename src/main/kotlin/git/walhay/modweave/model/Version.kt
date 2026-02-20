@@ -1,8 +1,8 @@
-package git.walhay.modweave.models
+package git.walhay.modweave.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonManagedReference
-import git.walhay.modweave.utils.spinalCaseWithDots
+import git.walhay.modweave.util.spinalCaseWithDots
 import jakarta.persistence.*
 import java.time.LocalDateTime
 

@@ -1,4 +1,4 @@
-package git.walhay.modweave.configs
+package git.walhay.modweave.config
 
 import io.minio.MinioClient
 import org.springframework.beans.factory.annotation.Autowired

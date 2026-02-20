@@ -1,9 +1,9 @@
 package git.walhay.modweave.controller
 
 import git.walhay.modweave.dto.AddGameDTO
-import git.walhay.modweave.models.Game
-import git.walhay.modweave.repositories.GameRepository
-import git.walhay.modweave.services.GameService
+import git.walhay.modweave.model.Game
+import git.walhay.modweave.repository.GameRepository
+import git.walhay.modweave.service.GameService
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page

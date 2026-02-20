@@ -1,8 +1,8 @@
-package git.walhay.modweave.services
+package git.walhay.modweave.service
 
-import git.walhay.modweave.models.File
-import git.walhay.modweave.models.Version
-import git.walhay.modweave.repositories.FileRepository
+import git.walhay.modweave.model.File
+import git.walhay.modweave.model.Version
+import git.walhay.modweave.repository.FileRepository
 import io.minio.BucketExistsArgs
 import io.minio.MakeBucketArgs
 import io.minio.MinioClient

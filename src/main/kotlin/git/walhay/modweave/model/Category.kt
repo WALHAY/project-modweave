@@ -1,4 +1,4 @@
-package git.walhay.modweave.models
+package git.walhay.modweave.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*

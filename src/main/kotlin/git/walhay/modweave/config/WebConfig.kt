@@ -1,4 +1,4 @@
-package git.walhay.modweave.configs
+package git.walhay.modweave.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.bind.annotation.RestController

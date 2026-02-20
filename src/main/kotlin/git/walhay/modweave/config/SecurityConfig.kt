@@ -1,6 +1,6 @@
-package git.walhay.modweave.configs
+package git.walhay.modweave.config
 
-import git.walhay.modweave.repositories.UserRepository
+import git.walhay.modweave.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

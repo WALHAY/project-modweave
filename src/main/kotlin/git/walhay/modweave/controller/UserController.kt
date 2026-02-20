@@ -2,9 +2,9 @@ package git.walhay.modweave.controller
 
 import git.walhay.modweave.dto.UserRegisterDTO
 import git.walhay.modweave.dto.UserUpdateDTO
-import git.walhay.modweave.models.User
-import git.walhay.modweave.repositories.UserRepository
-import git.walhay.modweave.services.UserService
+import git.walhay.modweave.model.User
+import git.walhay.modweave.repository.UserRepository
+import git.walhay.modweave.service.UserService
 import jakarta.validation.Valid
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest

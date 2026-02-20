@@ -1,9 +1,9 @@
-package git.walhay.modweave.services
+package git.walhay.modweave.service
 
 import git.walhay.modweave.dto.UserRegisterDTO
 import git.walhay.modweave.dto.UserUpdateDTO
-import git.walhay.modweave.models.User
-import git.walhay.modweave.repositories.UserRepository
+import git.walhay.modweave.model.User
+import git.walhay.modweave.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service

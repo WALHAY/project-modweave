@@ -1,10 +1,10 @@
-package git.walhay.modweave.services
+package git.walhay.modweave.service
 
 import git.walhay.modweave.dto.ModUploadDTO
 import git.walhay.modweave.dto.VersionUploadDTO
-import git.walhay.modweave.models.Mod
-import git.walhay.modweave.models.Version
-import git.walhay.modweave.repositories.VersionRepository
+import git.walhay.modweave.model.Mod
+import git.walhay.modweave.model.Version
+import git.walhay.modweave.repository.VersionRepository
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

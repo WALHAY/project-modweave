@@ -1,7 +1,7 @@
-package git.walhay.modweave.models
+package git.walhay.modweave.model
 
 import com.fasterxml.jackson.annotation.JsonManagedReference
-import git.walhay.modweave.utils.spinalCase
+import git.walhay.modweave.util.spinalCase
 import jakarta.persistence.*
 
 @Entity

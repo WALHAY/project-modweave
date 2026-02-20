@@ -1,13 +1,13 @@
-package git.walhay.modweave.services
+package git.walhay.modweave.service
 
 import git.walhay.modweave.dto.ModUploadDTO
-import git.walhay.modweave.models.Mod
-import git.walhay.modweave.models.Version
-import git.walhay.modweave.repositories.CategoryRepository
-import git.walhay.modweave.repositories.GameRepository
-import git.walhay.modweave.repositories.ModRepository
-import git.walhay.modweave.repositories.UserRepository
-import git.walhay.modweave.utils.spinalCase
+import git.walhay.modweave.model.Mod
+import git.walhay.modweave.model.Version
+import git.walhay.modweave.repository.CategoryRepository
+import git.walhay.modweave.repository.GameRepository
+import git.walhay.modweave.repository.ModRepository
+import git.walhay.modweave.repository.UserRepository
+import git.walhay.modweave.util.spinalCase
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

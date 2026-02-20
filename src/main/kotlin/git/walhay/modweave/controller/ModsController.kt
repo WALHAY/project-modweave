@@ -2,10 +2,10 @@ package git.walhay.modweave.controller
 
 import git.walhay.modweave.dto.ModUploadDTO
 import git.walhay.modweave.dto.VersionUploadDTO
-import git.walhay.modweave.models.Version
-import git.walhay.modweave.repositories.ModRepository
-import git.walhay.modweave.services.ModService
-import git.walhay.modweave.services.VersionService
+import git.walhay.modweave.model.Version
+import git.walhay.modweave.repository.ModRepository
+import git.walhay.modweave.service.ModService
+import git.walhay.modweave.service.VersionService
 import io.minio.GetPresignedObjectUrlArgs
 import io.minio.MinioClient
 import io.minio.http.Method

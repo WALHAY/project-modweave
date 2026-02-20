@@ -1,4 +1,4 @@
-package git.walhay.modweave.utils
+package git.walhay.modweave.util
 
 fun String.spinalCase(): String {
     val stringBuilder = StringBuilder()
