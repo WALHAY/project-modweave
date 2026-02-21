@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-class WebConfig : WebMvcConfigurer{
+class WebConfiguration : WebMvcConfigurer{
 
     override fun configureApiVersioning(configurer: ApiVersionConfigurer) {
         configurer.addSupportedVersions("1").setDefaultVersion("1").usePathSegment(1)

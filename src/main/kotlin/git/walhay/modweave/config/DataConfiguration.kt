@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.jdbc.datasource.DriverManagerDataSource
 
 @Configuration
-class DataConfig
+class DataConfiguration
 @Autowired
 constructor(
     @Value("\${minio.endpoint}") private val endpoint: String,

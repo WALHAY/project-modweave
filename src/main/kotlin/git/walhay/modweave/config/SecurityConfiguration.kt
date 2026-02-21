@@ -20,7 +20,7 @@ import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig @Autowired constructor(private val userRepository: UserRepository) {
+class SecurityConfiguration @Autowired constructor(private val userRepository: UserRepository) {
 
   @Bean fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
@@ -47,7 +47,6 @@ class SecurityConfig @Autowired constructor(private val userRepository: UserRepo
         authorize(HttpMethod.POST, "/api/v1/games", hasRole("ADMIN"))
         authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
         authorize(HttpMethod.GET, "/api/v1/**", permitAll)
-        authorize(HttpMethod.GET, "/api/v1/mods/**", permitAll)
         authorize(anyRequest, authenticated)
       }
       formLogin { loginPage = "/login" }
