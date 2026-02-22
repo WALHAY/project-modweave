@@ -8,16 +8,14 @@ import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-class WebConfiguration : WebMvcConfigurer{
+class WebConfiguration : WebMvcConfigurer {
 
-    override fun configureApiVersioning(configurer: ApiVersionConfigurer) {
-        configurer.addSupportedVersions("1").setDefaultVersion("1").usePathSegment(1)
-    }
+  override fun configureApiVersioning(configurer: ApiVersionConfigurer) {
+    configurer.addSupportedVersions("1").setDefaultVersion("1").usePathSegment(1)
+  }
 
-    override fun configurePathMatch(config: PathMatchConfigurer) {
-        config.addPathPrefix(
-            "/api/{version}",
-            HandlerTypePredicate.forAnnotation(RestController::class.java)
-        )
-    }
+  override fun configurePathMatch(config: PathMatchConfigurer) {
+    config.addPathPrefix(
+        "/api/{version}", HandlerTypePredicate.forAnnotation(RestController::class.java))
+  }
 }

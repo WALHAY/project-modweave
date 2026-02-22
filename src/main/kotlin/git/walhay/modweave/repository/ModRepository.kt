@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ModRepository : JpaRepository<Mod, String> {
 
-    fun findAllByNameContainingIgnoreCase(name: String, pageable: Pageable): Page<Mod>
+  fun findAllByNameContainingIgnoreCase(name: String, pageable: Pageable): Page<Mod>
 }

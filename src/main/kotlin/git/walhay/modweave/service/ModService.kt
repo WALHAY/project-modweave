@@ -8,10 +8,10 @@ import git.walhay.modweave.repository.GameRepository
 import git.walhay.modweave.repository.ModRepository
 import git.walhay.modweave.repository.UserRepository
 import git.walhay.modweave.util.spinalCase
+import kotlin.jvm.optionals.getOrNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import kotlin.jvm.optionals.getOrNull
 
 @Service
 @Transactional
@@ -26,15 +26,15 @@ constructor(
 ) {
 
   fun uploadNewMod(login: String, modUploadForm: ModUploadDTO) {
-      if(modRepository.existsById(modUploadForm.name.spinalCase())) {
-          throw Exception()
-      }
+    if (modRepository.existsById(modUploadForm.name.spinalCase())) {
+      throw Exception()
+    }
 
     val user = userRepository.findByLoginIgnoreCase(login) ?: throw Exception()
     val game = gameRepository.findById(modUploadForm.game).getOrNull() ?: throw Exception()
     val categories = categoryRepository.findAllByNameIn(modUploadForm.categories)
     val versions: List<Version> = mutableListOf()
-      // TODO: add image path
+    // TODO: add image path
     val mod =
         Mod(modUploadForm.name, modUploadForm.description, user, game, "", categories, versions)
     modRepository.save(mod)

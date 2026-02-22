@@ -16,14 +16,19 @@ import org.springframework.web.bind.annotation.*
 class GameController(private val gameService: GameService) {
 
   @GetMapping
-  fun getGames(@RequestParam @Min(0) page: Int, @RequestParam @Min(1) size: Int, @RequestParam(required = false) name: String?, @SortDefault(sort = ["name"]) sort: Sort) = gameService.findGamesWithFilter(page, size, name, sort)
+  fun getGames(
+      @RequestParam @Min(0) page: Int,
+      @RequestParam @Min(1) size: Int,
+      @RequestParam(required = false) name: String?,
+      @SortDefault(sort = ["name"]) sort: Sort
+  ) = gameService.findGamesWithFilter(page, size, name, sort)
 
   @GetMapping("/{gameId}")
   fun getGame(@PathVariable gameId: String) = gameService.findGameById(gameId)
 
   @PostMapping
   fun addGame(@Valid @ModelAttribute addGame: AddGameDTO): ResponseEntity<Game> {
-      val game = gameService.addNewGame(addGame)
-      return ResponseEntity.status(HttpStatus.CREATED).body(game)
+    val game = gameService.addNewGame(addGame)
+    return ResponseEntity.status(HttpStatus.CREATED).body(game)
   }
 }

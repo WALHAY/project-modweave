@@ -10,6 +10,7 @@ import git.walhay.modweave.service.VersionService
 import io.minio.GetPresignedObjectUrlArgs
 import io.minio.MinioClient
 import io.minio.http.Method
+import kotlin.jvm.optionals.getOrNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
-import kotlin.jvm.optionals.getOrNull
 
 @RestController
 @RequestMapping("/mods")
@@ -31,12 +31,17 @@ constructor(
 ) {
 
   @GetMapping
-  fun getMods(@RequestParam page: Int, @RequestParam size: Int, @RequestParam(required = false) name: String?, @SortDefault(sort = ["name"]) sort: Sort): Page<Mod> {
-      val pageRequest = PageRequest.of(page, size, sort)
-      if(name == null) {
-          return modRepository.findAll(pageRequest)
-      }
-      return modRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
+  fun getMods(
+      @RequestParam page: Int,
+      @RequestParam size: Int,
+      @RequestParam(required = false) name: String?,
+      @SortDefault(sort = ["name"]) sort: Sort
+  ): Page<Mod> {
+    val pageRequest = PageRequest.of(page, size, sort)
+    if (name == null) {
+      return modRepository.findAll(pageRequest)
+    }
+    return modRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
   }
 
   @PostMapping
@@ -73,8 +78,8 @@ constructor(
     return versionService.uploadNewModVersion(mod, versionUploadDTO)
   }
 
-    @DeleteMapping("/{modId}")
-    fun deleteMod(@PathVariable modId: String) {
-        modRepository.deleteById(modId)
-    }
+  @DeleteMapping("/{modId}")
+  fun deleteMod(@PathVariable modId: String) {
+    modRepository.deleteById(modId)
+  }
 }

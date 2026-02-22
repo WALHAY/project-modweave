@@ -12,24 +12,22 @@ data class File(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     val id: Long? = null,
-
-    @Column(name = "filename", nullable = false)
-    val filename: String,
-
-    @Column(name = "file_path", nullable = false)
-    val filePath: String,
-
+    @Column(name = "filename", nullable = false) val filename: String,
+    @Column(name = "file_path", nullable = false) val filePath: String,
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mod_version_id", nullable = false)
     @JsonBackReference("version-file")
     val version: Version,
-
     @Column(name = "metainfo", nullable = true)
     @JdbcTypeCode(SqlTypes.JSON)
     val metainfo: String? = null
 ) {
-    constructor(filename: String, filePath: String, version: Version, metainfo: String? = null) :
-            this(null, filename, filePath, version, metainfo)
+  constructor(
+      filename: String,
+      filePath: String,
+      version: Version,
+      metainfo: String? = null
+  ) : this(null, filename, filePath, version, metainfo)
 
-    constructor() : this("", "", Version(), null)
+  constructor() : this("", "", Version(), null)
 }

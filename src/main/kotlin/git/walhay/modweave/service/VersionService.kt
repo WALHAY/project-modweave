@@ -27,9 +27,7 @@ constructor(
   }
 
   fun uploadNewModVersion(mod: Mod, versionUploadDTO: VersionUploadDTO): Version {
-    val version =
-        Version(
-            versionUploadDTO.name, versionUploadDTO.changes, mod)
+    val version = Version(versionUploadDTO.name, versionUploadDTO.changes, mod)
     return versionRepository.save(version)
   }
 }
