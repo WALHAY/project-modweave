@@ -31,7 +31,7 @@ class GameController(private val gameService: GameService) {
 
   @PostMapping
   fun addGame(@Valid @ModelAttribute addGame: AddGameDTO): ResponseEntity<Game> {
-    val game = gameService.addNewGame(addGame)
+    val game = gameService.uploadGame(addGame)
     return ResponseEntity.status(HttpStatus.CREATED).body(game)
   }
 }

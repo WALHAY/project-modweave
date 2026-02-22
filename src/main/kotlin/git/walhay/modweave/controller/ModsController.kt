@@ -29,7 +29,7 @@ class ModsController(
   @PostMapping
   fun uploadMod(@Valid @ModelAttribute modUploadForm: ModUploadDTO) {
     SecurityContextHolder.getContext().authentication?.name?.let {
-      modService.uploadNewMod(it, modUploadForm)
+      modService.uploadMod(it, modUploadForm)
     }
   }
 

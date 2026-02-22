@@ -19,8 +19,8 @@ class VersionController(
       @PathVariable modId: String,
       @Valid @ModelAttribute versionUploadDTO: VersionUploadDTO
   ): Version {
-    versionService.uploadModVersion(modService.findModById(modId), versionUploadDTO)
-    return Version()
+    val mod = modService.findModById(modId)
+    return versionService.uploadModVersion(mod, versionUploadDTO)
   }
 
   @DeleteMapping("/{versionName}")

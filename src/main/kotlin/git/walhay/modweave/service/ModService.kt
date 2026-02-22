@@ -27,7 +27,7 @@ class ModService(
     private val versionService: VersionService
 ) {
 
-  fun findModById(id: String) =
+  fun findModById(id: String): Mod =
       modRepository.findById(id).orElseThrow { ModNotFoundException("Mod with id=$id not found") }
 
   fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
@@ -38,7 +38,7 @@ class ModService(
     return modRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
   }
 
-  fun uploadNewMod(login: String, modUploadForm: ModUploadDTO) {
+  fun uploadMod(login: String, modUploadForm: ModUploadDTO) {
     if (modRepository.existsById(modUploadForm.name.spinalCase())) {
       throw Exception()
     }
@@ -58,8 +58,6 @@ class ModService(
   }
 
   fun deleteMod(login: String, modId: String) {
-    val mod = modRepository.findById(modId).get()
-
-    modRepository.delete(mod)
+    val mod = modRepository.deleteById(modId)
   }
 }

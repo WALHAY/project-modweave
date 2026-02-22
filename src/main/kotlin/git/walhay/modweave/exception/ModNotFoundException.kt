@@ -1,3 +1,3 @@
 package git.walhay.modweave.exception
 
-class ModNotFoundException(message: String) : Exception(message) {}
+class ModNotFoundException(message: String) : Exception(message)
