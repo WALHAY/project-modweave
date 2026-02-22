@@ -2,7 +2,6 @@ package git.walhay.modweave.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonManagedReference
-import git.walhay.modweave.util.spinalCaseWithDots
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -10,8 +9,9 @@ import java.time.LocalDateTime
 @Table(schema = "modweave", name = "mod_versions")
 data class Version(
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    val id: String,
+    val id: Long? = null,
 
     @Column(name = "name", nullable = false)
     val name: String,
@@ -39,7 +39,6 @@ data class Version(
         changes: String? = null,
         mod: Mod
     ) : this(
-        id = name.spinalCaseWithDots(),
         name = name,
         changes = changes,
         uploadDate = LocalDateTime.now(),

@@ -2,6 +2,8 @@ package git.walhay.modweave.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 
 @Entity
 @Table(schema = "modweave", name = "mod_files")
@@ -22,8 +24,9 @@ data class File(
     @JsonBackReference("version-file")
     val version: Version,
 
-    @Column(name = "metainfo", columnDefinition = "jsonb")
-val metainfo: String? = null
+    @Column(name = "metainfo", nullable = true)
+    @JdbcTypeCode(SqlTypes.JSON)
+    val metainfo: String? = null
 ) {
     constructor(filename: String, filePath: String, version: Version, metainfo: String? = null) :
             this(null, filename, filePath, version, metainfo)

@@ -44,6 +44,7 @@ class SecurityConfiguration @Autowired constructor(private val userRepository: U
   fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
       authorizeHttpRequests {
+          authorize(HttpMethod.GET, "/api/v1/games/**", permitAll)
         authorize(HttpMethod.POST, "/api/v1/games", hasRole("ADMIN"))
         authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
         authorize(HttpMethod.GET, "/api/v1/**", permitAll)

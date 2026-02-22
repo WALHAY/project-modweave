@@ -3,7 +3,11 @@ package git.walhay.modweave.service
 import git.walhay.modweave.dto.AddGameDTO
 import git.walhay.modweave.model.Game
 import git.walhay.modweave.repository.GameRepository
+import git.walhay.modweave.util.spinalCase
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -11,10 +15,24 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class GameService @Autowired constructor(private val gameRepository: GameRepository) {
 
-  fun addNewGame(addGame: AddGameDTO): Game {
-      // TODO: add image path
-    val game = Game(addGame.name, addGame.description, "")
+    fun findGamesWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Game> {
+        val pageRequest = PageRequest.of(page, size, sort)
+        if(name == null) {
+            return gameRepository.findAll(pageRequest)
+        }
+        return gameRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
+    }
 
-    return gameRepository.save(game)
+    fun findGameById(id: String): Game {
+        return gameRepository.findById(id).orElseThrow()
+    }
+
+  fun addNewGame(game: AddGameDTO): Game {
+      // TODO: add image path
+      if(gameRepository.existsById(game.name.spinalCase())) {
+          throw Exception()
+      }
+
+    return gameRepository.save(game.toEntity())
   }
 }

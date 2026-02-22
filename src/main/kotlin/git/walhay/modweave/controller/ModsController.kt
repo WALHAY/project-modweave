@@ -2,6 +2,7 @@ package git.walhay.modweave.controller
 
 import git.walhay.modweave.dto.ModUploadDTO
 import git.walhay.modweave.dto.VersionUploadDTO
+import git.walhay.modweave.model.Mod
 import git.walhay.modweave.model.Version
 import git.walhay.modweave.repository.ModRepository
 import git.walhay.modweave.service.ModService
@@ -10,7 +11,10 @@ import io.minio.GetPresignedObjectUrlArgs
 import io.minio.MinioClient
 import io.minio.http.Method
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.SortDefault
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import kotlin.jvm.optionals.getOrNull
@@ -27,8 +31,13 @@ constructor(
 ) {
 
   @GetMapping
-  fun getMods(@RequestParam page: Int, @RequestParam pageSize: Int) =
-      modRepository.findAll(PageRequest.of(page, pageSize))
+  fun getMods(@RequestParam page: Int, @RequestParam size: Int, @RequestParam(required = false) name: String?, @SortDefault(sort = ["name"]) sort: Sort): Page<Mod> {
+      val pageRequest = PageRequest.of(page, size, sort)
+      if(name == null) {
+          return modRepository.findAll(pageRequest)
+      }
+      return modRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
+  }
 
   @PostMapping
   fun uploadMod(@ModelAttribute modUploadForm: ModUploadDTO) {
@@ -63,4 +72,9 @@ constructor(
 
     return versionService.uploadNewModVersion(mod, versionUploadDTO)
   }
+
+    @DeleteMapping("/{modId}")
+    fun deleteMod(@PathVariable modId: String) {
+        modRepository.deleteById(modId)
+    }
 }

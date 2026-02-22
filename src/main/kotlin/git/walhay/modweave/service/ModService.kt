@@ -33,7 +33,6 @@ constructor(
     val user = userRepository.findByLoginIgnoreCase(login) ?: throw Exception()
     val game = gameRepository.findById(modUploadForm.game).getOrNull() ?: throw Exception()
     val categories = categoryRepository.findAllByNameIn(modUploadForm.categories)
-
     val versions: List<Version> = mutableListOf()
       // TODO: add image path
     val mod =

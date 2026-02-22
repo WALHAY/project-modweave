@@ -1,15 +1,13 @@
 package git.walhay.modweave.repository
 
-import git.walhay.modweave.model.Game
 import git.walhay.modweave.model.Mod
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface ModRepository : CrudRepository<Mod, String> {
+interface ModRepository : JpaRepository<Mod, String> {
 
-  fun findByGame(game: Game): Set<Mod>
-
-  fun findAll(pageable: Pageable): List<Mod>
+    fun findAllByNameContainingIgnoreCase(name: String, pageable: Pageable): Page<Mod>
 }

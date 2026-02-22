@@ -2,28 +2,28 @@ package git.walhay.modweave.controller
 
 import git.walhay.modweave.dto.AddGameDTO
 import git.walhay.modweave.model.Game
-import git.walhay.modweave.repository.GameRepository
 import git.walhay.modweave.service.GameService
 import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
+import jakarta.validation.constraints.Min
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.SortDefault
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import kotlin.jvm.optionals.getOrNull
 
 @RestController
 @RequestMapping("/games")
-class GameController
-@Autowired
-constructor(private val gameRepository: GameRepository, private val gameService: GameService) {
+class GameController(private val gameService: GameService) {
 
   @GetMapping
-  fun getGames(@RequestParam page: Int, @RequestParam pageSize: Int): Page<Game> =
-      gameRepository.findAll(PageRequest.of(page, pageSize))
+  fun getGames(@RequestParam @Min(0) page: Int, @RequestParam @Min(1) size: Int, @RequestParam(required = false) name: String?, @SortDefault(sort = ["name"]) sort: Sort) = gameService.findGamesWithFilter(page, size, name, sort)
 
   @GetMapping("/{gameId}")
-  fun getGame(@PathVariable gameId: String): Game? = gameRepository.findById(gameId).getOrNull()
+  fun getGame(@PathVariable gameId: String) = gameService.findGameById(gameId)
 
   @PostMapping
-  fun addGame(@Valid @ModelAttribute addGame: AddGameDTO): Game = gameService.addNewGame(addGame)
+  fun addGame(@Valid @ModelAttribute addGame: AddGameDTO): ResponseEntity<Game> {
+      val game = gameService.addNewGame(addGame)
+      return ResponseEntity.status(HttpStatus.CREATED).body(game)
+  }
 }
