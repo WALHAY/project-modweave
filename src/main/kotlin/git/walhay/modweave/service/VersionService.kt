@@ -14,11 +14,11 @@ class VersionService(
     private val fileService: FileService,
 ) {
 
-    fun uploadModVersion(mod: Mod, modVersionUploadDTO: VersionUploadDTO): Version {
-        val version = Version(modVersionUploadDTO.name, "", mod)
-        val savedVersion = versionRepository.save(version)
+  fun uploadModVersion(mod: Mod, modVersionUploadDTO: VersionUploadDTO): Version {
+    val version = Version(modVersionUploadDTO.name, "", mod)
+    val savedVersion = versionRepository.save(version)
 
-        fileService.uploadNewFiles(savedVersion, modVersionUploadDTO.files)
-        return savedVersion
-    }
+    fileService.uploadNewFiles(savedVersion, modVersionUploadDTO.files)
+    return savedVersion
+  }
 }

@@ -12,13 +12,11 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/mods")
-class ModsController
-(
+class ModsController(
     private val modService: ModService,
 ) {
 
-    @GetMapping("/{modId}")
-    fun getMod(@PathVariable modId: String) = modService.findModById(modId)
+  @GetMapping("/{modId}") fun getMod(@PathVariable modId: String) = modService.findModById(modId)
 
   @GetMapping
   fun getMods(
@@ -30,15 +28,13 @@ class ModsController
 
   @PostMapping
   fun uploadMod(@Valid @ModelAttribute modUploadForm: ModUploadDTO) {
-      SecurityContextHolder.getContext().authentication?.name?.let {
-          modService.uploadNewMod(it, modUploadForm)
-      }
+    SecurityContextHolder.getContext().authentication?.name?.let {
+      modService.uploadNewMod(it, modUploadForm)
+    }
   }
 
   @DeleteMapping("/{modId}")
   fun deleteMod(@PathVariable modId: String) {
-      SecurityContextHolder.getContext().authentication?.name?.let {
-          modService.deleteMod(it, modId)
-      }
+    SecurityContextHolder.getContext().authentication?.name?.let { modService.deleteMod(it, modId) }
   }
 }

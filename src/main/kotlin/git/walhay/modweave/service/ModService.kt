@@ -10,31 +10,33 @@ import git.walhay.modweave.repository.GameRepository
 import git.walhay.modweave.repository.ModRepository
 import git.walhay.modweave.repository.UserRepository
 import git.walhay.modweave.util.spinalCase
+import kotlin.jvm.optionals.getOrNull
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import kotlin.jvm.optionals.getOrNull
 
 @Service
 @Transactional
-class ModService(private val modRepository: ModRepository,
+class ModService(
+    private val modRepository: ModRepository,
     private val userRepository: UserRepository,
     private val categoryRepository: CategoryRepository,
     private val gameRepository: GameRepository,
     private val versionService: VersionService
 ) {
 
-    fun findModById(id: String) = modRepository.findById(id).orElseThrow { ModNotFoundException("Mod with id=$id not found") }
+  fun findModById(id: String) =
+      modRepository.findById(id).orElseThrow { ModNotFoundException("Mod with id=$id not found") }
 
-    fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
-        val pageRequest = PageRequest.of(page, size, sort)
-        if (name == null) {
-            return modRepository.findAll(pageRequest)
-        }
-        return modRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
+  fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
+    val pageRequest = PageRequest.of(page, size, sort)
+    if (name == null) {
+      return modRepository.findAll(pageRequest)
     }
+    return modRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
+  }
 
   fun uploadNewMod(login: String, modUploadForm: ModUploadDTO) {
     if (modRepository.existsById(modUploadForm.name.spinalCase())) {
@@ -49,13 +51,15 @@ class ModService(private val modRepository: ModRepository,
     val mod =
         Mod(modUploadForm.name, modUploadForm.description, user, game, "", categories, versions)
     modRepository.save(mod)
-    val initVersion = versionService.uploadModVersion(mod, VersionUploadDTO(modUploadForm.versionName, "", modUploadForm.files))
+    val initVersion =
+        versionService.uploadModVersion(
+            mod, VersionUploadDTO(modUploadForm.versionName, "", modUploadForm.files))
     mod.versions + initVersion
   }
 
-    fun deleteMod(login: String, modId: String) {
-        val mod = modRepository.findById(modId).get()
+  fun deleteMod(login: String, modId: String) {
+    val mod = modRepository.findById(modId).get()
 
-        modRepository.delete(mod)
-    }
+    modRepository.delete(mod)
+  }
 }

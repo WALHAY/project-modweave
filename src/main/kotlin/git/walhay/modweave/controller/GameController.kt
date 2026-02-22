@@ -25,8 +25,8 @@ class GameController(private val gameService: GameService) {
 
   @GetMapping("/{gameId}")
   fun getGame(@PathVariable gameId: String): ResponseEntity<Game> {
-      val game = gameService.findGameById(gameId)
-      return if (game != null) ResponseEntity.ok(game) else ResponseEntity.notFound().build()
+    val game = gameService.findGameById(gameId)
+    return if (game != null) ResponseEntity.ok(game) else ResponseEntity.notFound().build()
   }
 
   @PostMapping

@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 @ControllerAdvice
 class ModControllerAdvice {
 
-    @ExceptionHandler(ModNotFoundException::class)
-    fun modNotFoundHandler(): ResponseEntity<Mod> {
-        return ResponseEntity.notFound().build()
-    }
+  @ExceptionHandler(ModNotFoundException::class)
+  fun modNotFoundHandler(): ResponseEntity<Mod> {
+    return ResponseEntity.notFound().build()
+  }
 }

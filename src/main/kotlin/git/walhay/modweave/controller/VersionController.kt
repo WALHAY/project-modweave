@@ -9,20 +9,20 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/mods/{modId}")
-class VersionController(private val versionService: VersionService,
-    private val modService: ModService) {
+class VersionController(
+    private val versionService: VersionService,
+    private val modService: ModService
+) {
 
-    @PostMapping
-    fun uploadModVersion(
-        @PathVariable modId: String,
-        @Valid @ModelAttribute versionUploadDTO: VersionUploadDTO
-    ): Version {
-        versionService.uploadModVersion(modService.findModById(modId), versionUploadDTO)
-        return Version()
-    }
+  @PostMapping
+  fun uploadModVersion(
+      @PathVariable modId: String,
+      @Valid @ModelAttribute versionUploadDTO: VersionUploadDTO
+  ): Version {
+    versionService.uploadModVersion(modService.findModById(modId), versionUploadDTO)
+    return Version()
+  }
 
-    @DeleteMapping("/{versionName}")
-    fun deleteVersion(@PathVariable modId: String, @PathVariable versionName: String) {
-
-    }
+  @DeleteMapping("/{versionName}")
+  fun deleteVersion(@PathVariable modId: String, @PathVariable versionName: String) {}
 }
