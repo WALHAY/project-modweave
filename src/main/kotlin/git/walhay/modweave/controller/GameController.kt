@@ -24,7 +24,10 @@ class GameController(private val gameService: GameService) {
   ) = gameService.findGamesWithFilter(page, size, name, sort)
 
   @GetMapping("/{gameId}")
-  fun getGame(@PathVariable gameId: String) = gameService.findGameById(gameId)
+  fun getGame(@PathVariable gameId: String): ResponseEntity<Game> {
+      val game = gameService.findGameById(gameId)
+      return if (game != null) ResponseEntity.ok(game) else ResponseEntity.notFound().build()
+  }
 
   @PostMapping
   fun addGame(@Valid @ModelAttribute addGame: AddGameDTO): ResponseEntity<Game> {

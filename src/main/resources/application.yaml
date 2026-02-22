@@ -12,6 +12,7 @@ minio:
     password: miniosecretpass123
   buckets:
     mods: mods
+    images: images
 
 server:
   port: 8080

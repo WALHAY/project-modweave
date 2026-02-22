@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.server.ResponseStatusException
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 @Transactional
@@ -23,16 +26,18 @@ class GameService @Autowired constructor(private val gameRepository: GameReposit
     return gameRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
   }
 
-  fun findGameById(id: String): Game {
-    return gameRepository.findById(id).orElseThrow()
+  fun findGameById(id: String): Game? {
+    return gameRepository.findById(id).getOrNull()
   }
 
   fun addNewGame(game: AddGameDTO): Game {
     // TODO: add image path
-    if (gameRepository.existsById(game.name.spinalCase())) {
-      throw Exception()
+      val gameId = game.name.spinalCase()
+    if (gameRepository.existsById(gameId)) {
+      throw ResponseStatusException(HttpStatus.CONFLICT, "Game with id=$gameId already exist")
     }
 
     return gameRepository.save(game.toEntity())
   }
 }
+

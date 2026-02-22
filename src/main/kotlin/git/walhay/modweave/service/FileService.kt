@@ -3,42 +3,23 @@ package git.walhay.modweave.service
 import git.walhay.modweave.model.File
 import git.walhay.modweave.model.Version
 import git.walhay.modweave.repository.FileRepository
-import io.minio.BucketExistsArgs
-import io.minio.MakeBucketArgs
-import io.minio.MinioClient
-import io.minio.PutObjectArgs
 import jakarta.transaction.Transactional
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional
-class FileService
-@Autowired
-constructor(
+class FileService(
     private val fileRepository: FileRepository,
-    private val minioClient: MinioClient,
-    @Value($$"${minio.buckets.mods}") private val modsBucket: String
+    private val simpleStorageService: SimpleStorageService
 ) {
 
   fun uploadNewFiles(version: Version, files: List<MultipartFile>) {
-    if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(modsBucket).build())) {
-      minioClient.makeBucket(MakeBucketArgs.builder().bucket(modsBucket).build())
-    }
-
     for (file in files) {
-      val filepath = "${version.mod.name}/${version.name}/${file.originalFilename}"
-      minioClient.putObject(
-          PutObjectArgs.builder()
-              .contentType(file.contentType)
-              .stream(file.inputStream, file.size, -1)
-              .bucket(modsBucket)
-              .`object`(filepath)
-              .build())
+      val filename = "${version.mod.name}/${version.name}/${file.originalFilename}"
+        simpleStorageService.uploadVersionFile(filename, file)
 
-      val file = File(file.name, filepath, version)
+      val file = File(file.name, filename, version)
       fileRepository.save(file)
     }
   }
