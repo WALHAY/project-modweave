@@ -4,10 +4,10 @@ import git.walhay.modweave.exception.GameNotFoundException
 import git.walhay.modweave.exception.ModNotFoundException
 import git.walhay.modweave.model.Mod
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
 
-@ControllerAdvice
+@RestControllerAdvice
 class ModControllerAdvice {
 
   @ExceptionHandler(ModNotFoundException::class, GameNotFoundException::class)

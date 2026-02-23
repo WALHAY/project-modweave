@@ -5,6 +5,8 @@ import git.walhay.modweave.model.Version
 import git.walhay.modweave.service.ModService
 import git.walhay.modweave.service.VersionService
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -18,9 +20,10 @@ class VersionController(
   fun uploadModVersion(
       @PathVariable modId: String,
       @Valid @ModelAttribute versionUploadDTO: VersionUploadDTO
-  ): Version {
+  ): ResponseEntity<Version> {
     val mod = modService.findModById(modId)
-    return versionService.uploadModVersion(mod, versionUploadDTO)
+      val version = versionService.uploadModVersion(mod, versionUploadDTO)
+    return ResponseEntity.status(HttpStatus.CREATED).body(version)
   }
 
   @DeleteMapping("/{versionName}")
