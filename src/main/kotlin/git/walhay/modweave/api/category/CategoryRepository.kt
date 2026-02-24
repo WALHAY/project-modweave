@@ -6,4 +6,8 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CategoryRepository : JpaRepository<Category, String> {
   fun findAllByNameIn(categories: Collection<String>): Set<Category>
+
+  fun existsByNameIgnoreCase(name: String): Boolean
+
+  fun deleteByNameIgnoreCase(name: String)
 }

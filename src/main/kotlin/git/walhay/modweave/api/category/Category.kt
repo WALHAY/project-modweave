@@ -9,9 +9,16 @@ import jakarta.persistence.*
 @Table(schema = "modweave", name = "categories")
 @KonvertTo(CategoryDto::class)
 class Category(
-    @Id @Column(name = "name", nullable = false) val name: String,
-    @Column(name = "description", columnDefinition = "text") val description: String? = null,
+    @Id @Column(name = "name", nullable = false) var name: String,
+    @Column(name = "description", columnDefinition = "text") var description: String? = null,
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY) val mods: Set<Mod> = emptySet()
 ) {
   constructor() : this("")
+
+  @PrePersist
+  @PreUpdate
+  fun normalize() {
+    name.trim()
+    description?.trim()
+  }
 }
