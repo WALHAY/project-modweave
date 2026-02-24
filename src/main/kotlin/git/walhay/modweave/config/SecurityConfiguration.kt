@@ -1,7 +1,6 @@
 package git.walhay.modweave.config
 
 import git.walhay.modweave.repository.UserRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.repository.findByIdOrNull
@@ -20,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfiguration @Autowired constructor(private val userRepository: UserRepository) {
+class SecurityConfiguration(private val userRepository: UserRepository) {
 
   @Bean fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 

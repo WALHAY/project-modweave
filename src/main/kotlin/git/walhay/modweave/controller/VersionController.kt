@@ -1,7 +1,7 @@
 package git.walhay.modweave.controller
 
+import git.walhay.modweave.dto.VersionDto
 import git.walhay.modweave.dto.VersionUploadDTO
-import git.walhay.modweave.model.Version
 import git.walhay.modweave.service.ModService
 import git.walhay.modweave.service.VersionService
 import jakarta.validation.Valid
@@ -20,9 +20,8 @@ class VersionController(
   fun uploadModVersion(
       @PathVariable modId: String,
       @Valid @ModelAttribute versionUploadDTO: VersionUploadDTO
-  ): ResponseEntity<Version> {
-    val mod = modService.findModById(modId)
-      val version = versionService.uploadModVersion(mod, versionUploadDTO)
+  ): ResponseEntity<VersionDto> {
+    val version = versionService.uploadModVersion(modId, versionUploadDTO)
     return ResponseEntity.status(HttpStatus.CREATED).body(version)
   }
 

@@ -16,38 +16,39 @@ class SimpleStorageService(
     private val minioClient: MinioClient,
     @Value($$"${minio.buckets.mods}") private val modsBucket: String,
     @Value($$"${minio.buckets.images}") private val imagesBucket: String,
-    private val logger: KLogger = KotlinLogging.logger { }
+    private val logger: KLogger = KotlinLogging.logger {}
 ) {
 
-    @PostConstruct
-    fun initBuckets() {
-        checkBucketExistence(modsBucket)
-        checkBucketExistence(imagesBucket)
-    }
+  @PostConstruct
+  fun initBuckets() {
+    checkBucketExistence(modsBucket)
+    checkBucketExistence(imagesBucket)
+  }
 
   private fun checkBucketExistence(bucket: String) {
-      logger.info("Checking bucket $bucket existence")
+    logger.info("Checking bucket $bucket existence")
     if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
-        logger.info("Bucket $bucket is missing")
+      logger.info("Bucket $bucket is missing")
       minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).objectLock(false).build())
-        logger.info("Creating bucket $bucket")
+      logger.info("Creating bucket $bucket")
     }
   }
 
   private fun putFileIntoBucket(bucket: String, filename: String, file: MultipartFile) {
-      logger.info("Uploading file=${file.originalFilename} into bucket=$bucket with filename=$filename")
-      try {
-          minioClient.putObject(
-              PutObjectArgs.builder()
-                  .bucket(bucket)
-                  .`object`(filename)
-                  .stream(file.inputStream, file.size, -1)
-                  .contentType(file.contentType)
-                  .build()
-          )
-      } catch (e: Exception) {
-          logger.error("Failed to upload file=${file.originalFilename} into bucket=$bucket with filename=$filename")
-      }
+    logger.info(
+        "Uploading file=${file.originalFilename} into bucket=$bucket with filename=$filename")
+    try {
+      minioClient.putObject(
+          PutObjectArgs.builder()
+              .bucket(bucket)
+              .`object`(filename)
+              .stream(file.inputStream, file.size, -1)
+              .contentType(file.contentType)
+              .build())
+    } catch (e: Exception) {
+      logger.error(
+          "Failed to upload file=${file.originalFilename} into bucket=$bucket with filename=$filename")
+    }
   }
 
   fun uploadImage(filename: String, file: MultipartFile) {

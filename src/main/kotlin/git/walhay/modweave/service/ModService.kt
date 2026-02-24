@@ -1,10 +1,12 @@
 package git.walhay.modweave.service
 
+import git.walhay.modweave.dto.ModDto
 import git.walhay.modweave.dto.ModUploadDTO
 import git.walhay.modweave.dto.VersionUploadDTO
 import git.walhay.modweave.exception.ModNotFoundException
 import git.walhay.modweave.model.Mod
 import git.walhay.modweave.model.Version
+import git.walhay.modweave.model.toModDto
 import git.walhay.modweave.repository.CategoryRepository
 import git.walhay.modweave.repository.GameRepository
 import git.walhay.modweave.repository.ModRepository
@@ -27,15 +29,18 @@ class ModService(
     private val versionService: VersionService
 ) {
 
-  fun findModById(id: String): Mod =
-      modRepository.findById(id).orElseThrow { ModNotFoundException("Mod with id=$id not found") }
+  fun findModById(id: String): ModDto =
+      modRepository
+          .findById(id)
+          .orElseThrow { ModNotFoundException("Mod with id=$id not found") }
+          .toModDto()
 
-  fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
+  fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<ModDto> {
     val pageRequest = PageRequest.of(page, size, sort)
     if (name == null) {
-      return modRepository.findAll(pageRequest)
+      return modRepository.findAll(pageRequest).map { it.toModDto() }
     }
-    return modRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
+    return modRepository.findAllByNameContainingIgnoreCase(name, pageRequest).map { it.toModDto() }
   }
 
   fun uploadMod(login: String, modUploadForm: ModUploadDTO) {
@@ -55,9 +60,10 @@ class ModService(
         versionService.uploadModVersion(
             mod, VersionUploadDTO(modUploadForm.versionName, "", modUploadForm.files))
     mod.versions + initVersion
+    modRepository.save(mod)
   }
 
   fun deleteMod(login: String, modId: String) {
-    val mod = modRepository.deleteById(modId)
+    modRepository.deleteById(modId)
   }
 }
