@@ -19,4 +19,9 @@ class CategoryController(val categoryService: CategoryService) {
   @DeleteMapping
   @ResponseStatus(HttpStatus.OK)
   fun deleteCategory(@RequestParam category: String) = categoryService.deleteCategory(category)
+
+  @PatchMapping
+  @ResponseStatus(HttpStatus.OK)
+  fun updateCategory(@Valid @ModelAttribute dto: CategoryDto): CategoryDto =
+      categoryService.updateCategory(dto)
 }

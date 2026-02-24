@@ -46,8 +46,7 @@ class SecurityConfiguration(private val userRepository: UserRepository) {
         authorize(HttpMethod.GET, "/api/v1/games/**", permitAll)
         authorize(HttpMethod.POST, "/api/v1/games", hasRole("ADMIN"))
         authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
-        authorize(HttpMethod.POST, "/api/v1/categories", hasRole("ADMIN"))
-        authorize(HttpMethod.DELETE, "/api/v1/categories", hasRole("ADMIN"))
+        authorize("/api/v1/categories", hasRole("ADMIN"))
         authorize(HttpMethod.GET, "/api/v1/**", permitAll)
         authorize(anyRequest, authenticated)
       }

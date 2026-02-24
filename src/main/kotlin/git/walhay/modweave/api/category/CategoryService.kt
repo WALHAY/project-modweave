@@ -22,11 +22,20 @@ class CategoryService(val categoryRepository: CategoryRepository) {
     return categoryRepository.save(category).toCategoryDto()
   }
 
-  fun deleteCategory(name: String): Unit {
+  fun deleteCategory(name: String) {
     if (!categoryRepository.existsByNameIgnoreCase(name)) {
       throw CategoryNotFoundException("Category with name=$name not found for deletion")
     }
 
     categoryRepository.deleteByNameIgnoreCase(name)
+  }
+
+  fun updateCategory(dto: CategoryDto): CategoryDto {
+    if (!categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
+      throw CategoryNotFoundException(
+          "Category with name=${dto.name.lowercase()} not found for update")
+    }
+
+    return categoryRepository.save(dto.toCategory()).toCategoryDto()
   }
 }
