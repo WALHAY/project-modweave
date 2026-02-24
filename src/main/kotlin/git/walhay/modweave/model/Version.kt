@@ -1,13 +1,14 @@
 package git.walhay.modweave.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
-import com.fasterxml.jackson.annotation.JsonManagedReference
+import git.walhay.modweave.dto.VersionDto
+import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
 @Table(schema = "modweave", name = "mod_versions")
-data class Version(
+@KonvertTo(VersionDto::class)
+class Version(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -18,10 +19,8 @@ data class Version(
     @Column(name = "downloads") var downloads: Int = 0,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "mod_id", nullable = false)
-    @JsonBackReference("mod-versions")
     val mod: Mod,
     @OneToMany(mappedBy = "version", fetch = FetchType.LAZY, orphanRemoval = true)
-    @JsonManagedReference("version-file")
     val files: MutableList<File> = mutableListOf()
 ) {
   constructor(

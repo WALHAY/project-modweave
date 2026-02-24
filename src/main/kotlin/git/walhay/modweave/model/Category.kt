@@ -1,16 +1,16 @@
 package git.walhay.modweave.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
+import git.walhay.modweave.dto.CategoryDto
+import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 
 @Entity
 @Table(schema = "modweave", name = "categories")
-data class Category(
+@KonvertTo(CategoryDto::class)
+class Category(
     @Id @Column(name = "name", nullable = false) val name: String,
     @Column(name = "description", columnDefinition = "text") val description: String? = null,
-    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
-    @JsonBackReference("mods-categories")
-    val mods: Set<Mod> = emptySet()
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY) val mods: Set<Mod> = emptySet()
 ) {
   constructor() : this("")
 }

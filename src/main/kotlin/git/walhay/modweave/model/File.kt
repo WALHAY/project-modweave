@@ -1,13 +1,15 @@
 package git.walhay.modweave.model
 
-import com.fasterxml.jackson.annotation.JsonBackReference
+import git.walhay.modweave.dto.FileDto
+import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
 
 @Entity
 @Table(schema = "modweave", name = "mod_files")
-data class File(
+@KonvertTo(FileDto::class)
+class File(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -16,7 +18,6 @@ data class File(
     @Column(name = "file_path", nullable = false) val filePath: String,
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mod_version_id", nullable = false)
-    @JsonBackReference("version-file")
     val version: Version,
     @Column(name = "metainfo", nullable = true)
     @JdbcTypeCode(SqlTypes.JSON)
