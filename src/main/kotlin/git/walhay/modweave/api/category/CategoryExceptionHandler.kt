@@ -16,5 +16,5 @@ class CategoryExceptionHandler {
 
   @ExceptionHandler(CategoryExistsException::class)
   @ResponseStatus(HttpStatus.CONFLICT)
-  fun categoryNotFoundHandler(e: CategoryExistsException) {}
+  fun categoryExistsHandler(e: CategoryExistsException) {}
 }

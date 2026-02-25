@@ -23,7 +23,6 @@ create table modweave.mods (
     description text,
     image_path varchar not null,
     creation_date timestamp default current_date not null,
-    approved boolean,
     game_id varchar not null references modweave.games (id) on delete cascade,
     publisher_login varchar not null references modweave.users (login) on delete cascade
 );
@@ -34,6 +33,7 @@ create table modweave.mod_versions (
     changes text,
     upload_date timestamp default current_date not null,
     downloads int,
+    approved boolean,
     mod_id varchar not null references modweave.mods (id) on delete cascade
 );
 

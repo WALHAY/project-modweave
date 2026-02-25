@@ -19,10 +19,15 @@ class Version(
     @Column(name = "changes", columnDefinition = "text") val changes: String? = null,
     @Column(name = "upload_date", nullable = false) val uploadDate: LocalDateTime,
     @Column(name = "downloads") var downloads: Int = 0,
+    @Column(name = "approved", nullable = false) val approved: Boolean = false,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "mod_id", nullable = false)
     val mod: Mod,
-    @OneToMany(mappedBy = "version", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "version",
+        fetch = FetchType.LAZY,
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true)
     val files: MutableList<File> = mutableListOf()
 ) {
   constructor(
@@ -34,6 +39,7 @@ class Version(
       changes = changes,
       uploadDate = LocalDateTime.now(),
       downloads = 0,
+      approved = false,
       mod = mod,
       files = mutableListOf())
 

@@ -34,7 +34,7 @@ class SimpleStorageService(
     }
   }
 
-  private fun putFileIntoBucket(bucket: String, filename: String, file: MultipartFile) {
+  private fun putFileIntoBucket(bucket: String, filename: String, file: MultipartFile): String {
     logger.info(
         "Uploading file=${file.originalFilename} into bucket=$bucket with filename=$filename")
     try {
@@ -45,17 +45,20 @@ class SimpleStorageService(
               .stream(file.inputStream, file.size, -1)
               .contentType(file.contentType)
               .build())
+
+      return filename
     } catch (e: Exception) {
       logger.error(
           "Failed to upload file=${file.originalFilename} into bucket=$bucket with filename=$filename")
+      throw e
     }
   }
 
-  fun uploadImage(filename: String, file: MultipartFile) {
-    putFileIntoBucket(imagesBucket, filename, file)
+  fun uploadImage(filename: String, file: MultipartFile): String {
+    return putFileIntoBucket(imagesBucket, filename, file)
   }
 
-  fun uploadVersionFile(filename: String, file: MultipartFile) {
-    putFileIntoBucket(modsBucket, filename, file)
+  fun uploadVersionFile(filename: String, file: MultipartFile): String {
+    return putFileIntoBucket(modsBucket, filename, file)
   }
 }

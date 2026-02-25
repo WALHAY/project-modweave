@@ -2,19 +2,23 @@ package git.walhay.modweave.api.game
 
 import git.walhay.modweave.api.game.dto.AddGameDto
 import git.walhay.modweave.api.game.dto.GameDto
-import git.walhay.modweave.api.game.dto.toGame
+import git.walhay.modweave.api.game.exception.GameExistsException
 import git.walhay.modweave.api.game.exception.GameNotFoundException
+import git.walhay.modweave.api.service.SimpleStorageService
+import git.walhay.modweave.util.spinalCase
+import org.apache.commons.io.FilenameUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.server.ResponseStatusException
 
 @Service
 @Transactional
-class GameService(private val gameRepository: GameRepository) {
+class GameService(
+    private val gameRepository: GameRepository,
+    private val simpleStorageService: SimpleStorageService
+) {
   fun findGameById(modId: String): GameDto =
       gameRepository
           .findById(modId)
@@ -33,10 +37,14 @@ class GameService(private val gameRepository: GameRepository) {
 
   fun uploadGame(dto: AddGameDto): GameDto {
     // TODO: add image path
-    val game = dto.toGame()
-    if (gameRepository.existsById(game.id)) {
-      throw ResponseStatusException(HttpStatus.CONFLICT, "Game with id=${game.id} already exist")
+    if (gameRepository.existsById(dto.name.spinalCase())) {
+      throw GameExistsException("Game with id=${dto.name.spinalCase()} already exist")
     }
+
+    val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
+
+    val game =
+        Game(dto.name, dto.description, simpleStorageService.uploadImage(imagePath, dto.image))
 
     return gameRepository.save(game).toGameDto()
   }

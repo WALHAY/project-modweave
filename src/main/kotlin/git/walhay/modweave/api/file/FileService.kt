@@ -13,13 +13,12 @@ class FileService(
     private val simpleStorageService: SimpleStorageService
 ) {
 
-  fun uploadNewFiles(version: Version, files: List<MultipartFile>) {
+  fun uploadFilesTransient(version: Version, files: List<MultipartFile>) {
     for (file in files) {
       val filename = "${version.mod.name}/${version.name}/${file.originalFilename}"
       simpleStorageService.uploadVersionFile(filename, file)
 
-      val file = File(file.name, filename, version)
-      fileRepository.save(file)
+      version.files.addFirst(File(file.name, filename, version))
     }
   }
 }

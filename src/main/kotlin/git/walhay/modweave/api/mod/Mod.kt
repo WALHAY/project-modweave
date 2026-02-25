@@ -19,13 +19,12 @@ class Mod(
     @Column(name = "description", columnDefinition = "text") val description: String? = null,
     @Column(name = "image_path", nullable = false, length = 500) val imagePath: String,
     @Column(name = "creation_date", nullable = false) val creationDate: LocalDateTime,
-    @Column(name = "approved", nullable = false) val approved: Boolean = false,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "publisher_login", nullable = false)
     val publisher: User,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id", nullable = false)
-    val game: Game,
+    var game: Game,
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         schema = "modweave",
@@ -37,6 +36,8 @@ class Mod(
         mappedBy = "mod", fetch = FetchType.LAZY, orphanRemoval = true, cascade = [CascadeType.ALL])
     val versions: MutableList<Version> = mutableListOf()
 ) {
+  constructor() : this("", null, User(), Game(), "")
+
   constructor(
       name: String,
       description: String? = null,
@@ -51,19 +52,8 @@ class Mod(
       description = description,
       imagePath = imagePath,
       creationDate = LocalDateTime.now(),
-      approved = false,
       publisher = publisher,
       game = game,
       categories = categories,
       versions = versions.toMutableList())
-
-  constructor() :
-      this(
-          name = "",
-          description = null,
-          publisher = User(),
-          game = Game(),
-          imagePath = "",
-          categories = emptySet(),
-          versions = emptyList())
 }

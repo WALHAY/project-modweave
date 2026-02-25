@@ -8,6 +8,7 @@ import git.walhay.modweave.api.version.dto.VersionDto
 import git.walhay.modweave.api.version.dto.VersionUploadDto
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional
@@ -18,11 +19,11 @@ class VersionService(
 ) {
 
   fun uploadModVersion(mod: Mod, modVersionUploadDTO: VersionUploadDto): VersionDto {
-    val version = Version(modVersionUploadDTO.name, "", mod)
-    val savedVersion = versionRepository.save(version)
+    val version = Version(modVersionUploadDTO.name, null, mod)
+    mod.versions.addLast(version)
 
-    fileService.uploadNewFiles(savedVersion, modVersionUploadDTO.files)
-    return savedVersion.toVersionDto()
+    fileService.uploadFilesTransient(version, modVersionUploadDTO.files)
+    return versionRepository.save(version).toVersionDto()
   }
 
   fun uploadModVersion(modId: String, modVersionUploadDTO: VersionUploadDto): VersionDto {
@@ -32,4 +33,20 @@ class VersionService(
         }
     return uploadModVersion(mod, modVersionUploadDTO)
   }
+
+  fun uploadModVersionTransient(
+      mod: Mod,
+      name: String,
+      changes: String?,
+      files: List<MultipartFile>
+  ): Version {
+    val version = Version(name, changes, mod)
+    fileService.uploadFilesTransient(version, files)
+
+    mod.versions.addLast(version)
+    return version
+  }
+
+  fun uploadModVersionTransient(mod: Mod, name: String, files: List<MultipartFile>) =
+      uploadModVersionTransient(mod, name, null, files)
 }
