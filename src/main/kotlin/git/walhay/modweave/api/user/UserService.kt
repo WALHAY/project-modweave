@@ -3,11 +3,12 @@ package git.walhay.modweave.api.user
 import git.walhay.modweave.api.user.dto.UserDto
 import git.walhay.modweave.api.user.dto.UserRegisterDto
 import git.walhay.modweave.api.user.dto.UserUpdateDto
-import org.springframework.http.HttpStatus
+import git.walhay.modweave.api.user.exception.UserEmailExistsException
+import git.walhay.modweave.api.user.exception.UserLoginExistsException
+import git.walhay.modweave.api.user.exception.UserNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.server.ResponseStatusException
 
 @Service
 @Transactional
@@ -18,15 +19,15 @@ class UserService(
 
   fun findUserById(login: String): UserDto =
       userRepository.findByLoginIgnoreCase(login)?.toUserDto()
-          ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "User with login=$login not found")
+          ?: throw UserNotFoundException("User with login=$login not found")
 
   fun registerNewUser(register: UserRegisterDto): UserDto {
     if (userRepository.existsByLoginIgnoreCase(register.login)) {
-      throw ResponseStatusException(HttpStatus.CONFLICT, "Login ${register.login} already in use")
+      throw UserLoginExistsException("Login ${register.login} already in use")
     }
 
     if (userRepository.existsByEmailIgnoreCase(register.email)) {
-      throw ResponseStatusException(HttpStatus.CONFLICT, "Email ${register.email} already in use")
+      throw UserEmailExistsException("Email ${register.email} already in use")
     }
 
     val encodedPass =
@@ -39,7 +40,9 @@ class UserService(
   }
 
   fun updateUserProfile(login: String, update: UserUpdateDto): UserDto {
-    val user: User = userRepository.findByLoginIgnoreCase(login) ?: throw Exception()
+    val user: User =
+        userRepository.findByLoginIgnoreCase(login)
+            ?: throw UserNotFoundException("User with login=$login not found")
 
     update.username?.let { user.username = it }
     update.password?.let {
@@ -48,7 +51,7 @@ class UserService(
     }
     update.email?.let {
       if (it != user.email && userRepository.existsByEmailIgnoreCase(it)) {
-        throw ResponseStatusException(HttpStatus.CONFLICT, "Email $it already in use")
+        throw UserEmailExistsException("Email $it already in use")
       }
       user.email = it
     }

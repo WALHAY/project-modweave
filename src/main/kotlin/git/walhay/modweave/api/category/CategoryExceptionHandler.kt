@@ -1,23 +1,20 @@
-package git.walhay.modweave.api.controller
+package git.walhay.modweave.api.category
 
 import git.walhay.modweave.api.category.exception.CategoryExistsException
 import git.walhay.modweave.api.category.exception.CategoryNotFoundException
-import git.walhay.modweave.api.game.exception.GameNotFoundException
-import git.walhay.modweave.api.mod.exception.ModNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class GlobalExceptionHandler {
+class CategoryExceptionHandler {
 
-  @ExceptionHandler(
-      ModNotFoundException::class, GameNotFoundException::class, CategoryNotFoundException::class)
+  @ExceptionHandler(CategoryNotFoundException::class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  fun notFoundHandler() {}
+  fun categoryNotFoundHandler(e: CategoryNotFoundException) {}
 
   @ExceptionHandler(CategoryExistsException::class)
   @ResponseStatus(HttpStatus.CONFLICT)
-  fun conflictHandler() {}
+  fun categoryNotFoundHandler(e: CategoryExistsException) {}
 }
