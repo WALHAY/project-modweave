@@ -32,7 +32,6 @@ create table modweave.mod_versions (
     name varchar not null,
     changes text,
     upload_date timestamp default current_date not null,
-    downloads int,
     approved boolean,
     mod_id varchar not null references modweave.mods (id) on delete cascade
 );
@@ -41,6 +40,7 @@ create table modweave.mod_files (
     id bigserial primary key,
     filename varchar not null,
     file_path varchar not null,
+    downloads int,
     metainfo jsonb,
     mod_version_id bigserial not null references modweave.mod_versions (id) on delete cascade
     -- возможно стоит задуматься о on delete set null и проверять файлы без связи раз в какое-то время

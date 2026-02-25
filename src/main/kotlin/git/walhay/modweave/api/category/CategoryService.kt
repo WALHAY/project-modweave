@@ -18,8 +18,7 @@ class CategoryService(val categoryRepository: CategoryRepository) {
       throw CategoryExistsException("Category with name=${dto.name.lowercase()} already exists")
     }
 
-    val category = dto.toCategory()
-    return categoryRepository.save(category).toCategoryDto()
+    return categoryRepository.save(dto.toCategory()).toCategoryDto()
   }
 
   fun deleteCategory(name: String) {

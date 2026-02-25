@@ -1,10 +1,11 @@
 package git.walhay.modweave.api.service
 
 import io.minio.*
-import jakarta.annotation.PostConstruct
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
@@ -16,7 +17,7 @@ class SimpleStorageService(
     private val logger: KLogger = KotlinLogging.logger {}
 ) {
 
-  @PostConstruct
+  @EventListener(ApplicationReadyEvent::class)
   fun initBuckets() {
     checkBucketExistence(modsBucket)
     checkBucketExistence(imagesBucket)
@@ -27,6 +28,24 @@ class SimpleStorageService(
     if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
       logger.info("Bucket $bucket is missing")
       minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).objectLock(false).build())
+
+      val policy: String =
+          """
+          {
+            "Version": "2012-10-17",
+            "Statement": [{
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": ["s3:GetObject"],
+              "Resource": ["arn:aws:s3:::%s/*"]
+            }]
+          }
+          """
+              .trimIndent()
+              .format(bucket)
+
+      minioClient.setBucketPolicy(
+          SetBucketPolicyArgs.builder().bucket(bucket).config(policy).build())
       logger.info("Creating bucket $bucket")
     }
   }

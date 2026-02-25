@@ -7,6 +7,5 @@ data class VersionDto(
     val name: String,
     val changes: String?,
     val uploadDate: LocalDateTime,
-    val downloads: Long,
     val files: List<FileDto>
 )

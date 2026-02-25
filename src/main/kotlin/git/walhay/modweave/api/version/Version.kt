@@ -18,7 +18,6 @@ class Version(
     @Column(name = "name", nullable = false) val name: String,
     @Column(name = "changes", columnDefinition = "text") val changes: String? = null,
     @Column(name = "upload_date", nullable = false) val uploadDate: LocalDateTime,
-    @Column(name = "downloads") var downloads: Int = 0,
     @Column(name = "approved", nullable = false) val approved: Boolean = false,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "mod_id", nullable = false)
@@ -38,7 +37,6 @@ class Version(
       name = name,
       changes = changes,
       uploadDate = LocalDateTime.now(),
-      downloads = 0,
       approved = false,
       mod = mod,
       files = mutableListOf())

@@ -5,6 +5,7 @@ import git.walhay.modweave.api.user.UserService
 import jakarta.validation.Valid
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
+import org.springframework.http.HttpStatus
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
@@ -23,6 +24,7 @@ class ModController(private val modService: ModService, private val userService:
   ) = modService.findModsWithFilter(page, size, name, sort)
 
   @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
   fun uploadMod(@Valid @ModelAttribute modUploadForm: ModUploadDto) {
     SecurityContextHolder.getContext().authentication?.name?.let {
       modService.uploadMod(it, modUploadForm)

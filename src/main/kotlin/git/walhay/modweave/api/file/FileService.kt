@@ -13,6 +13,8 @@ class FileService(
     private val simpleStorageService: SimpleStorageService
 ) {
 
+  fun incrementDownloadCounter() {}
+
   fun uploadFilesTransient(version: Version, files: List<MultipartFile>) {
     for (file in files) {
       val filename = "${version.mod.name}/${version.name}/${file.originalFilename}"

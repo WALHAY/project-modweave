@@ -18,6 +18,7 @@ class File(
     val id: Long? = null,
     @Column(name = "filename", nullable = false) val filename: String,
     @Column(name = "file_path", nullable = false) val filePath: String,
+    @Column(name = "downloads") var downloads: Int = 0,
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mod_version_id", nullable = false)
     val version: Version,
@@ -30,7 +31,7 @@ class File(
       filePath: String,
       version: Version,
       metainfo: String? = null
-  ) : this(null, filename, filePath, version, metainfo)
+  ) : this(null, filename, filePath, 0, version, metainfo)
 
   constructor() : this("", "", Version(), null)
 }
