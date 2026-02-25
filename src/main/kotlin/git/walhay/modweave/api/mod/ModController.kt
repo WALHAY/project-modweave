@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/mods")
-class ModsController(private val modService: ModService, private val userService: UserService) {
+class ModController(private val modService: ModService, private val userService: UserService) {
 
   @GetMapping("/{modId}") fun getMod(@PathVariable modId: String) = modService.findModById(modId)
 
@@ -29,8 +29,8 @@ class ModsController(private val modService: ModService, private val userService
     }
   }
 
-  // @DeleteMapping("/{modId}")
-  // fun deleteMod(@PathVariable modId: String) {
-  //   SecurityContextHolder.getContext().authentication?.name?.let {
-  // }
+  @DeleteMapping("/{modId}")
+  fun deleteMod(@PathVariable modId: String) {
+    SecurityContextHolder.getContext().authentication?.name?.let { modService.deleteMod(it, modId) }
+  }
 }

@@ -1,9 +1,6 @@
 package git.walhay.modweave.api.service
 
-import io.minio.BucketExistsArgs
-import io.minio.MakeBucketArgs
-import io.minio.MinioClient
-import io.minio.PutObjectArgs
+import io.minio.*
 import jakarta.annotation.PostConstruct
 import mu.KLogger
 import mu.KotlinLogging
@@ -54,11 +51,19 @@ class SimpleStorageService(
     }
   }
 
+  private fun removeFileFromBucket(bucket: String, filename: String) {
+    minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).`object`(filename).build())
+  }
+
   fun uploadImage(filename: String, file: MultipartFile): String {
     return putFileIntoBucket(imagesBucket, filename, file)
   }
 
   fun uploadVersionFile(filename: String, file: MultipartFile): String {
     return putFileIntoBucket(modsBucket, filename, file)
+  }
+
+  fun removeVersionFile(filename: String) {
+    removeFileFromBucket(modsBucket, filename)
   }
 }

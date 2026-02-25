@@ -25,5 +25,7 @@ class VersionController(
   }
 
   @DeleteMapping("/{versionName}")
-  fun deleteVersion(@PathVariable modId: String, @PathVariable versionName: String) {}
+  fun deleteVersion(@PathVariable modId: String, @PathVariable versionName: String) {
+    versionService.deleteModVersion(modId, versionName)
+  }
 }

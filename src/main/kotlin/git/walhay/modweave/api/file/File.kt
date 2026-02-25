@@ -9,6 +9,7 @@ import org.hibernate.type.SqlTypes
 
 @Entity
 @Table(schema = "modweave", name = "mod_files")
+@EntityListeners(FileEntityListener::class)
 @KonvertTo(FileDto::class)
 class File(
     @Id

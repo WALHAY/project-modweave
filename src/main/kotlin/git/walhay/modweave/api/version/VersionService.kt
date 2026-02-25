@@ -6,6 +6,7 @@ import git.walhay.modweave.api.mod.ModRepository
 import git.walhay.modweave.api.mod.exception.ModNotFoundException
 import git.walhay.modweave.api.version.dto.VersionDto
 import git.walhay.modweave.api.version.dto.VersionUploadDto
+import git.walhay.modweave.api.version.exception.VersionNotFoundException
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -49,4 +50,14 @@ class VersionService(
 
   fun uploadModVersionTransient(mod: Mod, name: String, files: List<MultipartFile>) =
       uploadModVersionTransient(mod, name, null, files)
+
+  fun deleteModVersion(modId: String, version: String) {
+    val mod =
+        modRepository.findById(modId).orElseThrow {
+          ModNotFoundException("Mod with modid=$modId not found")
+        }
+
+    mod.versions.find { it.name == version }?.let { versionRepository.delete(it) }
+        ?: throw VersionNotFoundException("Version with name=$version not found for deletion")
+  }
 }
