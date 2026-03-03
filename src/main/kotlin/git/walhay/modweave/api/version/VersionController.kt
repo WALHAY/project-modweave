@@ -1,0 +1,30 @@
+package git.walhay.modweave.api.version
+
+import git.walhay.modweave.api.mod.ModService
+import git.walhay.modweave.api.version.dto.VersionDto
+import git.walhay.modweave.api.version.dto.VersionUploadDto
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+
+@RestController
+@RequestMapping("/mods/{modId}")
+class VersionController(
+	private val versionService: VersionService,
+	private val modService: ModService
+) {
+
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	fun uploadModVersion(
+		@PathVariable modId: String,
+		@Valid @ModelAttribute versionUploadDTO: VersionUploadDto
+	): VersionDto = versionService.uploadModVersion(modId, versionUploadDTO).toVersionDto()
+
+	@DeleteMapping("/{versionName}")
+	fun deleteVersion(@PathVariable modId: String, @PathVariable versionName: String) {
+		versionService.deleteModVersion(modId, versionName)
+	}
+}

@@ -2,42 +2,48 @@ drop schema if exists modweave cascade;
 create schema modweave;
 
 create table modweave.users (
-    login varchar(255) primary key,
-    username varchar(255) unique not null,
-    email varchar(255) unique not null,
-    passhash varchar not null,
+    login varchar primary key,
+    username varchar unique not null,
+    email varchar unique not null,
+    password varchar not null,
     register_date timestamp default current_date not null,
     is_admin boolean
 );
 
 create table modweave.games (
-    id serial primary key,
-    name varchar(255) not null,
-    description text
+    id varchar primary key,
+    name varchar not null,
+    description text,
+    image_path varchar not null
 );
 
 create table modweave.mods (
-    id serial primary key,
-    name varchar(255) not null,
+    id varchar primary key,
+    name varchar not null,
     description text,
-    game_id int,
-    publisher_login varchar,
-    foreign key(publisher_login) references modweave.users (login),
-    foreign key(game_id) references modweave.games (id)
+    image_path varchar not null,
+    creation_date timestamp default current_date not null,
+    game_id varchar not null references modweave.games (id) on delete cascade,
+    publisher_login varchar not null references modweave.users (login) on delete cascade
 );
 
 create table modweave.mod_versions (
-    version_name varchar primary key,
+    id bigserial primary key,
+    name varchar not null,
     changes text,
-    upload_date date
+    upload_date timestamp default current_date not null,
+    approved boolean,
+    mod_id varchar not null references modweave.mods (id) on delete cascade
 );
 
 create table modweave.mod_files (
-    file_key varchar primary key,
-    file_size int not null,
-    hash varchar not null,
-    mod_version varchar,
-    foreign key(mod_version) references modweave.mod_versions (version_name)
+    id bigserial primary key,
+    filename varchar not null,
+    file_path varchar not null,
+    downloads int,
+    metainfo jsonb,
+    mod_version_id bigserial not null references modweave.mod_versions (id) on delete cascade
+    -- возможно стоит задуматься о on delete set null и проверять файлы без связи раз в какое-то время
 );
 
 create table modweave.categories (
@@ -47,16 +53,14 @@ create table modweave.categories (
 
 create table modweave.mods_categories (
     id serial primary key,
-    mod_id int,
-    category_name varchar,
-    foreign key(mod_id) references modweave.mods (id),
-    foreign key(category_name) references modweave.categories (name)
-)
+    mod_id varchar not null references modweave.mods (id) on delete cascade,
+    category_name varchar references modweave.categories (name) on delete set null
+);
 
 create table modweave.comments (
     id serial primary key,
-    user_login varchar(255),
-    mod_id int,
-    foreign key(user_login) references modweave.users (login),
-    foreign key(mod_id) references modweave.mods (id)
+    content text not null,
+    publish_date timestamp default current_date not null,
+    user_login varchar not null references modweave.users (login) on delete cascade,
+    mod_id varchar not null references modweave.mods (id) on delete cascade
 );

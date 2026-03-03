@@ -1,19 +1,35 @@
 volumes:
   postgres:
+  minio:
 
 services:
   postgres:
     container_name: "modweave-db"
     image: postgres:16
     environment:
-      POSTGRES_DB: "production"
+      POSTGRES_DB: "database"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       PGDATA: /data/postgres
     volumes:
       - ./postgres:/var/lib/postgresql/data
+      - ./database:/var/lib/postgresql/scripts
     ports:
       - "5432:5432"
+    networks:
+      - mynetwork
+
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    volumes:
+      - ./minio:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
     networks:
       - mynetwork
 

@@ -1,6 +1,18 @@
 spring:
   application:
     name: modweave
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+minio:
+  endpoint: http://localhost:9000
+  credentials:
+    username: username
+    password: password
+  buckets:
+    mods: mods
+    images: images
 
 server:
   port: 8080
