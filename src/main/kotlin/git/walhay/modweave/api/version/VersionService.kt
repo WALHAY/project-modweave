@@ -2,9 +2,8 @@ package git.walhay.modweave.api.version
 
 import git.walhay.modweave.api.file.FileService
 import git.walhay.modweave.api.mod.Mod
-import git.walhay.modweave.api.mod.ModRepository
 import git.walhay.modweave.api.mod.exception.ModNotFoundException
-import git.walhay.modweave.api.version.dto.VersionDto
+import git.walhay.modweave.api.mod.repository.ModRepository
 import git.walhay.modweave.api.version.dto.VersionUploadDto
 import git.walhay.modweave.api.version.exception.VersionNotFoundException
 import jakarta.transaction.Transactional
@@ -29,17 +28,15 @@ class VersionService(
 
 	fun uploadModVersion(modId: String, modVersionUploadDTO: VersionUploadDto): Version {
 		val mod =
-			modRepository.findById(modId).orElseThrow {
-				throw ModNotFoundException("Mod with id=$modId not found")
-			}
+			modRepository.findById(modId) ?: throw ModNotFoundException("Mod with id=$modId not found")
 		return uploadModVersion(mod, modVersionUploadDTO)
 	}
 
 	fun uploadModVersionTransient(
-		mod: Mod,
-		name: String,
-		changes: String?,
-		files: List<MultipartFile>
+        mod: Mod,
+        name: String,
+        changes: String?,
+        files: List<MultipartFile>
 	): Version {
 		val version = Version(name, changes, mod)
 		fileService.uploadFilesTransient(version, files)
@@ -53,9 +50,8 @@ class VersionService(
 
 	fun deleteModVersion(modId: String, version: String) {
 		val mod =
-			modRepository.findById(modId).orElseThrow {
+			modRepository.findById(modId) ?: throw
 				ModNotFoundException("Mod with modid=$modId not found")
-			}
 
 		mod.versions.find { it.name == version }?.let { versionRepository.delete(it) }
 			?: throw VersionNotFoundException("Version with name=$version not found for deletion")

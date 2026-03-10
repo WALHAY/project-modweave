@@ -1,15 +1,15 @@
 package git.walhay.modweave.api.mod
 
 import git.walhay.modweave.api.category.CategoryRepository
-import git.walhay.modweave.api.game.GameRepository
 import git.walhay.modweave.api.game.exception.GameNotFoundException
+import git.walhay.modweave.api.game.repository.GameRepository
 import git.walhay.modweave.api.mod.dto.ModUploadDto
 import git.walhay.modweave.api.mod.exception.ModExistsException
 import git.walhay.modweave.api.mod.exception.ModNotFoundException
+import git.walhay.modweave.api.mod.repository.ModRepository
 import git.walhay.modweave.api.service.SimpleStorageService
 import git.walhay.modweave.api.user.exception.UserNotFoundException
 import git.walhay.modweave.api.user.repository.UserRepository
-import git.walhay.modweave.api.user.toEntity
 import git.walhay.modweave.api.version.VersionService
 import git.walhay.modweave.util.spinalCase
 import org.apache.commons.io.FilenameUtils
@@ -31,16 +31,14 @@ class ModService(
 ) {
 
 	fun findModById(id: String): Mod =
-		modRepository
-			.findById(id)
-			.orElseThrow { ModNotFoundException("Mod with id=$id not found") }
+		modRepository.findById(id) ?: throw ModNotFoundException("Mod with id=$id not found")
 
 	fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
 		val pageRequest = PageRequest.of(page, size, sort)
 		if (name == null) {
 			return modRepository.findAll(pageRequest)
 		}
-		return modRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
+		return modRepository.findAll(name, pageRequest)
 	}
 
 	fun uploadMod(login: String, dto: ModUploadDto): Mod {
@@ -54,22 +52,20 @@ class ModService(
 			userRepository.findByLogin(login)
 				?: throw UserNotFoundException("User with login=${login} not found")
 		val game =
-			gameRepository.findById(dto.game).orElseThrow {
-				GameNotFoundException("Game with id=${dto.game} not found")
-			}
+			gameRepository.findById(dto.game) ?: throw GameNotFoundException("Game with id=${dto.game} not found")
 		val categories = categoryRepository.findAllByNameIn(dto.categories)
 
 		val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
 
 		val mod =
-			Mod(
-				dto.name,
-				dto.description,
-				user.toEntity(), // TODO: change to user domain model when refactoring mod itself
-				game,
-				simpleStorageService.uploadImage(imagePath, dto.image),
-				categories
-			)
+            Mod(
+                dto.name,
+                dto.description,
+                user,
+                game,
+                simpleStorageService.uploadImage(imagePath, dto.image),
+                categories
+            )
 		versionService.uploadModVersionTransient(mod, dto.versionName, dto.files)
 		return modRepository.save(mod)
 	}

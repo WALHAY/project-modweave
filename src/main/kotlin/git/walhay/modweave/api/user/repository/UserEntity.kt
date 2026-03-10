@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.user.repository
 
-import git.walhay.modweave.api.mod.Mod
+import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.user.User
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(schema = "modweave", name = "users")
-@KonvertTo(User::class, mapFunctionName = "toDto")
+@KonvertTo(User::class, mapFunctionName = "toModel")
 class UserEntity(
     @Id @Column(name = "login", nullable = false, length = 50) var login: String,
     @Column(name = "username", unique = true, nullable = false, length = 100) var username: String,
@@ -19,7 +19,7 @@ class UserEntity(
     @Column(name = "register_date", nullable = false) val registerDate: LocalDateTime,
     @Column(name = "is_admin", nullable = false) val isAdmin: Boolean = false,
     @OneToMany(mappedBy = "publisher", fetch = FetchType.LAZY, orphanRemoval = true)
-	val mods: MutableSet<Mod> = mutableSetOf()
+	val mods: MutableSet<ModEntity> = mutableSetOf()
 ) {
 	constructor() : this("", "", "", "")
 

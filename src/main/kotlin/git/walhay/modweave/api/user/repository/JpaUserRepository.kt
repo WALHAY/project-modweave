@@ -10,7 +10,7 @@ class JpaUserRepository(private val repository: SpringDataUserRepository) : User
 
 	override fun existsByEmail(email: String): Boolean = repository.existsByEmailIgnoreCase(email)
 
-	override fun findByLogin(login: String): User? = repository.findByLoginIgnoreCase(login)?.toDto()
+	override fun findByLogin(login: String): User? = repository.findByLoginIgnoreCase(login)?.toModel()
 
-    override fun save(user: User): User = repository.save<UserEntity>(user.toEntity()).toDto()
+    override fun save(user: User): User = repository.save<UserEntity>(user.toEntity()).toModel()
 }

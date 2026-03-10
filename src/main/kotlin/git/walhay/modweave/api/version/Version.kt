@@ -1,7 +1,7 @@
 package git.walhay.modweave.api.version
 
 import git.walhay.modweave.api.file.File
-import git.walhay.modweave.api.mod.Mod
+import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.version.dto.VersionDto
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
@@ -11,18 +11,18 @@ import java.time.LocalDateTime
 @Table(schema = "modweave", name = "mod_versions")
 @KonvertTo(VersionDto::class)
 class Version(
-	@Id
+    @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	val id: Long? = null,
-	@Column(name = "name", nullable = false) val name: String,
-	@Column(name = "changes", columnDefinition = "text") val changes: String? = null,
-	@Column(name = "upload_date", nullable = false) val uploadDate: LocalDateTime,
-	@Column(name = "approved", nullable = false) val approved: Boolean = false,
-	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @Column(name = "name", nullable = false) val name: String,
+    @Column(name = "changes", columnDefinition = "text") val changes: String? = null,
+    @Column(name = "upload_date", nullable = false) val uploadDate: LocalDateTime,
+    @Column(name = "approved", nullable = false) val approved: Boolean = false,
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "mod_id", nullable = false)
-	val mod: Mod,
-	@OneToMany(
+	val mod: ModEntity,
+    @OneToMany(
 		mappedBy = "version",
 		fetch = FetchType.LAZY,
 		cascade = [CascadeType.ALL],
@@ -33,7 +33,7 @@ class Version(
 	constructor(
 		name: String,
 		changes: String? = null,
-		mod: Mod
+		mod: ModEntity
 	) : this(
 		name = name,
 		changes = changes,
@@ -43,5 +43,5 @@ class Version(
 		files = mutableListOf()
 	)
 
-	constructor() : this("", null, Mod())
+	constructor() : this("", null, ModEntity())
 }
