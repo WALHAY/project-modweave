@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 class UserEntity(
     @Id @Column(name = "login", nullable = false, length = 50) var login: String,
     @Column(name = "username", unique = true, nullable = false, length = 100) var username: String,
-    @NaturalId
+    @NaturalId(mutable = true)
 	@Column(name = "email", unique = true, nullable = false, length = 320) var email: String,
     @Column(name = "password", nullable = false, length = 255) var password: String,
     @Column(name = "register_date", nullable = false) val registerDate: LocalDateTime,
