@@ -8,13 +8,15 @@ import io.mcarle.konvert.api.KonvertTo
 
 @KonvertTo(GameEntity::class, mapFunctionName = "toEntity")
 @KonvertTo(GameDto::class)
-data class Game (
+class Game (
     val id: String,
     val name: String,
     val description: String? = null,
     val imagePath: String,
     val mods: MutableList<ModEntity> = mutableListOf()
 ) {
+    constructor() : this("", null, "")
+
     constructor(
         name: String,
         description: String? = null,

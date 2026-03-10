@@ -23,6 +23,8 @@ data class Mod(
     val categories: Set<Category> = emptySet(),
     val versions: MutableList<Version> = mutableListOf()
 ) {
+    constructor() : this("", null, User(), Game(), "")
+
 	constructor(
         name: String,
         description: String? = null,

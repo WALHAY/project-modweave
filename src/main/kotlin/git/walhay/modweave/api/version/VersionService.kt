@@ -6,6 +6,7 @@ import git.walhay.modweave.api.mod.exception.ModNotFoundException
 import git.walhay.modweave.api.mod.repository.ModRepository
 import git.walhay.modweave.api.version.dto.VersionUploadDto
 import git.walhay.modweave.api.version.exception.VersionNotFoundException
+import git.walhay.modweave.api.version.repository.VersionRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -13,9 +14,9 @@ import org.springframework.web.multipart.MultipartFile
 @Service
 @Transactional
 class VersionService(
-	private val versionRepository: VersionRepository,
-	private val fileService: FileService,
-	private val modRepository: ModRepository,
+    private val versionRepository: VersionRepository,
+    private val fileService: FileService,
+    private val modRepository: ModRepository,
 ) {
 
 	fun uploadModVersion(mod: Mod, modVersionUploadDTO: VersionUploadDto): Version {

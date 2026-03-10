@@ -16,4 +16,6 @@ data class User(
     val registerDate: LocalDateTime = LocalDateTime.now(),
     var isAdmin: Boolean = false,
     val mods: MutableSet<Mod> = mutableSetOf()
-)
+) {
+    constructor() : this("", "", "", "")
+}

@@ -5,8 +5,6 @@ import git.walhay.modweave.api.version.dto.VersionDto
 import git.walhay.modweave.api.version.dto.VersionUploadDto
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -25,6 +23,6 @@ class VersionController(
 
 	@DeleteMapping("/{versionName}")
 	fun deleteVersion(@PathVariable modId: String, @PathVariable versionName: String) {
-		versionService.deleteModVersion(modId, versionName)
+        deleteVersion(modId, versionName)
 	}
 }

@@ -4,8 +4,7 @@ import git.walhay.modweave.api.category.Category
 import git.walhay.modweave.api.game.repository.GameEntity
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.user.repository.UserEntity
-import git.walhay.modweave.api.version.Version
-import git.walhay.modweave.util.spinalCase
+import git.walhay.modweave.api.version.repository.VersionEntity
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -36,27 +35,7 @@ class ModEntity(
     @OneToMany(
 		mappedBy = "mod", fetch = FetchType.LAZY, orphanRemoval = true, cascade = [CascadeType.ALL]
 	)
-	val versions: MutableList<Version> = mutableListOf()
+	val versions: MutableList<VersionEntity> = mutableListOf()
 ) {
-	constructor() : this("", null, UserEntity(), GameEntity(), "")
-
-	constructor(
-        name: String,
-        description: String? = null,
-        publisher: UserEntity,
-        game: GameEntity,
-        imagePath: String,
-        categories: Set<Category> = emptySet(),
-        versions: List<Version> = emptyList()
-	) : this(
-		id = name.spinalCase(),
-		name = name,
-		description = description,
-		imagePath = imagePath,
-		creationDate = LocalDateTime.now(),
-		publisher = publisher,
-		game= game,
-		categories = categories,
-		versions = versions.toMutableList()
-	)
+	constructor() : this("", "", null, "", LocalDateTime.now(), UserEntity(), GameEntity())
 }

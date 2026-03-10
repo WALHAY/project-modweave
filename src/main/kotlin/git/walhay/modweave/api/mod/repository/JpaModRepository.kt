@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository
 @Repository
 class JpaModRepository(private val repository: SpringDataModRepository) : ModRepository {
     override fun findById(id: String): Mod? = repository.findByIdOrNull(id)?.toModel()
-    override fun deleteById(id: String) = repository.deleteById(id)
+    override fun deleteById(modId: String) = repository.deleteById(modId)
 
     override fun save(mod: Mod): Mod = repository.save(mod.toEntity()).toModel()
 
