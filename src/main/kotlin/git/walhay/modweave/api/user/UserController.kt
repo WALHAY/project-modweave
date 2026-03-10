@@ -4,10 +4,8 @@ import git.walhay.modweave.api.user.dto.UserDto
 import git.walhay.modweave.api.user.dto.UserRegisterDto
 import git.walhay.modweave.api.user.dto.UserUpdateDto
 import jakarta.validation.Valid
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
-import git.walhay.modweave.api.user.UserService
 
 @RestController
 @RequestMapping("/users")

@@ -3,13 +3,13 @@ package git.walhay.modweave.api.mod
 import git.walhay.modweave.api.category.CategoryRepository
 import git.walhay.modweave.api.game.GameRepository
 import git.walhay.modweave.api.game.exception.GameNotFoundException
-import git.walhay.modweave.api.mod.dto.ModDto
 import git.walhay.modweave.api.mod.dto.ModUploadDto
 import git.walhay.modweave.api.mod.exception.ModExistsException
 import git.walhay.modweave.api.mod.exception.ModNotFoundException
 import git.walhay.modweave.api.service.SimpleStorageService
-import git.walhay.modweave.api.user.UserRepository
 import git.walhay.modweave.api.user.exception.UserNotFoundException
+import git.walhay.modweave.api.user.repository.UserRepository
+import git.walhay.modweave.api.user.toEntity
 import git.walhay.modweave.api.version.VersionService
 import git.walhay.modweave.util.spinalCase
 import org.apache.commons.io.FilenameUtils
@@ -22,12 +22,12 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional
 class ModService(
-	private val modRepository: ModRepository,
-	private val userRepository: UserRepository,
-	private val categoryRepository: CategoryRepository,
-	private val gameRepository: GameRepository,
-	private val versionService: VersionService,
-	private val simpleStorageService: SimpleStorageService
+    private val modRepository: ModRepository,
+    private val userRepository: UserRepository,
+    private val categoryRepository: CategoryRepository,
+    private val gameRepository: GameRepository,
+    private val versionService: VersionService,
+    private val simpleStorageService: SimpleStorageService
 ) {
 
 	fun findModById(id: String): Mod =
@@ -51,7 +51,7 @@ class ModService(
 		}
 
 		val user =
-			userRepository.findByLoginIgnoreCase(login)
+			userRepository.findByLogin(login)
 				?: throw UserNotFoundException("User with login=${login} not found")
 		val game =
 			gameRepository.findById(dto.game).orElseThrow {
@@ -65,7 +65,7 @@ class ModService(
 			Mod(
 				dto.name,
 				dto.description,
-				user,
+				user.toEntity(), // TODO: change to user domain model when refactoring mod itself
 				game,
 				simpleStorageService.uploadImage(imagePath, dto.image),
 				categories
