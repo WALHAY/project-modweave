@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.version.repository
 
-import git.walhay.modweave.api.file.File
+import git.walhay.modweave.api.file.repository.FileEntity
 import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.version.Version
 import io.mcarle.konvert.api.KonvertTo
@@ -28,7 +28,7 @@ class VersionEntity(
 		cascade = [CascadeType.ALL],
 		orphanRemoval = true
 	)
-	val files: MutableList<File> = mutableListOf()
+	val files: MutableList<FileEntity> = mutableListOf()
 ) {
 	constructor(
 		name: String,

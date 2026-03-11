@@ -5,7 +5,6 @@ import git.walhay.modweave.api.game.exception.GameExistsException
 import git.walhay.modweave.api.game.exception.GameNotFoundException
 import git.walhay.modweave.api.game.repository.GameRepository
 import git.walhay.modweave.api.service.SimpleStorageService
-import git.walhay.modweave.util.spinalCase
 import org.apache.commons.io.FilenameUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -33,15 +32,15 @@ class GameService(
   }
 
   fun uploadGame(dto: AddGameDto): Game {
-    // TODO: add image path
-    if (gameRepository.existsById(dto.name.spinalCase())) {
-      throw GameExistsException("Game with id=${dto.name.spinalCase()} already exist")
+    if (gameRepository.existsById(dto.nameSpinal)) {
+      throw GameExistsException("Game with id=${dto.nameSpinal} already exist")
     }
 
-    val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
+      var game=
+          Game(dto.name, dto.description)
+      game = gameRepository.save(game)
 
-    val game=
-        Game(dto.name, dto.description, simpleStorageService.uploadImage(imagePath, dto.image))
+      game.imagePath = simpleStorageService.uploadImage("${game.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}", dto.image)
 
     return gameRepository.save(game)
   }

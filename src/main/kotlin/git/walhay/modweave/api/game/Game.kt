@@ -12,10 +12,15 @@ class Game (
     val id: String,
     val name: String,
     val description: String? = null,
-    val imagePath: String,
+    var imagePath: String,
     val mods: MutableList<ModEntity> = mutableListOf()
 ) {
     constructor() : this("", null, "")
+
+    constructor(
+        name: String,
+        description: String? = null
+    ) : this(id = name.spinalCase(), name = name, description = description, "")
 
     constructor(
         name: String,

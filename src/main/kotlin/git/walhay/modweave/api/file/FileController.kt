@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/files")
 class FileController(
 	@param:Value($$"${minio.endpoint}") private val minioUrl: String,
-	private val fileRepository: FileRepository
 ) {
 
 	@GetMapping("/{bucket}/{fileId}/download")
@@ -20,11 +19,6 @@ class FileController(
 		@PathVariable fileId: Long,
 		response: HttpServletResponse
 	) {
-		val file = fileRepository.findById(fileId).orElseThrow()
-		val filename = file.filePath
-		file.downloads++
-		fileRepository.save(file)
-
-		response.sendRedirect("${minioUrl}/$bucket/$filename")
+		response.sendRedirect(null) // FIXME: change location to file path
 	}
 }
