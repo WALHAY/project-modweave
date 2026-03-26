@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component
 
 @Component
 class FileEntityListener(
-	private val simpleStorageService: SimpleStorageService,
-	private val logger: KLogger = KotlinLogging.logger {}
+    private val simpleStorageService: SimpleStorageService,
+    private val logger: KLogger = KotlinLogging.logger {}
 ) {
-	@PreRemove
-	fun onFileRemoval(file: FileEntity) {
-		logger.info { "Remove file with name `${file.filePath}`" }
-		simpleStorageService.removeVersionFile(file.filePath)
-	}
+  @PreRemove
+  fun onFileRemoval(file: FileEntity) {
+    logger.info { "Remove file with name `${file.filePath}`" }
+    simpleStorageService.removeVersionFile(file.filePath)
+  }
 }

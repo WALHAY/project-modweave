@@ -19,23 +19,21 @@ class ModEntity(
     @Column(name = "image_path", nullable = false, length = 500) val imagePath: String,
     @Column(name = "creation_date", nullable = false) val creationDate: LocalDateTime,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "publisher_login", nullable = false)
-	val publisher: UserEntity,
+    @JoinColumn(name = "publisher_login", nullable = false)
+    val publisher: UserEntity,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "game_id", nullable = false)
-	var game: GameEntity,
+    @JoinColumn(name = "game_id", nullable = false)
+    var game: GameEntity,
     @ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(
-		schema = "modweave",
-		name = "mods_categories",
-		joinColumns = [JoinColumn(name = "mod_id", nullable = false)],
-		inverseJoinColumns = [JoinColumn(name = "category_name", nullable = false)]
-	)
-	val categories: Set<CategoryEntity> = emptySet(),
+    @JoinTable(
+        schema = "modweave",
+        name = "mods_categories",
+        joinColumns = [JoinColumn(name = "mod_id", nullable = false)],
+        inverseJoinColumns = [JoinColumn(name = "category_name", nullable = false)])
+    val categories: Set<CategoryEntity> = emptySet(),
     @OneToMany(
-		mappedBy = "mod", fetch = FetchType.LAZY, orphanRemoval = true, cascade = [CascadeType.ALL]
-	)
-	val versions: MutableList<VersionEntity> = mutableListOf()
+        mappedBy = "mod", fetch = FetchType.LAZY, orphanRemoval = true, cascade = [CascadeType.ALL])
+    val versions: MutableList<VersionEntity> = mutableListOf()
 ) {
-	constructor() : this("", "", null, "", LocalDateTime.now(), UserEntity(), GameEntity())
+  constructor() : this("", "", null, "", LocalDateTime.now(), UserEntity(), GameEntity())
 }

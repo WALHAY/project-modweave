@@ -11,14 +11,15 @@ import jakarta.persistence.*
 class CategoryEntity(
     @Id @Column(name = "name", nullable = false) var name: String,
     @Column(name = "description", columnDefinition = "text") var description: String? = null,
-    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY) val mods: Set<ModEntity> = emptySet()
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    val mods: Set<ModEntity> = emptySet()
 ) {
-	constructor() : this("")
+  constructor() : this("")
 
-	@PrePersist
-	@PreUpdate
-	fun normalize() {
-		name.trim()
-		description?.trim()
-	}
+  @PrePersist
+  @PreUpdate
+  fun normalize() {
+    name.trim()
+    description?.trim()
+  }
 }

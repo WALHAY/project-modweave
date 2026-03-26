@@ -11,5 +11,5 @@ data class AddGameDto(
     val description: String?,
     @field:NotNull @field:ValidImage val image: MultipartFile
 ) {
-    val nameSpinal = name.spinalCase()
+  val nameSpinal = name.spinalCase()
 }

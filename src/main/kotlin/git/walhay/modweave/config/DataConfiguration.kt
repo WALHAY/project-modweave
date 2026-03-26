@@ -11,22 +11,22 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource
 class DataConfiguration
 @Autowired
 constructor(
-	@param:Value($$"${minio.endpoint}") private val endpoint: String,
-	@param:Value($$"${minio.credentials.username}") private val accessKey: String,
-	@param:Value($$"${minio.credentials.password}") private val secretKey: String,
+    @param:Value($$"${minio.endpoint}") private val endpoint: String,
+    @param:Value($$"${minio.credentials.username}") private val accessKey: String,
+    @param:Value($$"${minio.credentials.password}") private val secretKey: String,
 ) {
-	@Bean
-	fun dataSource() =
-		DriverManagerDataSource().apply {
-			username = "postgres"
-			password = "postgres"
-			schema = "modweave"
-			catalog = "production"
-			url = "jdbc:postgresql://localhost:5432/"
-			setDriverClassName("org.postgresql.Driver")
-		}
+  @Bean
+  fun dataSource() =
+      DriverManagerDataSource().apply {
+        username = "postgres"
+        password = "postgres"
+        schema = "modweave"
+        catalog = "production"
+        url = "jdbc:postgresql://localhost:5432/"
+        setDriverClassName("org.postgresql.Driver")
+      }
 
-	@Bean
-	fun minioClient(): MinioClient =
-		MinioClient.builder().endpoint(endpoint).credentials(accessKey, secretKey).build()
+  @Bean
+  fun minioClient(): MinioClient =
+      MinioClient.builder().endpoint(endpoint).credentials(accessKey, secretKey).build()
 }

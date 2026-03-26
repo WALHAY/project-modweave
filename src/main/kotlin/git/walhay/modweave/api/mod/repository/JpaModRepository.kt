@@ -9,19 +9,17 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class JpaModRepository(private val repository: SpringDataModRepository) : ModRepository {
-    override fun findById(id: String): Mod? = repository.findByIdOrNull(id)?.toModel()
-    override fun deleteById(modId: String) = repository.deleteById(modId)
+  override fun findById(id: String): Mod? = repository.findByIdOrNull(id)?.toModel()
 
-    override fun save(mod: Mod): Mod = repository.save(mod.toEntity()).toModel()
+  override fun deleteById(modId: String) = repository.deleteById(modId)
 
-    override fun findAll(pageable: Pageable): Page<Mod> = repository.findAll(pageable).map { it.toModel() }
+  override fun save(mod: Mod): Mod = repository.save(mod.toEntity()).toModel()
 
-    override fun findAll(
-        name: String,
-        pageable: Pageable
-    ): Page<Mod> = repository.findAllByNameContainingIgnoreCase(name, pageable).map { it.toModel() }
+  override fun findAll(pageable: Pageable): Page<Mod> =
+      repository.findAll(pageable).map { it.toModel() }
 
-    override fun existsById(id: String): Boolean = repository.existsById(id)
+  override fun findAll(name: String, pageable: Pageable): Page<Mod> =
+      repository.findAllByNameContainingIgnoreCase(name, pageable).map { it.toModel() }
 
-
+  override fun existsById(id: String): Boolean = repository.existsById(id)
 }

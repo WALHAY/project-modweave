@@ -8,18 +8,16 @@ import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional
-class FileService(
-	private val simpleStorageService: SimpleStorageService
-) {
+class FileService(private val simpleStorageService: SimpleStorageService) {
 
-	fun incrementDownloadCounter() {}
+  fun incrementDownloadCounter() {}
 
-	fun uploadFilesTransient(version: Version, files: List<MultipartFile>) {
-		for (file in files) {
-			val filename = "${version.mod.name}/${version.name}/${file.originalFilename}"
-			simpleStorageService.uploadVersionFile(filename, file)
+  fun uploadFilesTransient(version: Version, files: List<MultipartFile>) {
+    for (file in files) {
+      val filename = "${version.mod.name}/${version.name}/${file.originalFilename}"
+      simpleStorageService.uploadVersionFile(filename, file)
 
-			version.files.addFirst(File(file.name, filename, version))
-		}
-	}
+      version.files.addFirst(File(file.name, filename, version))
+    }
+  }
 }

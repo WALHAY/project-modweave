@@ -11,26 +11,26 @@ import org.springframework.web.multipart.MultipartFile
 
 @Service
 class SimpleStorageService(
-	private val minioClient: MinioClient,
-	@param:Value($$"${minio.buckets.mods}") private val modsBucket: String,
-	@param:Value($$"${minio.buckets.images}") private val imagesBucket: String,
-	private val logger: KLogger = KotlinLogging.logger {}
+    private val minioClient: MinioClient,
+    @param:Value($$"${minio.buckets.mods}") private val modsBucket: String,
+    @param:Value($$"${minio.buckets.images}") private val imagesBucket: String,
+    private val logger: KLogger = KotlinLogging.logger {}
 ) {
 
-	@EventListener(ApplicationReadyEvent::class)
-	fun initBuckets() {
-		checkBucketExistence(modsBucket)
-		checkBucketExistence(imagesBucket)
-	}
+  @EventListener(ApplicationReadyEvent::class)
+  fun initBuckets() {
+    checkBucketExistence(modsBucket)
+    checkBucketExistence(imagesBucket)
+  }
 
-	private fun checkBucketExistence(bucket: String) {
-		logger.info("Checking bucket $bucket existence")
-		if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
-			logger.info("Bucket $bucket is missing")
-			minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).objectLock(false).build())
+  private fun checkBucketExistence(bucket: String) {
+    logger.info("Checking bucket $bucket existence")
+    if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
+      logger.info("Bucket $bucket is missing")
+      minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).objectLock(false).build())
 
-			val policy: String =
-				"""
+      val policy: String =
+          """
           {
             "Version": "2012-10-17",
             "Statement": [{
@@ -41,52 +41,48 @@ class SimpleStorageService(
             }]
           }
           """
-					.trimIndent()
-					.format(bucket)
+              .trimIndent()
+              .format(bucket)
 
-			minioClient.setBucketPolicy(
-				SetBucketPolicyArgs.builder().bucket(bucket).config(policy).build()
-			)
-			logger.info("Creating bucket $bucket")
-		}
-	}
+      minioClient.setBucketPolicy(
+          SetBucketPolicyArgs.builder().bucket(bucket).config(policy).build())
+      logger.info("Creating bucket $bucket")
+    }
+  }
 
-	private fun putFileIntoBucket(bucket: String, filename: String, file: MultipartFile): String {
-		logger.info(
-			"Uploading file=${file.originalFilename} into bucket=$bucket with filename=$filename"
-		)
-		try {
-			minioClient.putObject(
-				PutObjectArgs.builder()
-					.bucket(bucket)
-					.`object`(filename)
-					.stream(file.inputStream, file.size, -1)
-					.contentType(file.contentType)
-					.build()
-			)
+  private fun putFileIntoBucket(bucket: String, filename: String, file: MultipartFile): String {
+    logger.info(
+        "Uploading file=${file.originalFilename} into bucket=$bucket with filename=$filename")
+    try {
+      minioClient.putObject(
+          PutObjectArgs.builder()
+              .bucket(bucket)
+              .`object`(filename)
+              .stream(file.inputStream, file.size, -1)
+              .contentType(file.contentType)
+              .build())
 
-			return filename
-		} catch (e: Exception) {
-			logger.error(
-				"Failed to upload file=${file.originalFilename} into bucket=$bucket with filename=$filename"
-			)
-			throw e
-		}
-	}
+      return filename
+    } catch (e: Exception) {
+      logger.error(
+          "Failed to upload file=${file.originalFilename} into bucket=$bucket with filename=$filename")
+      throw e
+    }
+  }
 
-	private fun removeFileFromBucket(bucket: String, filename: String) {
-		minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).`object`(filename).build())
-	}
+  private fun removeFileFromBucket(bucket: String, filename: String) {
+    minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).`object`(filename).build())
+  }
 
-	fun uploadImage(filename: String, file: MultipartFile): String {
-		return putFileIntoBucket(imagesBucket, filename, file)
-	}
+  fun uploadImage(filename: String, file: MultipartFile): String {
+    return putFileIntoBucket(imagesBucket, filename, file)
+  }
 
-	fun uploadVersionFile(filename: String, file: MultipartFile): String {
-		return putFileIntoBucket(modsBucket, filename, file)
-	}
+  fun uploadVersionFile(filename: String, file: MultipartFile): String {
+    return putFileIntoBucket(modsBucket, filename, file)
+  }
 
-	fun removeVersionFile(filename: String) {
-		removeFileFromBucket(modsBucket, filename)
-	}
+  fun removeVersionFile(filename: String) {
+    removeFileFromBucket(modsBucket, filename)
+  }
 }

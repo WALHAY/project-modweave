@@ -4,8 +4,8 @@ import git.walhay.modweave.api.file.dto.FileDto
 import java.time.LocalDateTime
 
 data class VersionDto(
-	val name: String,
-	val changes: String?,
-	val uploadDate: LocalDateTime,
-	val files: List<FileDto>
+    val name: String,
+    val changes: String?,
+    val uploadDate: LocalDateTime,
+    val files: List<FileDto>
 )

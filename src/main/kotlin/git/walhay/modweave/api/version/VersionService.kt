@@ -19,42 +19,42 @@ class VersionService(
     private val modRepository: ModRepository,
 ) {
 
-	fun uploadModVersion(mod: Mod, modVersionUploadDTO: VersionUploadDto): Version {
-		val version = Version(modVersionUploadDTO.name, null, mod)
-		mod.versions.addLast(version)
+  fun uploadModVersion(mod: Mod, modVersionUploadDTO: VersionUploadDto): Version {
+    val version = Version(modVersionUploadDTO.name, null, mod)
+    mod.versions.addLast(version)
 
-		fileService.uploadFilesTransient(version, modVersionUploadDTO.files)
-		return versionRepository.save(version)
-	}
+    fileService.uploadFilesTransient(version, modVersionUploadDTO.files)
+    return versionRepository.save(version)
+  }
 
-	fun uploadModVersion(modId: String, modVersionUploadDTO: VersionUploadDto): Version {
-		val mod =
-			modRepository.findById(modId) ?: throw ModNotFoundException("Mod with id=$modId not found")
-		return uploadModVersion(mod, modVersionUploadDTO)
-	}
+  fun uploadModVersion(modId: String, modVersionUploadDTO: VersionUploadDto): Version {
+    val mod =
+        modRepository.findById(modId) ?: throw ModNotFoundException("Mod with id=$modId not found")
+    return uploadModVersion(mod, modVersionUploadDTO)
+  }
 
-	fun uploadModVersionTransient(
-        mod: Mod,
-        name: String,
-        changes: String?,
-        files: List<MultipartFile>
-	): Version {
-		val version = Version(name, changes, mod)
-		fileService.uploadFilesTransient(version, files)
+  fun uploadModVersionTransient(
+      mod: Mod,
+      name: String,
+      changes: String?,
+      files: List<MultipartFile>
+  ): Version {
+    val version = Version(name, changes, mod)
+    fileService.uploadFilesTransient(version, files)
 
-		mod.versions.addLast(version)
-		return version
-	}
+    mod.versions.addLast(version)
+    return version
+  }
 
-	fun uploadModVersionTransient(mod: Mod, name: String, files: List<MultipartFile>) =
-		uploadModVersionTransient(mod, name, null, files)
+  fun uploadModVersionTransient(mod: Mod, name: String, files: List<MultipartFile>) =
+      uploadModVersionTransient(mod, name, null, files)
 
-	fun deleteModVersion(modId: String, version: String) {
-		val mod =
-			modRepository.findById(modId) ?: throw
-				ModNotFoundException("Mod with modid=$modId not found")
+  fun deleteModVersion(modId: String, version: String) {
+    val mod =
+        modRepository.findById(modId)
+            ?: throw ModNotFoundException("Mod with modid=$modId not found")
 
-		mod.versions.find { it.name == version }?.let { versionRepository.delete(it) }
-			?: throw VersionNotFoundException("Version with name=$version not found for deletion")
-	}
+    mod.versions.find { it.name == version }?.let { versionRepository.delete(it) }
+        ?: throw VersionNotFoundException("Version with name=$version not found for deletion")
+  }
 }

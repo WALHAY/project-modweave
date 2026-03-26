@@ -6,11 +6,12 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class JpaUserRepository(private val repository: SpringDataUserRepository) : UserRepository {
-	override fun existsByLogin(login: String): Boolean = repository.existsByLoginIgnoreCase(login)
+  override fun existsByLogin(login: String): Boolean = repository.existsByLoginIgnoreCase(login)
 
-	override fun existsByEmail(email: String): Boolean = repository.existsByEmailIgnoreCase(email)
+  override fun existsByEmail(email: String): Boolean = repository.existsByEmailIgnoreCase(email)
 
-	override fun findByLogin(login: String): User? = repository.findByLoginIgnoreCase(login)?.toModel()
+  override fun findByLogin(login: String): User? =
+      repository.findByLoginIgnoreCase(login)?.toModel()
 
-    override fun save(user: User): User = repository.save<UserEntity>(user.toEntity()).toModel()
+  override fun save(user: User): User = repository.save<UserEntity>(user.toEntity()).toModel()
 }

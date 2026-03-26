@@ -12,31 +12,30 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class CategoryService(val categoryRepository: CategoryRepository) {
 
-	fun getCategories(): List<Category> = categoryRepository.findAll()
+  fun getCategories(): List<Category> = categoryRepository.findAll()
 
-	fun uploadCategory(dto: CategoryDto): Category {
-		if (categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
-			throw CategoryExistsException("Category with name=${dto.name.lowercase()} already exists")
-		}
+  fun uploadCategory(dto: CategoryDto): Category {
+    if (categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
+      throw CategoryExistsException("Category with name=${dto.name.lowercase()} already exists")
+    }
 
-		return categoryRepository.save(dto.toCategory())
-	}
+    return categoryRepository.save(dto.toCategory())
+  }
 
-	fun deleteCategory(name: String) {
-		if (!categoryRepository.existsByNameIgnoreCase(name)) {
-			throw CategoryNotFoundException("Category with name=$name not found for deletion")
-		}
+  fun deleteCategory(name: String) {
+    if (!categoryRepository.existsByNameIgnoreCase(name)) {
+      throw CategoryNotFoundException("Category with name=$name not found for deletion")
+    }
 
-		categoryRepository.deleteByNameIgnoreCase(name)
-	}
+    categoryRepository.deleteByNameIgnoreCase(name)
+  }
 
-	fun updateCategory(dto: CategoryDto): Category {
-		if (!categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
-			throw CategoryNotFoundException(
-				"Category with name=${dto.name.lowercase()} not found for update"
-			)
-		}
+  fun updateCategory(dto: CategoryDto): Category {
+    if (!categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
+      throw CategoryNotFoundException(
+          "Category with name=${dto.name.lowercase()} not found for update")
+    }
 
-		return categoryRepository.save(dto.toCategory())
-	}
+    return categoryRepository.save(dto.toCategory())
+  }
 }

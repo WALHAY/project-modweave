@@ -6,12 +6,12 @@ import git.walhay.modweave.api.version.dto.VersionDto
 import java.time.LocalDateTime
 
 data class ModDto(
-	val id: String,
-	val name: String,
-	val description: String?,
-	val imagePath: String,
-	val creationDate: LocalDateTime = LocalDateTime.now(),
-	val game: GameDto,
-	val categories: List<CategoryDto>,
-	val versions: List<VersionDto>
+    val id: String,
+    val name: String,
+    val description: String?,
+    val imagePath: String,
+    val creationDate: LocalDateTime = LocalDateTime.now(),
+    val game: GameDto,
+    val categories: List<CategoryDto>,
+    val versions: List<VersionDto>
 )

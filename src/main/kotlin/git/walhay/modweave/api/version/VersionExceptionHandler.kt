@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class VersionExceptionHandler {
 
-	@ExceptionHandler(VersionNotFoundException::class)
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	fun versionNotFoundHandler(e: VersionNotFoundException) {
-	}
+  @ExceptionHandler(VersionNotFoundException::class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  fun versionNotFoundHandler(e: VersionNotFoundException) {}
 }

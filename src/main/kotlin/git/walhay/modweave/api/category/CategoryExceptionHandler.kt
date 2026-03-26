@@ -10,13 +10,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class CategoryExceptionHandler {
 
-	@ExceptionHandler(CategoryNotFoundException::class)
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	fun categoryNotFoundHandler(e: CategoryNotFoundException) {
-	}
+  @ExceptionHandler(CategoryNotFoundException::class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  fun categoryNotFoundHandler(e: CategoryNotFoundException) {}
 
-	@ExceptionHandler(CategoryExistsException::class)
-	@ResponseStatus(HttpStatus.CONFLICT)
-	fun categoryExistsHandler(e: CategoryExistsException) {
-	}
+  @ExceptionHandler(CategoryExistsException::class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  fun categoryExistsHandler(e: CategoryExistsException) {}
 }

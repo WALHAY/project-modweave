@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/files")
 class FileController(
-	@param:Value($$"${minio.endpoint}") private val minioUrl: String,
+    @param:Value($$"${minio.endpoint}") private val minioUrl: String,
 ) {
 
-	@GetMapping("/{bucket}/{fileId}/download")
-	fun downloadFile(
-		@PathVariable bucket: String,
-		@PathVariable fileId: Long,
-		response: HttpServletResponse
-	) {
-		response.sendRedirect(null) // FIXME: change location to file path
-	}
+  @GetMapping("/{bucket}/{fileId}/download")
+  fun downloadFile(
+      @PathVariable bucket: String,
+      @PathVariable fileId: Long,
+      response: HttpServletResponse
+  ) {
+    response.sendRedirect(null) // FIXME: change location to file path
+  }
 }

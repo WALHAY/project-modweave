@@ -13,21 +13,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class UserExceptionHandler(private val logger: KLogger = KotlinLogging.logger {}) {
 
-	@ExceptionHandler(UserEmailExistsException::class)
-	@ResponseStatus(HttpStatus.CONFLICT)
-	fun userEmailExistsHandler(e: UserEmailExistsException) {
-		logger.error { e }
-	}
+  @ExceptionHandler(UserEmailExistsException::class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  fun userEmailExistsHandler(e: UserEmailExistsException) {
+    logger.error { e }
+  }
 
-	@ExceptionHandler(UserLoginExistsException::class)
-	@ResponseStatus(HttpStatus.CONFLICT)
-	fun userLoginExistsHandler(e: UserLoginExistsException) {
-		logger.error { e }
-	}
+  @ExceptionHandler(UserLoginExistsException::class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  fun userLoginExistsHandler(e: UserLoginExistsException) {
+    logger.error { e }
+  }
 
-	@ExceptionHandler(UserNotFoundException::class)
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	fun userNotFoundHandler(e: UserNotFoundException) {
-		logger.error { e }
-	}
+  @ExceptionHandler(UserNotFoundException::class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  fun userNotFoundHandler(e: UserNotFoundException) {
+    logger.error { e }
+  }
 }

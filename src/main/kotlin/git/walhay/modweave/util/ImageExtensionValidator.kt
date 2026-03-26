@@ -8,10 +8,7 @@ import org.springframework.web.multipart.MultipartFile
 class ImageExtensionValidator(
     private val allowedExtensions: Set<String> = setOf("png", "jpg", "jpeg")
 ) : ConstraintValidator<ValidImage, MultipartFile?> {
-    override fun isValid(
-        value: MultipartFile?,
-        context: ConstraintValidatorContext?
-    ): Boolean {
-        return FilenameUtils.getExtension(value?.originalFilename).lowercase() in allowedExtensions
-    }
+  override fun isValid(value: MultipartFile?, context: ConstraintValidatorContext?): Boolean {
+    return FilenameUtils.getExtension(value?.originalFilename).lowercase() in allowedExtensions
+  }
 }

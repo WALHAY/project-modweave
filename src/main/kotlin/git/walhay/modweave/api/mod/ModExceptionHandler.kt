@@ -13,21 +13,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class ModExceptionHandler(private val logger: KLogger = KotlinLogging.logger {}) {
 
-	@ExceptionHandler(ModNotFoundException::class)
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	fun modNotFoundHandler(e: ModNotFoundException) {
-		logger.error { e }
-	}
+  @ExceptionHandler(ModNotFoundException::class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  fun modNotFoundHandler(e: ModNotFoundException) {
+    logger.error { e }
+  }
 
-	@ExceptionHandler(ModExistsException::class)
-	@ResponseStatus(HttpStatus.CONFLICT)
-	fun modExistsHandler(e: ModExistsException) {
-		logger.error { e }
-	}
+  @ExceptionHandler(ModExistsException::class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  fun modExistsHandler(e: ModExistsException) {
+    logger.error { e }
+  }
 
-	@ExceptionHandler(ModCreationFailedException::class)
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	fun modCreationFailedHandler(e: ModCreationFailedException) {
-		logger.error { e }
-	}
+  @ExceptionHandler(ModCreationFailedException::class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  fun modCreationFailedHandler(e: ModCreationFailedException) {
+    logger.error { e }
+  }
 }

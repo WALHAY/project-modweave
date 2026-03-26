@@ -17,5 +17,5 @@ data class User(
     var isAdmin: Boolean = false,
     val mods: MutableSet<Mod> = mutableSetOf()
 ) {
-    constructor() : this("", "", "", "")
+  constructor() : this("", "", "", "")
 }

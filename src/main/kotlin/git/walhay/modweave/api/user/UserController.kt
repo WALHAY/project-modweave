@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/users")
 class UserController(private val userService: UserService) {
 
-	@GetMapping("/{login}")
-	fun getUser(@PathVariable login: String): UserDto = userService.findUserById(login).toUserDto()
+  @GetMapping("/{login}")
+  fun getUser(@PathVariable login: String): UserDto = userService.findUserById(login).toUserDto()
 
-	@PostMapping
-	fun registerUser(@ModelAttribute @Valid registerForm: UserRegisterDto): UserDto =
-		userService.registerNewUser(registerForm).toUserDto()
+  @PostMapping
+  fun registerUser(@ModelAttribute @Valid registerForm: UserRegisterDto): UserDto =
+      userService.registerNewUser(registerForm).toUserDto()
 
-	@PatchMapping
-	fun changeUserInfo(@ModelAttribute @Valid userUpdateDTO: UserUpdateDto): UserDto {
-		return SecurityContextHolder.getContext().authentication?.name?.let {
-			userService.updateUserProfile(it, userUpdateDTO).toUserDto()
-		} ?: throw Exception("Authentication fail")
-	}
+  @PatchMapping
+  fun changeUserInfo(@ModelAttribute @Valid userUpdateDTO: UserUpdateDto): UserDto {
+    return SecurityContextHolder.getContext().authentication?.name?.let {
+      userService.updateUserProfile(it, userUpdateDTO).toUserDto()
+    } ?: throw Exception("Authentication fail")
+  }
 }

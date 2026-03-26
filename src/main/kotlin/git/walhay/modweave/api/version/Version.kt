@@ -18,18 +18,17 @@ data class Version(
     val mod: Mod,
     val files: MutableList<File> = mutableListOf()
 ) {
-    constructor(
-        name: String,
-        changes: String? = null,
-        mod: Mod
-    ) : this(
-        name = name,
-        changes = changes,
-        uploadDate = LocalDateTime.now(),
-        approved = false,
-        mod = mod,
-        files = mutableListOf()
-    )
+  constructor(
+      name: String,
+      changes: String? = null,
+      mod: Mod
+  ) : this(
+      name = name,
+      changes = changes,
+      uploadDate = LocalDateTime.now(),
+      approved = false,
+      mod = mod,
+      files = mutableListOf())
 
-    constructor() : this("", null, Mod())
+  constructor() : this("", null, Mod())
 }

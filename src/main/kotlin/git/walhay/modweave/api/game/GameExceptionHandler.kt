@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class GameExceptionHandler(private val logger: KLogger = KotlinLogging.logger {}) {
 
-	@ExceptionHandler(GameExistsException::class)
-	@ResponseStatus(HttpStatus.CONFLICT)
-	fun gameExistsHandler(e: GameExistsException) {
-		logger.error { e }
-	}
+  @ExceptionHandler(GameExistsException::class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  fun gameExistsHandler(e: GameExistsException) {
+    logger.error { e }
+  }
 
-	@ExceptionHandler(GameNotFoundException::class)
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	fun gameNotFoundHandler(e: GameNotFoundException) {
-		logger.error { e }
-	}
+  @ExceptionHandler(GameNotFoundException::class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  fun gameNotFoundHandler(e: GameNotFoundException) {
+    logger.error { e }
+  }
 }

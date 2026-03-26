@@ -23,25 +23,24 @@ data class Mod(
     val categories: Set<Category> = emptySet(),
     val versions: MutableList<Version> = mutableListOf()
 ) {
-    constructor() : this("", null, User(), Game(), "")
+  constructor() : this("", null, User(), Game(), "")
 
-	constructor(
-        name: String,
-        description: String? = null,
-        publisher: User,
-        game: Game,
-        imagePath: String,
-        categories: Set<Category> = emptySet(),
-        versions: List<Version> = emptyList()
-	) : this(
-		id = name.spinalCase(),
-		name = name,
-		description = description,
-		imagePath = imagePath,
-		creationDate = LocalDateTime.now(),
-		publisher = publisher,
-		game = game,
-		categories = categories,
-		versions = versions.toMutableList()
-	)
+  constructor(
+      name: String,
+      description: String? = null,
+      publisher: User,
+      game: Game,
+      imagePath: String,
+      categories: Set<Category> = emptySet(),
+      versions: List<Version> = emptyList()
+  ) : this(
+      id = name.spinalCase(),
+      name = name,
+      description = description,
+      imagePath = imagePath,
+      creationDate = LocalDateTime.now(),
+      publisher = publisher,
+      game = game,
+      categories = categories,
+      versions = versions.toMutableList())
 }

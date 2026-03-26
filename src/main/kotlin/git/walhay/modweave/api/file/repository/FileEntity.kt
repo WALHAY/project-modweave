@@ -15,26 +15,25 @@ import org.hibernate.type.SqlTypes
 @KonvertTo(File::class, mapFunctionName = "toModel")
 class FileEntity(
     @Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	val id: Long? = null,
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    val id: Long? = null,
     @Column(name = "filename", nullable = false) val filename: String,
-    @NaturalId
-    @Column(name = "file_path", nullable = false) val filePath: String,
+    @NaturalId @Column(name = "file_path", nullable = false) val filePath: String,
     @Column(name = "downloads") var downloads: Int = 0,
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "mod_version_id", nullable = false)
-	val version: VersionEntity,
+    @JoinColumn(name = "mod_version_id", nullable = false)
+    val version: VersionEntity,
     @Column(name = "metainfo", nullable = true)
-	@JdbcTypeCode(SqlTypes.JSON)
-	val metainfo: String? = null
+    @JdbcTypeCode(SqlTypes.JSON)
+    val metainfo: String? = null
 ) {
-	constructor(
-        filename: String,
-        filePath: String,
-        version: VersionEntity,
-        metainfo: String? = null
-	) : this(null, filename, filePath, 0, version, metainfo)
+  constructor(
+      filename: String,
+      filePath: String,
+      version: VersionEntity,
+      metainfo: String? = null
+  ) : this(null, filename, filePath, 0, version, metainfo)
 
-	constructor() : this("", "", VersionEntity(), null)
+  constructor() : this("", "", VersionEntity(), null)
 }
