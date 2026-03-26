@@ -4,6 +4,7 @@ import git.walhay.modweave.api.category.dto.CategoryDto
 import git.walhay.modweave.api.category.dto.toCategory
 import git.walhay.modweave.api.category.exception.CategoryExistsException
 import git.walhay.modweave.api.category.exception.CategoryNotFoundException
+import git.walhay.modweave.api.category.repository.CategoryRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

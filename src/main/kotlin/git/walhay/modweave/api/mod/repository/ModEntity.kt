@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.mod.repository
 
-import git.walhay.modweave.api.category.Category
+import git.walhay.modweave.api.category.repository.CategoryEntity
 import git.walhay.modweave.api.game.repository.GameEntity
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.user.repository.UserEntity
@@ -31,7 +31,7 @@ class ModEntity(
 		joinColumns = [JoinColumn(name = "mod_id", nullable = false)],
 		inverseJoinColumns = [JoinColumn(name = "category_name", nullable = false)]
 	)
-	val categories: Set<Category> = emptySet(),
+	val categories: Set<CategoryEntity> = emptySet(),
     @OneToMany(
 		mappedBy = "mod", fetch = FetchType.LAZY, orphanRemoval = true, cascade = [CascadeType.ALL]
 	)

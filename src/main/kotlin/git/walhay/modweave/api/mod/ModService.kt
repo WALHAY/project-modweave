@@ -1,6 +1,5 @@
 package git.walhay.modweave.api.mod
 
-import git.walhay.modweave.api.category.CategoryRepository
 import git.walhay.modweave.api.game.exception.GameNotFoundException
 import git.walhay.modweave.api.game.repository.GameRepository
 import git.walhay.modweave.api.mod.dto.ModUploadDto
