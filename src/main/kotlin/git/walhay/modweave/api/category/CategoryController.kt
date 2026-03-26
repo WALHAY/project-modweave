@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/categories")
-class CategoryController(val categoryService: CategoryService) {
+class CategoryController(val categoryService: ICategoryService) {
 
   @GetMapping
   fun getCategories(): List<CategoryDto> =

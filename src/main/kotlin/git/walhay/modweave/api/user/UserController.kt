@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/users")
-class UserController(private val userService: UserService) {
+class UserController(private val userService: IUserService) {
 
   @GetMapping("/{login}")
   fun getUser(@PathVariable login: String): UserDto = userService.findUserById(login).toUserDto()

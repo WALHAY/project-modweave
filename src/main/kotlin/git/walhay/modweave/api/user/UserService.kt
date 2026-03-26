@@ -15,13 +15,13 @@ import org.springframework.transaction.annotation.Transactional
 class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder
-) {
+) : IUserService {
 
-  fun findUserById(login: String): User =
+  override fun findUserById(login: String): User =
       userRepository.findByLogin(login)
           ?: throw UserNotFoundException("User with login=$login not found")
 
-  fun registerNewUser(register: UserRegisterDto): User {
+  override fun registerNewUser(register: UserRegisterDto): User {
     if (userRepository.existsByLogin(register.login)) {
       throw UserLoginExistsException("Login ${register.login} already in use")
     }
@@ -39,7 +39,7 @@ class UserService(
     return userRepository.save(user)
   }
 
-  fun updateUserProfile(login: String, update: UserUpdateDto): User {
+  override fun updateUserProfile(login: String, update: UserUpdateDto): User {
     val user: User =
         userRepository.findByLogin(login)
             ?: throw UserNotFoundException("User with login=$login not found")

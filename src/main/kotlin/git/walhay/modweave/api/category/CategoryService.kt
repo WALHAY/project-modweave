@@ -10,11 +10,11 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class CategoryService(val categoryRepository: CategoryRepository) {
+class CategoryService(val categoryRepository: CategoryRepository) : ICategoryService {
 
-  fun getCategories(): List<Category> = categoryRepository.findAll()
+  override fun getCategories(): List<Category> = categoryRepository.findAll()
 
-  fun uploadCategory(dto: CategoryDto): Category {
+  override fun uploadCategory(dto: CategoryDto): Category {
     if (categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
       throw CategoryExistsException("Category with name=${dto.name.lowercase()} already exists")
     }
@@ -22,7 +22,7 @@ class CategoryService(val categoryRepository: CategoryRepository) {
     return categoryRepository.save(dto.toCategory())
   }
 
-  fun deleteCategory(name: String) {
+  override fun deleteCategory(name: String) {
     if (!categoryRepository.existsByNameIgnoreCase(name)) {
       throw CategoryNotFoundException("Category with name=$name not found for deletion")
     }
@@ -30,7 +30,7 @@ class CategoryService(val categoryRepository: CategoryRepository) {
     categoryRepository.deleteByNameIgnoreCase(name)
   }
 
-  fun updateCategory(dto: CategoryDto): Category {
+  override fun updateCategory(dto: CategoryDto): Category {
     if (!categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
       throw CategoryNotFoundException(
           "Category with name=${dto.name.lowercase()} not found for update")

@@ -1,7 +1,7 @@
 package git.walhay.modweave.api.file
 
 import git.walhay.modweave.api.file.repository.FileEntity
-import git.walhay.modweave.api.service.SimpleStorageService
+import git.walhay.modweave.api.storage.SimpleStorageService
 import jakarta.persistence.PreRemove
 import mu.KLogger
 import mu.KotlinLogging

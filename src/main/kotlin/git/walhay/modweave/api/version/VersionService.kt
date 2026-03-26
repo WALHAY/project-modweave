@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.version
 
-import git.walhay.modweave.api.file.FileService
+import git.walhay.modweave.api.file.IFileService
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.exception.ModNotFoundException
 import git.walhay.modweave.api.mod.repository.ModRepository
@@ -15,11 +15,11 @@ import org.springframework.web.multipart.MultipartFile
 @Transactional
 class VersionService(
     private val versionRepository: VersionRepository,
-    private val fileService: FileService,
+    private val fileService: IFileService,
     private val modRepository: ModRepository,
-) {
+) : IVersionService {
 
-  fun uploadModVersion(mod: Mod, modVersionUploadDTO: VersionUploadDto): Version {
+  override fun uploadModVersion(mod: Mod, modVersionUploadDTO: VersionUploadDto): Version {
     val version = Version(modVersionUploadDTO.name, null, mod)
     mod.versions.addLast(version)
 
@@ -27,13 +27,13 @@ class VersionService(
     return versionRepository.save(version)
   }
 
-  fun uploadModVersion(modId: String, modVersionUploadDTO: VersionUploadDto): Version {
+  override fun uploadModVersion(modId: String, modVersionUploadDTO: VersionUploadDto): Version {
     val mod =
         modRepository.findById(modId) ?: throw ModNotFoundException("Mod with id=$modId not found")
     return uploadModVersion(mod, modVersionUploadDTO)
   }
 
-  fun uploadModVersionTransient(
+  override fun uploadModVersionTransient(
       mod: Mod,
       name: String,
       changes: String?,
@@ -46,10 +46,13 @@ class VersionService(
     return version
   }
 
-  fun uploadModVersionTransient(mod: Mod, name: String, files: List<MultipartFile>) =
-      uploadModVersionTransient(mod, name, null, files)
+  override fun uploadModVersionTransient(
+      mod: Mod,
+      name: String,
+      files: List<MultipartFile>
+  ): Version = uploadModVersionTransient(mod, name, null, files)
 
-  fun deleteModVersion(modId: String, version: String) {
+  override fun deleteModVersion(modId: String, version: String) {
     val mod =
         modRepository.findById(modId)
             ?: throw ModNotFoundException("Mod with modid=$modId not found")

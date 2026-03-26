@@ -1,4 +1,4 @@
-package git.walhay.modweave.api.service
+package git.walhay.modweave.api.storage
 
 import io.minio.*
 import mu.KLogger
@@ -15,7 +15,7 @@ class SimpleStorageService(
     @param:Value($$"${minio.buckets.mods}") private val modsBucket: String,
     @param:Value($$"${minio.buckets.images}") private val imagesBucket: String,
     private val logger: KLogger = KotlinLogging.logger {}
-) {
+) : ISimpleStorageService {
 
   @EventListener(ApplicationReadyEvent::class)
   fun initBuckets() {
@@ -74,15 +74,15 @@ class SimpleStorageService(
     minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).`object`(filename).build())
   }
 
-  fun uploadImage(filename: String, file: MultipartFile): String {
+  override fun uploadImage(filename: String, file: MultipartFile): String {
     return putFileIntoBucket(imagesBucket, filename, file)
   }
 
-  fun uploadVersionFile(filename: String, file: MultipartFile): String {
+  override fun uploadVersionFile(filename: String, file: MultipartFile): String {
     return putFileIntoBucket(modsBucket, filename, file)
   }
 
-  fun removeVersionFile(filename: String) {
+  override fun removeVersionFile(filename: String) {
     removeFileFromBucket(modsBucket, filename)
   }
 }

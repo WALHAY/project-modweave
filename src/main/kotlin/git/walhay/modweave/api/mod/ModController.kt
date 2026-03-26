@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/mods")
-class ModController(private val modService: ModService) {
+class ModController(private val modService: IModService) {
 
   @GetMapping("/{modId}") fun getMod(@PathVariable modId: String) = modService.findModById(modId)
 

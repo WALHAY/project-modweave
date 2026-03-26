@@ -7,10 +7,10 @@ import git.walhay.modweave.api.mod.dto.ModUploadDto
 import git.walhay.modweave.api.mod.exception.ModExistsException
 import git.walhay.modweave.api.mod.exception.ModNotFoundException
 import git.walhay.modweave.api.mod.repository.ModRepository
-import git.walhay.modweave.api.service.SimpleStorageService
+import git.walhay.modweave.api.storage.ISimpleStorageService
 import git.walhay.modweave.api.user.exception.UserNotFoundException
 import git.walhay.modweave.api.user.repository.UserRepository
-import git.walhay.modweave.api.version.VersionService
+import git.walhay.modweave.api.version.IVersionService
 import git.walhay.modweave.util.spinalCase
 import org.apache.commons.io.FilenameUtils
 import org.springframework.data.domain.Page
@@ -26,14 +26,14 @@ class ModService(
     private val userRepository: UserRepository,
     private val categoryRepository: CategoryRepository,
     private val gameRepository: GameRepository,
-    private val versionService: VersionService,
-    private val simpleStorageService: SimpleStorageService
-) {
+    private val versionService: IVersionService,
+    private val simpleStorageService: ISimpleStorageService
+) : IModService {
 
-  fun findModById(id: String): Mod =
+  override fun findModById(id: String): Mod =
       modRepository.findById(id) ?: throw ModNotFoundException("Mod with id=$id not found")
 
-  fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
+  override fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
     val pageRequest = PageRequest.of(page, size, sort)
     if (name == null) {
       return modRepository.findAll(pageRequest)
@@ -41,7 +41,7 @@ class ModService(
     return modRepository.findAll(name, pageRequest)
   }
 
-  fun uploadMod(login: String, dto: ModUploadDto): Mod {
+  override fun uploadMod(login: String, dto: ModUploadDto): Mod {
     if (modRepository.existsById(dto.name.spinalCase())) {
       throw ModExistsException(
           "Mod with id=${dto.name.spinalCase()} or name=${dto.name} already exists")
@@ -69,7 +69,7 @@ class ModService(
     return modRepository.save(mod)
   }
 
-  fun deleteMod(login: String, modId: String) {
+  override fun deleteMod(login: String, modId: String) {
     modRepository.deleteById(modId)
   }
 }

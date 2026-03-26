@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/games")
-class GameController(private val gameService: GameService) {
+class GameController(private val gameService: IGameService) {
 
   @GetMapping
   fun getGames(
