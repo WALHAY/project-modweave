@@ -40,9 +40,7 @@ class UserService(
   }
 
   override fun updateUserProfile(login: String, update: UserUpdateDto): User {
-    val user: User =
-        userRepository.findByLogin(login)
-            ?: throw UserNotFoundException("User with login=$login not found")
+    val user: User = findUserById(login)
 
     update.username?.let { user.username = it }
     update.password?.let {

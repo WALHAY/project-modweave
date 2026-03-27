@@ -1,16 +1,15 @@
 package git.walhay.modweave.api.mod
 
 import git.walhay.modweave.api.category.repository.CategoryRepository
-import git.walhay.modweave.api.game.exception.GameNotFoundException
-import git.walhay.modweave.api.game.repository.GameRepository
+import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.mod.dto.ModUploadDto
 import git.walhay.modweave.api.mod.exception.ModExistsException
 import git.walhay.modweave.api.mod.exception.ModNotFoundException
 import git.walhay.modweave.api.mod.repository.ModRepository
 import git.walhay.modweave.api.storage.ISimpleStorageService
-import git.walhay.modweave.api.user.exception.UserNotFoundException
-import git.walhay.modweave.api.user.repository.UserRepository
+import git.walhay.modweave.api.user.IUserService
 import git.walhay.modweave.api.version.IVersionService
+import git.walhay.modweave.api.version.dto.VersionUploadDto
 import git.walhay.modweave.util.spinalCase
 import org.apache.commons.io.FilenameUtils
 import org.springframework.data.domain.Page
@@ -23,9 +22,9 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class ModService(
     private val modRepository: ModRepository,
-    private val userRepository: UserRepository,
+    private val userService: IUserService,
     private val categoryRepository: CategoryRepository,
-    private val gameRepository: GameRepository,
+    private val gamerService: IGameService,
     private val versionService: IVersionService,
     private val simpleStorageService: ISimpleStorageService
 ) : IModService {
@@ -47,12 +46,8 @@ class ModService(
           "Mod with id=${dto.name.spinalCase()} or name=${dto.name} already exists")
     }
 
-    val user =
-        userRepository.findByLogin(login)
-            ?: throw UserNotFoundException("User with login=${login} not found")
-    val game =
-        gameRepository.findById(dto.game)
-            ?: throw GameNotFoundException("Game with id=${dto.game} not found")
+    val user = userService.findUserById(login)
+    val game = gamerService.findGameById(dto.game)
     val categories = categoryRepository.findAllByNameIn(dto.categories)
 
     val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
@@ -65,7 +60,7 @@ class ModService(
             game,
             simpleStorageService.uploadImage(imagePath, dto.image),
             categories)
-    versionService.uploadModVersionTransient(mod, dto.versionName, dto.files)
+    versionService.uploadModVersion(mod, VersionUploadDto(dto.versionName, null, dto.files))
     return modRepository.save(mod)
   }
 

@@ -10,14 +10,19 @@ import org.springframework.web.multipart.MultipartFile
 @Transactional
 class FileService(private val simpleStorageService: ISimpleStorageService) : IFileService {
 
-  fun incrementDownloadCounter() {}
+  override fun uploadVersionFiles(version: Version, files: List<MultipartFile>) {
+    val uploadedFiles = mutableListOf<String>()
+    try {
+      for (file in files) {
+        val filename = "${version.mod.name}/${version.name}/${file.originalFilename}"
+        uploadedFiles.add(simpleStorageService.uploadVersionFile(filename, file))
 
-  override fun uploadFilesTransient(version: Version, files: List<MultipartFile>) {
-    for (file in files) {
-      val filename = "${version.mod.name}/${version.name}/${file.originalFilename}"
-      simpleStorageService.uploadVersionFile(filename, file)
-
-      version.files.addFirst(File(file.name, filename, version))
+        version.files.addFirst(File(file.name, filename, version))
+      }
+    } catch (e: Exception) {
+      for (filename in uploadedFiles) {
+        simpleStorageService.removeVersionFile(filename)
+      }
     }
   }
 }
