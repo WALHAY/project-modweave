@@ -18,7 +18,7 @@ class VersionEntity(
     @Column(name = "name", nullable = false) val name: String,
     @Column(name = "changes", columnDefinition = "text") val changes: String? = null,
     @Column(name = "upload_date", nullable = false) val uploadDate: LocalDateTime,
-    @Column(name = "approved", nullable = false) val approved: Boolean = false,
+    @Column(name = "approved", nullable = false) @Enumerated(EnumType.STRING) val approved: VersionStatus,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "mod_id", nullable = false)
     val mod: ModEntity,
@@ -37,7 +37,7 @@ class VersionEntity(
       name = name,
       changes = changes,
       uploadDate = LocalDateTime.now(),
-      approved = false,
+      approved = VersionStatus.PENDING,
       mod = mod,
       files = mutableListOf())
 

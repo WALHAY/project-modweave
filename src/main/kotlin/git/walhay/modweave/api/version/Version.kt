@@ -4,6 +4,7 @@ import git.walhay.modweave.api.file.File
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.version.dto.VersionDto
 import git.walhay.modweave.api.version.repository.VersionEntity
+import git.walhay.modweave.api.version.repository.VersionStatus
 import io.mcarle.konvert.api.KonvertTo
 import java.time.LocalDateTime
 
@@ -14,7 +15,7 @@ data class Version(
     val name: String,
     val changes: String? = null,
     val uploadDate: LocalDateTime,
-    val approved: Boolean = false,
+    val approved: VersionStatus,
     val mod: Mod,
     val files: MutableList<File> = mutableListOf()
 ) {
@@ -26,7 +27,7 @@ data class Version(
       name = name,
       changes = changes,
       uploadDate = LocalDateTime.now(),
-      approved = false,
+      approved = VersionStatus.PENDING,
       mod = mod,
       files = mutableListOf())
 

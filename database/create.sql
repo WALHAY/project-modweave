@@ -27,12 +27,14 @@ create table modweave.mods (
     publisher_login varchar not null references modweave.users (login) on delete cascade
 );
 
+create type version_status as enum ('pending', 'approved', 'rejected');
+
 create table modweave.mod_versions (
     id bigserial primary key,
     name varchar not null,
     changes text,
     upload_date timestamp default current_date not null,
-    approved boolean,
+    approved version_status,
     mod_id varchar not null references modweave.mods (id) on delete cascade
 );
 
