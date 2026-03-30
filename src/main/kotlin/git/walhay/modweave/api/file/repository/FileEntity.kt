@@ -5,9 +5,7 @@ import git.walhay.modweave.api.file.FileEntityListener
 import git.walhay.modweave.api.version.repository.VersionEntity
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
-import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.annotations.NaturalId
-import org.hibernate.type.SqlTypes
 
 @Entity
 @Table(schema = "modweave", name = "mod_files")
@@ -23,17 +21,13 @@ class FileEntity(
     @Column(name = "downloads") var downloads: Int = 0,
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "mod_version_id", nullable = false)
-    val version: VersionEntity,
-    @Column(name = "metainfo", nullable = true)
-    @JdbcTypeCode(SqlTypes.JSON)
-    val metainfo: String? = null
+    val version: VersionEntity
 ) {
   constructor(
       filename: String,
       filePath: String,
-      version: VersionEntity,
-      metainfo: String? = null
-  ) : this(null, filename, filePath, 0, version, metainfo)
+      version: VersionEntity
+  ) : this(null, filename, filePath, 0, version)
 
-  constructor() : this("", "", VersionEntity(), null)
+  constructor() : this("", "", VersionEntity())
 }

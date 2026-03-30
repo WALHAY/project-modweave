@@ -12,15 +12,13 @@ data class File(
     val filename: String,
     val filePath: String,
     var downloads: Int = 0,
-    val version: Version,
-    val metainfo: String? = null
+    val version: Version
 ) {
   constructor(
       filename: String,
       filePath: String,
-      version: Version,
-      metainfo: String? = null
-  ) : this(null, filename, filePath, 0, version, metainfo)
+      version: Version
+  ) : this(null, filename, filePath, 0, version)
 
-  constructor() : this("", "", Version(), null)
+  constructor() : this("", "", Version())
 }

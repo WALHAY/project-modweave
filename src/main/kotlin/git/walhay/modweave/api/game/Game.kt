@@ -2,7 +2,7 @@ package git.walhay.modweave.api.game
 
 import git.walhay.modweave.api.game.dto.GameDto
 import git.walhay.modweave.api.game.repository.GameEntity
-import git.walhay.modweave.api.mod.repository.ModEntity
+import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.util.spinalCase
 import io.mcarle.konvert.api.KonvertTo
 
@@ -13,7 +13,7 @@ class Game(
     val name: String,
     val description: String? = null,
     var imagePath: String,
-    val mods: MutableList<ModEntity> = mutableListOf()
+    val mods: MutableList<Mod> = mutableListOf()
 ) {
   constructor() : this("", null, "")
 

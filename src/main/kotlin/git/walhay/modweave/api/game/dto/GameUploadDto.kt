@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import org.springframework.web.multipart.MultipartFile
 
-data class UploadGameDto(
+data class GameUploadDto(
     @field:NotBlank var name: String,
     val description: String?,
     @field:NotNull @field:ValidImage val image: MultipartFile

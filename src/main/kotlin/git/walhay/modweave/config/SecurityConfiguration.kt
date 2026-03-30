@@ -24,7 +24,7 @@ class SecurityConfiguration(@Lazy private val userService: UserService) {
 
   @Bean
   fun userDetailsService(): UserDetailsService = UserDetailsService { login ->
-    val user = userService.findUserById(login)
+    val user = userService.findUserByLogin(login)
 
     User.withUsername(user.login)
         .password(user.password)
@@ -43,6 +43,7 @@ class SecurityConfiguration(@Lazy private val userService: UserService) {
         authorize(HttpMethod.GET, "/api/v1/games/**", permitAll)
         authorize(HttpMethod.POST, "/api/v1/games", hasRole("ADMIN"))
         authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
+        authorize(HttpMethod.GET, "/api/v1/users/**", permitAll)
         authorize("/api/v1/categories", hasRole("ADMIN"))
         authorize(HttpMethod.GET, "/api/v1/**", permitAll)
         authorize(anyRequest, authenticated)

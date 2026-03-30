@@ -17,9 +17,7 @@ class VersionService(
     private val versionRepository: VersionRepository,
     private val fileService: IFileService,
 ) : IVersionService {
-    @Lazy
-    @Autowired
-    private lateinit var modService: IModService
+  @Lazy @Autowired private lateinit var modService: IModService
 
   override fun uploadModVersion(mod: Mod, versionUploadDTO: VersionUploadDto): Version {
     val version = Version(versionUploadDTO.name, null, mod)

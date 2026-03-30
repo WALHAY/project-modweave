@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.game
 
-import git.walhay.modweave.api.game.dto.UploadGameDto
+import git.walhay.modweave.api.game.dto.GameUploadDto
 import git.walhay.modweave.api.game.exception.GameExistsException
 import git.walhay.modweave.api.game.exception.GameNotFoundException
 import git.walhay.modweave.api.game.repository.GameRepository
@@ -29,7 +29,7 @@ class GameService(
     return gameRepository.findAll(name, pageRequest)
   }
 
-  override fun uploadGame(dto: UploadGameDto): Game {
+  override fun uploadGame(dto: GameUploadDto): Game {
     if (gameRepository.existsById(dto.nameSpinal)) {
       throw GameExistsException("Game with id=${dto.nameSpinal} already exist")
     }

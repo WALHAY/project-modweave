@@ -1,7 +1,7 @@
 package git.walhay.modweave.api.game
 
 import git.walhay.modweave.api.game.dto.GameDto
-import git.walhay.modweave.api.game.dto.UploadGameDto
+import git.walhay.modweave.api.game.dto.GameUploadDto
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import org.springframework.data.domain.Page
@@ -27,6 +27,6 @@ class GameController(private val gameService: IGameService) {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  fun addGame(@Valid @ModelAttribute addGame: UploadGameDto): GameDto =
+  fun addGame(@Valid @ModelAttribute addGame: GameUploadDto): GameDto =
       gameService.uploadGame(addGame).toGameDto()
 }
