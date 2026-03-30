@@ -2,11 +2,18 @@ package git.walhay.modweave.api.user
 
 import git.walhay.modweave.api.user.dto.UserRegisterDto
 import git.walhay.modweave.api.user.dto.UserUpdateDto
+import java.util.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Sort
 
 interface IUserService {
-  fun findUserById(login: String): User
+  fun findUserById(id: UUID): User
+
+  fun findUserByLogin(login: String): User
+
+  fun findUsersWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<User>
 
   fun registerNewUser(register: UserRegisterDto): User
 
-  fun updateUserProfile(login: String, update: UserUpdateDto): User
+  fun updateUserProfile(id: UUID, update: UserUpdateDto): User
 }

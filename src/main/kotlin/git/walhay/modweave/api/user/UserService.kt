@@ -6,6 +6,10 @@ import git.walhay.modweave.api.user.exception.UserEmailExistsException
 import git.walhay.modweave.api.user.exception.UserLoginExistsException
 import git.walhay.modweave.api.user.exception.UserNotFoundException
 import git.walhay.modweave.api.user.repository.UserRepository
+import java.util.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,9 +21,20 @@ class UserService(
     private val passwordEncoder: PasswordEncoder
 ) : IUserService {
 
-  override fun findUserById(login: String): User =
+  override fun findUserById(id: UUID): User =
+      userRepository.findById(id) ?: throw UserNotFoundException("User with id=$id not found")
+
+  override fun findUserByLogin(login: String): User =
       userRepository.findByLogin(login)
           ?: throw UserNotFoundException("User with login=$login not found")
+
+  override fun findUsersWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<User> {
+    val pageRequest = PageRequest.of(page, size, sort)
+    if (name == null) {
+      return userRepository.findAll(pageRequest)
+    }
+    return userRepository.findAll(name, pageRequest)
+  }
 
   override fun registerNewUser(register: UserRegisterDto): User {
     if (userRepository.existsByLogin(register.login)) {
@@ -39,8 +54,8 @@ class UserService(
     return userRepository.save(user)
   }
 
-  override fun updateUserProfile(login: String, update: UserUpdateDto): User {
-    val user: User = findUserById(login)
+  override fun updateUserProfile(id: UUID, update: UserUpdateDto): User {
+    val user: User = findUserById(id)
 
     update.username?.let { user.username = it }
     update.password?.let {

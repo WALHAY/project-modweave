@@ -5,13 +5,15 @@ import git.walhay.modweave.api.user.User
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import java.time.LocalDateTime
+import java.util.*
 import org.hibernate.annotations.NaturalId
 
 @Entity
 @Table(schema = "modweave", name = "users")
 @KonvertTo(User::class, mapFunctionName = "toModel")
 class UserEntity(
-    @Id @Column(name = "login", nullable = false, length = 50) var login: String,
+    @Id @Column var id: UUID,
+    @Column(name = "login", nullable = false, length = 50) var login: String,
     @Column(name = "username", unique = true, nullable = false, length = 100) var username: String,
     @NaturalId(mutable = true)
     @Column(name = "email", unique = true, nullable = false, length = 320)
@@ -29,7 +31,7 @@ class UserEntity(
       username: String,
       email: String,
       password: String
-  ) : this(login, username, email, password, LocalDateTime.now(), false)
+  ) : this(UUID.randomUUID(), login, username, email, password, LocalDateTime.now(), false)
 
   @PrePersist
   @PreUpdate

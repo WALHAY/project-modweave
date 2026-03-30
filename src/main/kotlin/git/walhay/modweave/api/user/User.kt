@@ -5,10 +5,12 @@ import git.walhay.modweave.api.user.dto.UserDto
 import git.walhay.modweave.api.user.repository.UserEntity
 import io.mcarle.konvert.api.KonvertTo
 import java.time.LocalDateTime
+import java.util.*
 
 @KonvertTo(UserEntity::class, mapFunctionName = "toEntity")
 @KonvertTo(UserDto::class)
 data class User(
+    val id: UUID,
     val login: String,
     var username: String,
     var email: String,
@@ -17,5 +19,15 @@ data class User(
     var isAdmin: Boolean = false,
     val mods: MutableSet<Mod> = mutableSetOf()
 ) {
-  constructor() : this("", "", "", "")
+  constructor(
+      login: String,
+      username: String,
+      email: String,
+      password: String
+  ) : this(
+      id = UUID.randomUUID(),
+      login = login.lowercase().trim(),
+      username = username,
+      email = email.lowercase().trim(),
+      password = password)
 }
