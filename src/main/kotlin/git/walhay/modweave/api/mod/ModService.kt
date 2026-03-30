@@ -1,6 +1,8 @@
 package git.walhay.modweave.api.mod
 
+import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.category.repository.CategoryRepository
+import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.mod.dto.ModUploadDto
 import git.walhay.modweave.api.mod.exception.ModExistsException
@@ -8,6 +10,7 @@ import git.walhay.modweave.api.mod.exception.ModNotFoundException
 import git.walhay.modweave.api.mod.repository.ModRepository
 import git.walhay.modweave.api.storage.ISimpleStorageService
 import git.walhay.modweave.api.user.IUserService
+import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.IVersionService
 import git.walhay.modweave.api.version.dto.VersionUploadDto
 import git.walhay.modweave.util.spinalCase
@@ -46,7 +49,7 @@ class ModService(
           "Mod with id=${dto.name.spinalCase()} or name=${dto.name} already exists")
     }
 
-    val user = userService.findUserById(login)
+    val user = userService.findUserByLogin(login)
     val game = gamerService.findGameById(dto.game)
     val categories = categoryRepository.findAllByNameIn(dto.categories)
 
@@ -56,10 +59,10 @@ class ModService(
         Mod(
             dto.name,
             dto.description,
-            user,
-            game,
+            UserId(user.id),
+            GameId(game.id),
             simpleStorageService.uploadImage(imagePath, dto.image),
-            categories)
+            categories.map { CategoryId(it.name) }.toSet())
     versionService.uploadModVersion(mod, VersionUploadDto(dto.versionName, null, dto.files))
     return modRepository.save(mod)
   }

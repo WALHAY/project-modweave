@@ -19,7 +19,7 @@ class ModEntity(
     @Column(name = "image_path", nullable = false, length = 500) val imagePath: String,
     @Column(name = "creation_date", nullable = false) val creationDate: LocalDateTime,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "publisher_login", nullable = false)
+    @JoinColumn(name = "publisher_id", nullable = false)
     val publisher: UserEntity,
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id", nullable = false)

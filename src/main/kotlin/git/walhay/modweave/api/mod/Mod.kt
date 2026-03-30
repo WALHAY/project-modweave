@@ -1,10 +1,10 @@
 package git.walhay.modweave.api.mod
 
-import git.walhay.modweave.api.category.Category
-import git.walhay.modweave.api.game.Game
+import git.walhay.modweave.api.category.CategoryId
+import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.mod.dto.ModDto
 import git.walhay.modweave.api.mod.repository.ModEntity
-import git.walhay.modweave.api.user.User
+import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.Version
 import git.walhay.modweave.util.spinalCase
 import io.mcarle.konvert.api.KonvertTo
@@ -18,20 +18,20 @@ data class Mod(
     val description: String? = null,
     val imagePath: String,
     val creationDate: LocalDateTime,
-    val publisher: User,
-    var game: Game,
-    val categories: Set<Category> = emptySet(),
+    val publisherId: UserId,
+    val gameId: GameId,
+    val categoryIds: Set<CategoryId> = emptySet(),
     val versions: MutableList<Version> = mutableListOf()
 ) {
-  constructor() : this("", null, User(), Game(), "")
+  constructor() : this("", null, UserId(), GameId(""), "")
 
   constructor(
       name: String,
       description: String? = null,
-      publisher: User,
-      game: Game,
+      publisherId: UserId,
+      gameId: GameId,
       imagePath: String,
-      categories: Set<Category> = emptySet(),
+      categoryIds: Set<CategoryId> = emptySet(),
       versions: List<Version> = emptyList()
   ) : this(
       id = name.spinalCase(),
@@ -39,8 +39,8 @@ data class Mod(
       description = description,
       imagePath = imagePath,
       creationDate = LocalDateTime.now(),
-      publisher = publisher,
-      game = game,
-      categories = categories,
+      publisherId = publisherId,
+      gameId = gameId,
+      categoryIds = categoryIds,
       versions = versions.toMutableList())
 }
