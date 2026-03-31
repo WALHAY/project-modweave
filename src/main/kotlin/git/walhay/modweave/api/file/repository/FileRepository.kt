@@ -1,3 +1,7 @@
 package git.walhay.modweave.api.file.repository
 
-interface FileRepository {}
+import git.walhay.modweave.api.file.File
+
+interface FileRepository {
+  fun save(file: File): File
+}

@@ -8,6 +8,8 @@ import git.walhay.modweave.api.version.dto.VersionUploadDto
 import git.walhay.modweave.api.version.exception.VersionNotFoundException
 import git.walhay.modweave.api.version.repository.VersionRepository
 import jakarta.transaction.Transactional
+import mu.KLogger
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
@@ -17,15 +19,16 @@ import org.springframework.stereotype.Service
 class VersionService(
     private val versionRepository: VersionRepository,
     private val fileService: IFileService,
+    private val logger: KLogger = KotlinLogging.logger {}
 ) : IVersionService {
   @Lazy @Autowired private lateinit var modService: IModService
 
   override fun uploadModVersion(mod: Mod, versionUploadDTO: VersionUploadDto): Version {
-    var version = Version(versionUploadDTO.name, null, ModId(mod.id))
-    version = versionRepository.save(version)
+    val version = versionRepository.save(Version(versionUploadDTO.name, null, ModId(mod.id)))
     mod.versions.addLast(version)
 
     fileService.uploadVersionFiles(version, versionUploadDTO.files)
+    logger.info("Files after upload: {}", version.files)
     return versionRepository.save(version)
   }
 

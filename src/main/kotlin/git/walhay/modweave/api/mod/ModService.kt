@@ -59,16 +59,16 @@ class ModService(
     val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
 
     val mod =
-        Mod(
-            dto.name,
-            dto.description,
-            UserId(user.id),
-            GameId(game.id),
-            simpleStorageService.uploadImage(imagePath, dto.image),
-            categories.map { CategoryName(it.name) }.toSet())
-    val savedMod = modRepository.save(mod)
-    versionService.uploadModVersion(savedMod, VersionUploadDto(dto.versionName, null, dto.files))
-    return modRepository.save(savedMod)
+        modRepository.save(
+            Mod(
+                dto.name,
+                dto.description,
+                UserId(user.id),
+                GameId(game.id),
+                simpleStorageService.uploadImage(imagePath, dto.image),
+                categories.map { CategoryName(it.name) }.toSet()))
+    versionService.uploadModVersion(mod, VersionUploadDto(dto.versionName, null, dto.files))
+    return modRepository.save(mod)
   }
 
   override fun deleteMod(login: String, modId: String) {
