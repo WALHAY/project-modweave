@@ -65,3 +65,16 @@ create table modweave.comments (
     user_id varchar not null references modweave.users (username) on delete cascade,
     mod_id varchar not null references modweave.mods (id) on delete cascade
 );
+
+create table modweave.collections (
+    id bigserial primary key,
+    name varchar not null,
+    description text,
+    owner varchar not null references modweave.users (username) on delete cascade
+);
+
+create table modweave.collections_mods (
+    id bigserial primary key,
+    collection_id bigserial not null references modweave.collections (id) on delete cascade,
+    mod_id varchar not null references modweave.mods (id) on delete cascade
+);
