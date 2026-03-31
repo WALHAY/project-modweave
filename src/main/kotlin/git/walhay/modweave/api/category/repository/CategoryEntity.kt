@@ -1,6 +1,7 @@
 package git.walhay.modweave.api.category.repository
 
 import git.walhay.modweave.api.category.Category
+import git.walhay.modweave.api.category.CategoryName
 import git.walhay.modweave.api.mod.repository.ModEntity
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
@@ -8,10 +9,16 @@ import jakarta.persistence.*
 @Entity
 @Table(schema = "modweave", name = "categories")
 @KonvertTo(Category::class, mapFunctionName = "toModel")
+@KonvertTo(CategoryName::class)
 class CategoryEntity(
     @Id @Column(name = "name", nullable = false) var name: String,
     @Column(name = "description", columnDefinition = "text") var description: String? = null,
-    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        schema = "modweave",
+        name = "mods_categories",
+        joinColumns = [JoinColumn("category_name")],
+        inverseJoinColumns = [JoinColumn(name = "mod_id")])
     val mods: Set<ModEntity> = emptySet()
 ) {
   constructor() : this("")

@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.mod
 
-import git.walhay.modweave.api.category.CategoryId
+import git.walhay.modweave.api.category.CategoryName
 import git.walhay.modweave.api.category.repository.CategoryRepository
 import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.game.IGameService
@@ -14,6 +14,8 @@ import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.IVersionService
 import git.walhay.modweave.api.version.dto.VersionUploadDto
 import git.walhay.modweave.util.spinalCase
+import mu.KLogger
+import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -29,7 +31,8 @@ class ModService(
     private val categoryRepository: CategoryRepository,
     private val gamerService: IGameService,
     private val versionService: IVersionService,
-    private val simpleStorageService: ISimpleStorageService
+    private val simpleStorageService: ISimpleStorageService,
+    private val logger: KLogger = KotlinLogging.logger {}
 ) : IModService {
 
   override fun findModById(id: String): Mod =
@@ -62,9 +65,10 @@ class ModService(
             UserId(user.id),
             GameId(game.id),
             simpleStorageService.uploadImage(imagePath, dto.image),
-            categories.map { CategoryId(it.name) }.toSet())
-    versionService.uploadModVersion(mod, VersionUploadDto(dto.versionName, null, dto.files))
-    return modRepository.save(mod)
+            categories.map { CategoryName(it.name) }.toSet())
+    val savedMod = modRepository.save(mod)
+    versionService.uploadModVersion(savedMod, VersionUploadDto(dto.versionName, null, dto.files))
+    return modRepository.save(savedMod)
   }
 
   override fun deleteMod(login: String, modId: String) {

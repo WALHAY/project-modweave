@@ -1,11 +1,12 @@
 package git.walhay.modweave.api.version.repository
 
 import git.walhay.modweave.api.file.repository.FileEntity
-import git.walhay.modweave.api.mod.repository.ModEntity
+import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.Version
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import java.time.LocalDateTime
+import org.hibernate.annotations.ColumnTransformer
 
 @Entity
 @Table(schema = "modweave", name = "mod_versions")
@@ -14,18 +15,17 @@ class VersionEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    val id: Long? = null,
+    val id: Long,
     @Column(name = "name", nullable = false) val name: String,
     @Column(name = "changes", columnDefinition = "text") val changes: String? = null,
     @Column(name = "upload_date", nullable = false) val uploadDate: LocalDateTime,
-    @Column(name = "approved", nullable = false)
     @Enumerated(EnumType.STRING)
-    val approved: VersionStatus,
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "mod_id", nullable = false)
-    val mod: ModEntity,
+    @Column("status", columnDefinition = "version_status")
+    @ColumnTransformer(write = "?::version_status")
+    val status: VersionStatus,
+    @Column(name = "mod_id", nullable = false) val modId: ModId,
     @OneToMany(
-        mappedBy = "version",
+        mappedBy = "versionId",
         fetch = FetchType.LAZY,
         cascade = [CascadeType.ALL],
         orphanRemoval = true)
@@ -34,14 +34,15 @@ class VersionEntity(
   constructor(
       name: String,
       changes: String? = null,
-      mod: ModEntity
+      modId: ModId
   ) : this(
+      id = 0,
       name = name,
       changes = changes,
       uploadDate = LocalDateTime.now(),
-      approved = VersionStatus.PENDING,
-      mod = mod,
+      status = VersionStatus.PENDING,
+      modId = modId,
       files = mutableListOf())
 
-  constructor() : this("", null, ModEntity())
+  constructor() : this("", null, ModId(""))
 }

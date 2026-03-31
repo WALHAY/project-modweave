@@ -2,7 +2,7 @@ package git.walhay.modweave.api.file.repository
 
 import git.walhay.modweave.api.file.File
 import git.walhay.modweave.api.file.FileEntityListener
-import git.walhay.modweave.api.version.repository.VersionEntity
+import git.walhay.modweave.api.version.VersionId
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import org.hibernate.annotations.NaturalId
@@ -19,15 +19,13 @@ class FileEntity(
     @Column(name = "filename", nullable = false) val filename: String,
     @NaturalId @Column(name = "file_path", nullable = false) val filePath: String,
     @Column(name = "downloads") var downloads: Int = 0,
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "mod_version_id", nullable = false)
-    val version: VersionEntity
+    @Column(name = "mod_version_id", nullable = false) val versionId: VersionId
 ) {
   constructor(
       filename: String,
       filePath: String,
-      version: VersionEntity
-  ) : this(null, filename, filePath, 0, version)
+      versionId: VersionId
+  ) : this(null, filename, filePath, 0, versionId)
 
-  constructor() : this("", "", VersionEntity())
+  constructor() : this("", "", VersionId(0))
 }

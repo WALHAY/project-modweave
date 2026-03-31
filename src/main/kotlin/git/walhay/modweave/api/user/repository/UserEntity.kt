@@ -21,7 +21,7 @@ class UserEntity(
     @Column(name = "password", nullable = false, length = 255) var password: String,
     @Column(name = "register_date", nullable = false) val registerDate: LocalDateTime,
     @Column(name = "is_admin", nullable = false) val isAdmin: Boolean = false,
-    @OneToMany(mappedBy = "publisher", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "publisherId", fetch = FetchType.LAZY, orphanRemoval = true)
     val mods: MutableSet<ModEntity> = mutableSetOf()
 ) {
   constructor() : this("", "", "", "")

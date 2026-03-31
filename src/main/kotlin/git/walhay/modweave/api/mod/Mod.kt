@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.mod
 
-import git.walhay.modweave.api.category.CategoryId
+import git.walhay.modweave.api.category.CategoryName
 import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.mod.dto.ModDto
 import git.walhay.modweave.api.mod.repository.ModEntity
@@ -20,18 +20,16 @@ data class Mod(
     val creationDate: LocalDateTime,
     val publisherId: UserId,
     val gameId: GameId,
-    val categoryIds: Set<CategoryId> = emptySet(),
+    val categories: Set<CategoryName> = emptySet(),
     val versions: MutableList<Version> = mutableListOf()
 ) {
-  constructor() : this("", null, UserId(), GameId(""), "")
-
   constructor(
       name: String,
       description: String? = null,
       publisherId: UserId,
       gameId: GameId,
       imagePath: String,
-      categoryIds: Set<CategoryId> = emptySet(),
+      categories: Set<CategoryName> = emptySet(),
       versions: List<Version> = emptyList()
   ) : this(
       id = name.spinalCase(),
@@ -41,6 +39,6 @@ data class Mod(
       creationDate = LocalDateTime.now(),
       publisherId = publisherId,
       gameId = gameId,
-      categoryIds = categoryIds,
+      categories = categories,
       versions = versions.toMutableList())
 }

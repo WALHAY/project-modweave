@@ -1,7 +1,7 @@
 package git.walhay.modweave.api.version
 
 import git.walhay.modweave.api.file.File
-import git.walhay.modweave.api.mod.Mod
+import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.dto.VersionDto
 import git.walhay.modweave.api.version.repository.VersionEntity
 import git.walhay.modweave.api.version.repository.VersionStatus
@@ -11,25 +11,26 @@ import java.time.LocalDateTime
 @KonvertTo(VersionEntity::class, mapFunctionName = "toEntity")
 @KonvertTo(VersionDto::class)
 data class Version(
-    val id: Long? = null,
+    val id: Long,
     val name: String,
     val changes: String? = null,
     val uploadDate: LocalDateTime,
-    val approved: VersionStatus,
-    val mod: Mod,
+    val status: VersionStatus,
+    val modId: ModId,
     val files: MutableList<File> = mutableListOf()
 ) {
   constructor(
       name: String,
       changes: String? = null,
-      mod: Mod
+      modId: ModId
   ) : this(
+      id = 0,
       name = name,
       changes = changes,
       uploadDate = LocalDateTime.now(),
-      approved = VersionStatus.PENDING,
-      mod = mod,
+      status = VersionStatus.PENDING,
+      modId = modId,
       files = mutableListOf())
 
-  constructor() : this("", null, Mod())
+  constructor() : this("", null, ModId(""))
 }

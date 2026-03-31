@@ -28,15 +28,14 @@ create table modweave.mods (
     publisher_id uuid not null references modweave.users (id) on delete cascade
 );
 
-drop type if exists version_status;
-create type version_status as enum ('pending', 'approved', 'rejected');
+create type modweave.version_status as enum ('pending', 'approved', 'rejected');
 
 create table modweave.mod_versions (
     id bigserial primary key,
     name varchar not null,
     changes text,
     upload_date timestamp default current_date not null,
-    approved version_status,
+    status modweave.version_status default 'pending',
     mod_id varchar not null references modweave.mods (id) on delete cascade
 );
 
