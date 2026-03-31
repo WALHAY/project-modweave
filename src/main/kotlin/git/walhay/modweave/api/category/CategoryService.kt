@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.category
 
-import git.walhay.modweave.api.category.dto.CategoryDto
+import git.walhay.modweave.api.category.dto.CategoryResponseDto
 import git.walhay.modweave.api.category.dto.toCategory
 import git.walhay.modweave.api.category.exception.CategoryExistsException
 import git.walhay.modweave.api.category.exception.CategoryNotFoundException
@@ -14,7 +14,7 @@ class CategoryService(val categoryRepository: CategoryRepository) : ICategorySer
 
   override fun getCategories(): List<Category> = categoryRepository.findAll()
 
-  override fun uploadCategory(dto: CategoryDto): Category {
+  override fun uploadCategory(dto: CategoryResponseDto): Category {
     if (categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
       throw CategoryExistsException("Category with name=${dto.name.lowercase()} already exists")
     }
@@ -30,7 +30,7 @@ class CategoryService(val categoryRepository: CategoryRepository) : ICategorySer
     categoryRepository.deleteByNameIgnoreCase(name)
   }
 
-  override fun updateCategory(dto: CategoryDto): Category {
+  override fun updateCategory(dto: CategoryResponseDto): Category {
     if (!categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
       throw CategoryNotFoundException(
           "Category with name=${dto.name.lowercase()} not found for update")

@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.version
 
-import git.walhay.modweave.api.version.dto.VersionDto
+import git.walhay.modweave.api.version.dto.VersionResponseDto
 import git.walhay.modweave.api.version.dto.VersionUploadDto
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -17,7 +17,8 @@ class VersionController(
   fun uploadModVersion(
       @PathVariable modId: String,
       @Valid @ModelAttribute versionUploadDTO: VersionUploadDto
-  ): VersionDto = versionService.uploadModVersion(modId, versionUploadDTO).toVersionDto()
+  ): VersionResponseDto =
+      versionService.uploadModVersion(modId, versionUploadDTO).toVersionResponseDto()
 
   @DeleteMapping("/{versionName}")
   fun deleteVersion(@PathVariable modId: String, @PathVariable versionName: String) {

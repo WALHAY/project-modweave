@@ -1,8 +1,8 @@
 package git.walhay.modweave.api.mod
 
-import git.walhay.modweave.api.category.CategoryName
+import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.game.GameId
-import git.walhay.modweave.api.mod.dto.ModDto
+import git.walhay.modweave.api.mod.dto.ModResponseDto
 import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.Version
@@ -11,16 +11,16 @@ import io.mcarle.konvert.api.KonvertTo
 import java.time.LocalDateTime
 
 @KonvertTo(ModEntity::class, mapFunctionName = "toEntity")
-@KonvertTo(ModDto::class)
+@KonvertTo(ModResponseDto::class)
 data class Mod(
-    val id: String,
+    val id: ModId,
     val name: String,
     val description: String? = null,
     val imagePath: String,
     val creationDate: LocalDateTime,
     val publisherId: UserId,
     val gameId: GameId,
-    val categories: Set<CategoryName> = emptySet(),
+    val categories: Set<CategoryId> = emptySet(),
     val versions: MutableList<Version> = mutableListOf()
 ) {
   constructor(
@@ -29,10 +29,10 @@ data class Mod(
       publisherId: UserId,
       gameId: GameId,
       imagePath: String,
-      categories: Set<CategoryName> = emptySet(),
+      categories: Set<CategoryId> = emptySet(),
       versions: List<Version> = emptyList()
   ) : this(
-      id = name.spinalCase(),
+      id = ModId(name.spinalCase()),
       name = name,
       description = description,
       imagePath = imagePath,

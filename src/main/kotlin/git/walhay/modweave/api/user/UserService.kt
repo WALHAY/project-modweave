@@ -6,7 +6,6 @@ import git.walhay.modweave.api.user.exception.UserEmailExistsException
 import git.walhay.modweave.api.user.exception.UserLoginExistsException
 import git.walhay.modweave.api.user.exception.UserNotFoundException
 import git.walhay.modweave.api.user.repository.UserRepository
-import java.util.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -21,12 +20,9 @@ class UserService(
     private val passwordEncoder: PasswordEncoder
 ) : IUserService {
 
-  override fun findUserById(id: UUID): User =
-      userRepository.findById(id) ?: throw UserNotFoundException("User with id=$id not found")
-
-  override fun findUserByLogin(login: String): User =
-      userRepository.findByLogin(login)
-          ?: throw UserNotFoundException("User with login=$login not found")
+  override fun findUserByUsername(username: UserId): User =
+      userRepository.findByUsername(username)
+          ?: throw UserNotFoundException("User with username=$username not found")
 
   override fun findUsersWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<User> {
     val pageRequest = PageRequest.of(page, size, sort)
@@ -37,8 +33,8 @@ class UserService(
   }
 
   override fun registerNewUser(register: UserRegisterDto): User {
-    if (userRepository.existsByLogin(register.login)) {
-      throw UserLoginExistsException("Login ${register.login} already in use")
+    if (userRepository.existsByUsername(UserId(register.username))) {
+      throw UserLoginExistsException("Login ${register.username} already in use")
     }
 
     if (userRepository.existsByEmail(register.email)) {
@@ -49,15 +45,15 @@ class UserService(
         passwordEncoder.encode(register.password)
             ?: throw IllegalStateException("Failed to encode password")
 
-    val user = User(register.login, register.username, register.email, encodedPass)
+    val user = User(register.username, register.name, register.email, encodedPass)
 
     return userRepository.save(user)
   }
 
-  override fun updateUserProfile(id: UUID, update: UserUpdateDto): User {
-    val user: User = findUserById(id)
+  override fun updateUserProfile(username: UserId, update: UserUpdateDto): User {
+    val user: User = findUserByUsername(username)
 
-    update.username?.let { user.username = it }
+    update.username?.let { user.name = it }
     update.password?.let {
       user.password =
           passwordEncoder.encode(it) ?: throw IllegalStateException("Failed to encode password")

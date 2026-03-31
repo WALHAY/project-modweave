@@ -1,13 +1,13 @@
 package git.walhay.modweave.api.category
 
-import git.walhay.modweave.api.category.dto.CategoryDto
+import git.walhay.modweave.api.category.dto.CategoryResponseDto
 
 interface ICategoryService {
   fun getCategories(): List<Category>
 
-  fun uploadCategory(dto: CategoryDto): Category
+  fun uploadCategory(dto: CategoryResponseDto): Category
 
   fun deleteCategory(name: String)
 
-  fun updateCategory(dto: CategoryDto): Category
+  fun updateCategory(dto: CategoryResponseDto): Category
 }

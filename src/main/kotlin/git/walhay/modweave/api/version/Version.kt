@@ -2,14 +2,14 @@ package git.walhay.modweave.api.version
 
 import git.walhay.modweave.api.file.File
 import git.walhay.modweave.api.mod.ModId
-import git.walhay.modweave.api.version.dto.VersionDto
+import git.walhay.modweave.api.version.dto.VersionResponseDto
 import git.walhay.modweave.api.version.repository.VersionEntity
 import git.walhay.modweave.api.version.repository.VersionStatus
 import io.mcarle.konvert.api.KonvertTo
 import java.time.LocalDateTime
 
 @KonvertTo(VersionEntity::class, mapFunctionName = "toEntity")
-@KonvertTo(VersionDto::class)
+@KonvertTo(VersionResponseDto::class)
 data class Version(
     val id: Long,
     val name: String,

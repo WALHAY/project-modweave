@@ -3,7 +3,6 @@ package git.walhay.modweave.api.version
 import git.walhay.modweave.api.file.IFileService
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.Mod
-import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.dto.VersionUploadDto
 import git.walhay.modweave.api.version.exception.VersionNotFoundException
 import git.walhay.modweave.api.version.repository.VersionRepository
@@ -24,7 +23,7 @@ class VersionService(
   @Lazy @Autowired private lateinit var modService: IModService
 
   override fun uploadModVersion(mod: Mod, versionUploadDTO: VersionUploadDto): Version {
-    val version = versionRepository.save(Version(versionUploadDTO.name, null, ModId(mod.id)))
+    val version = versionRepository.save(Version(versionUploadDTO.name, null, mod.id))
     mod.versions.addLast(version)
 
     fileService.uploadVersionFiles(version, versionUploadDTO.files)

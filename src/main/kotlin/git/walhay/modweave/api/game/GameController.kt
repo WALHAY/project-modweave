@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.game
 
-import git.walhay.modweave.api.game.dto.GameDto
+import git.walhay.modweave.api.game.dto.GameResponseDto
 import git.walhay.modweave.api.game.dto.GameUploadDto
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
@@ -20,13 +20,15 @@ class GameController(private val gameService: IGameService) {
       @RequestParam @Min(1) size: Int,
       @RequestParam(required = false) name: String?,
       @SortDefault(sort = ["name"]) sort: Sort
-  ): Page<GameDto> = gameService.findGamesWithFilter(page, size, name, sort).map { it.toGameDto() }
+  ): Page<GameResponseDto> =
+      gameService.findGamesWithFilter(page, size, name, sort).map { it.toGameResponseDto() }
 
   @GetMapping("/{gameId}")
-  fun getGame(@PathVariable gameId: String): GameDto = gameService.findGameById(gameId).toGameDto()
+  fun getGame(@PathVariable gameId: String): GameResponseDto =
+      gameService.findGameById(gameId).toGameResponseDto()
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  fun addGame(@Valid @ModelAttribute addGame: GameUploadDto): GameDto =
-      gameService.uploadGame(addGame).toGameDto()
+  fun addGame(@Valid @ModelAttribute addGame: GameUploadDto): GameResponseDto =
+      gameService.uploadGame(addGame).toGameResponseDto()
 }

@@ -1,5 +1,6 @@
 package git.walhay.modweave.config
 
+import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.user.UserService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -23,10 +24,10 @@ class SecurityConfiguration(@Lazy private val userService: UserService) {
   @Bean fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
   @Bean
-  fun userDetailsService(): UserDetailsService = UserDetailsService { login ->
-    val user = userService.findUserByLogin(login)
+  fun userDetailsService(): UserDetailsService = UserDetailsService { username ->
+    val user = userService.findUserByUsername(UserId(username))
 
-    User.withUsername(user.login)
+    User.withUsername(user.username.value)
         .password(user.password)
         .roles(if (user.isAdmin) "ADMIN" else "USER")
         .build()

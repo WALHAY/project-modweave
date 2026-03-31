@@ -1,8 +1,7 @@
 package git.walhay.modweave.api.mod
 
-import git.walhay.modweave.api.category.CategoryName
+import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.category.repository.CategoryRepository
-import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.mod.dto.ModUploadDto
 import git.walhay.modweave.api.mod.exception.ModExistsException
@@ -46,13 +45,13 @@ class ModService(
     return modRepository.findAll(name, pageRequest)
   }
 
-  override fun uploadMod(login: String, dto: ModUploadDto): Mod {
+  override fun uploadMod(username: UserId, dto: ModUploadDto): Mod {
     if (modRepository.existsById(dto.name.spinalCase())) {
       throw ModExistsException(
           "Mod with id=${dto.name.spinalCase()} or name=${dto.name} already exists")
     }
 
-    val user = userService.findUserByLogin(login)
+    val user = userService.findUserByUsername(username)
     val game = gamerService.findGameById(dto.game)
     val categories = categoryRepository.findAllByNameIn(dto.categories)
 
@@ -63,15 +62,15 @@ class ModService(
             Mod(
                 dto.name,
                 dto.description,
-                UserId(user.id),
-                GameId(game.id),
+                user.username,
+                game.id,
                 simpleStorageService.uploadImage(imagePath, dto.image),
-                categories.map { CategoryName(it.name) }.toSet()))
+                categories.map { CategoryId(it.name) }.toSet()))
     versionService.uploadModVersion(mod, VersionUploadDto(dto.versionName, null, dto.files))
     return modRepository.save(mod)
   }
 
-  override fun deleteMod(login: String, modId: String) {
+  override fun deleteMod(username: UserId, modId: String) {
     modRepository.deleteById(modId)
   }
 }

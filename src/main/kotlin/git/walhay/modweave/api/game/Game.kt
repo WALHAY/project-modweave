@@ -1,15 +1,15 @@
 package git.walhay.modweave.api.game
 
-import git.walhay.modweave.api.game.dto.GameDto
+import git.walhay.modweave.api.game.dto.GameResponseDto
 import git.walhay.modweave.api.game.repository.GameEntity
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.util.spinalCase
 import io.mcarle.konvert.api.KonvertTo
 
 @KonvertTo(GameEntity::class, mapFunctionName = "toEntity")
-@KonvertTo(GameDto::class)
+@KonvertTo(GameResponseDto::class)
 class Game(
-    val id: String,
+    val id: GameId,
     val name: String,
     val description: String? = null,
     var imagePath: String,
@@ -17,14 +17,12 @@ class Game(
 ) {
   constructor() : this("", null, "")
 
-  constructor(
-      name: String,
-      description: String? = null
-  ) : this(id = name.spinalCase(), name = name, description = description, "")
+  constructor(name: String, description: String? = null) : this(name, description, "")
 
   constructor(
       name: String,
       description: String? = null,
       imagePath: String
-  ) : this(id = name.spinalCase(), name = name, description = description, imagePath = imagePath)
+  ) : this(
+      id = GameId(name.spinalCase()), name = name, description = description, imagePath = imagePath)
 }

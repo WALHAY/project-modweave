@@ -1,18 +1,16 @@
 package git.walhay.modweave.api.user.repository
 
 import git.walhay.modweave.api.user.User
-import java.util.*
+import git.walhay.modweave.api.user.UserId
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface UserRepository {
-  fun existsByLogin(login: String): Boolean
+  fun existsByUsername(username: UserId): Boolean
 
   fun existsByEmail(email: String): Boolean
 
-  fun findByLogin(login: String): User?
-
-  fun findById(id: UUID): User?
+  fun findByUsername(username: UserId): User?
 
   fun findAll(pageable: Pageable): Page<User>
 

@@ -1,8 +1,9 @@
 package git.walhay.modweave.api.mod
 
-import git.walhay.modweave.api.mod.dto.ModDto
+import git.walhay.modweave.api.mod.dto.ModResponseDto
 import git.walhay.modweave.api.mod.dto.ModUploadDto
 import git.walhay.modweave.api.mod.exception.ModCreationFailedException
+import git.walhay.modweave.api.user.UserId
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/mods")
 class ModController(private val modService: IModService) {
 
-  @GetMapping("/{modId}") fun getMod(@PathVariable modId: String) = modService.findModById(modId)
+  @GetMapping("/{modId}")
+  fun getMod(@PathVariable modId: String): ModResponseDto =
+      modService.findModById(modId).toModResponseDto()
 
   @GetMapping
   fun getMods(
@@ -23,19 +26,22 @@ class ModController(private val modService: IModService) {
       @RequestParam size: Int,
       @RequestParam(required = false) name: String?,
       @SortDefault(sort = ["name"]) sort: Sort
-  ): Page<ModDto> = modService.findModsWithFilter(page, size, name, sort).map { it.toModDto() }
+  ): Page<ModResponseDto> =
+      modService.findModsWithFilter(page, size, name, sort).map { it.toModResponseDto() }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  fun uploadMod(@Valid @ModelAttribute modUploadForm: ModUploadDto): ModDto =
+  fun uploadMod(@Valid @ModelAttribute modUploadForm: ModUploadDto): ModResponseDto =
       SecurityContextHolder.getContext()
           .authentication
           ?.name
-          ?.let { modService.uploadMod(it, modUploadForm) }
-          ?.toModDto() ?: throw ModCreationFailedException("Failed to create mod")
+          ?.let { modService.uploadMod(UserId(it), modUploadForm) }
+          ?.toModResponseDto() ?: throw ModCreationFailedException("Failed to create mod")
 
   @DeleteMapping("/{modId}")
   fun deleteMod(@PathVariable modId: String): Unit {
-    SecurityContextHolder.getContext().authentication?.name?.let { modService.deleteMod(it, modId) }
+    SecurityContextHolder.getContext().authentication?.name?.let {
+      modService.deleteMod(UserId(it), modId)
+    }
   }
 }
