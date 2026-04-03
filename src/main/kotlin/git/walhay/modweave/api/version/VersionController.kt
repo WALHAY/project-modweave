@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.version
 
+import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.dto.VersionResponseDto
 import git.walhay.modweave.api.version.dto.VersionUploadDto
 import jakarta.validation.Valid
@@ -15,7 +16,7 @@ class VersionController(
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   fun uploadModVersion(
-      @PathVariable modId: String,
+      @PathVariable modId: ModId,
       @Valid @ModelAttribute versionUploadDTO: VersionUploadDto
   ): VersionResponseDto =
       versionService.uploadModVersion(modId, versionUploadDTO).toVersionResponseDto()

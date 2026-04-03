@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/collections")
 class CollectionController(private val collectionService: ICollectionService) {
 
-  @GetMapping("/{id}")
-  fun getCollection(@PathVariable id: CollectionId): CollectionResponseDto =
-      collectionService.getCollectionById(id).toCollectionResponseDto()
+  @GetMapping("/{collectionId}")
+  fun getCollection(@PathVariable collectionId: CollectionId): CollectionResponseDto =
+      collectionService.getCollectionById(collectionId).toCollectionResponseDto()
 
   @PostMapping
   fun createCollection(@Valid @ModelAttribute dto: CollectionCreateDto): CollectionResponseDto =
@@ -25,11 +25,15 @@ class CollectionController(private val collectionService: ICollectionService) {
           ?.let { collectionService.createCollection(UserId(it), dto) }
           ?.toCollectionResponseDto() ?: throw CollectionCreationFailedException()
 
-  @PutMapping("/{id}")
-  fun addModToCollection(@PathVariable id: CollectionId, @RequestParam modId: ModId, @RequestParam(required = false) index: Int?) =
+  @PutMapping("/{collectionId}")
+  fun addModToCollection(
+      @PathVariable collectionId: CollectionId,
+      @RequestParam modId: ModId,
+      @RequestParam(required = false) index: Int?
+  ) =
       SecurityContextHolder.getContext()
           .authentication
           ?.name
-          ?.let { collectionService.addModToCollection(UserId(it), id, modId, index) }
+          ?.let { collectionService.addModToCollection(UserId(it), collectionId, modId, index) }
           ?.toCollectionResponseDto() ?: throw CollectionCreationFailedException()
 }

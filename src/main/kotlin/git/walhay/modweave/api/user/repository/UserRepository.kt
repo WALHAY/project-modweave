@@ -6,11 +6,11 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface UserRepository {
-  fun existsByUsername(username: UserId): Boolean
+  fun existsByUsername(userId: UserId): Boolean
 
   fun existsByEmail(email: String): Boolean
 
-  fun findByUsername(username: UserId): User?
+  fun findByUsername(userId: UserId): User?
 
   fun findAll(pageable: Pageable): Page<User>
 

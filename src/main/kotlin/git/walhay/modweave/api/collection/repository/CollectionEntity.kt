@@ -11,9 +11,10 @@ import jakarta.persistence.*
 
 @Entity
 @Table(schema = "modweave", name = "collections")
-@KonvertTo(Collection::class, mapFunctionName = "toModel", mappings = [
-    Mapping("mods", expression = "modsListToMap()")
-])
+@KonvertTo(
+    Collection::class,
+    mapFunctionName = "toModel",
+    mappings = [Mapping("mods", expression = "modsListToMap()")])
 class CollectionEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: CollectionId,
     @Column("name", nullable = false) val name: String,
@@ -24,5 +25,6 @@ class CollectionEntity(
 ) {
   constructor() : this(CollectionId(), "", null, UserId())
 
-    fun modsListToMap(): MutableMap<Int, Mod> = this.mods.associate { it.index to it.mod.toModel() }.toMutableMap()
+  fun modsListToMap(): MutableMap<Int, Mod> =
+      this.mods.associate { it.index to it.mod.toModel() }.toMutableMap()
 }

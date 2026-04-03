@@ -34,8 +34,8 @@ class ModService(
     private val logger: KLogger = KotlinLogging.logger {}
 ) : IModService {
 
-  override fun findModById(id: String): Mod =
-      modRepository.findById(id) ?: throw ModNotFoundException("Mod with id=$id not found")
+  override fun findModById(modId: ModId): Mod =
+      modRepository.findById(modId) ?: throw ModNotFoundException("Mod with id=$modId not found")
 
   override fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
     val pageRequest = PageRequest.of(page, size, sort)
@@ -45,13 +45,13 @@ class ModService(
     return modRepository.findAll(name, pageRequest)
   }
 
-  override fun uploadMod(username: UserId, dto: ModUploadDto): Mod {
-    if (modRepository.existsById(dto.name.spinalCase())) {
+  override fun uploadMod(userId: UserId, dto: ModUploadDto): Mod {
+    if (modRepository.existsById(dto.modIdGenerated())) {
       throw ModExistsException(
           "Mod with id=${dto.name.spinalCase()} or name=${dto.name} already exists")
     }
 
-    val user = userService.findUserByUsername(username)
+    val user = userService.findUserByUsername(userId)
     val game = gamerService.findGameById(dto.game)
     val categories = categoryRepository.findAllByNameIn(dto.categories)
 
@@ -70,7 +70,7 @@ class ModService(
     return modRepository.save(mod)
   }
 
-  override fun deleteMod(username: UserId, modId: String) {
+  override fun deleteMod(userId: UserId, modId: ModId) {
     modRepository.deleteById(modId)
   }
 }

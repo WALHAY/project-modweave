@@ -7,9 +7,14 @@ import git.walhay.modweave.api.user.UserId
 interface ICollectionService {
   fun getCollectionById(id: CollectionId): Collection
 
-  fun createCollection(username: UserId, dto: CollectionCreateDto): Collection
+  fun createCollection(userId: UserId, dto: CollectionCreateDto): Collection
 
-  fun addModToCollection(username: UserId, collectionId: CollectionId, modId: ModId, index: Int?): Collection
+  fun addModToCollection(
+      userId: UserId,
+      collectionId: CollectionId,
+      modId: ModId,
+      index: Int?
+  ): Collection
 
-  fun removeModFromCollection(username: UserId, collectionId: CollectionId, modId: ModId)
+  fun removeModFromCollection(userId: UserId, collectionId: CollectionId, modId: ModId)
 }

@@ -10,12 +10,9 @@ import io.mcarle.konvert.api.KonvertTo
 import io.mcarle.konvert.api.Mapping
 
 @KonvertTo(
-    CollectionEntity::class, mapFunctionName = "toEntity", mappings = [
-        Mapping(
-            "mods",
-            expression = "this.modsMapToList()"
-        )
-])
+    CollectionEntity::class,
+    mapFunctionName = "toEntity",
+    mappings = [Mapping("mods", expression = "this.modsMapToList()")])
 @KonvertTo(CollectionResponseDto::class)
 data class Collection(
     val id: CollectionId,
@@ -30,5 +27,6 @@ data class Collection(
       owner: UserId,
   ) : this(CollectionId(), name, description, owner)
 
-    fun modsMapToList(): List<CollectionItemEntity> = this.mods.entries.map { CollectionItemEntity(it.key, id, it.value.toEntity()) }.toList()
+  fun modsMapToList(): List<CollectionItemEntity> =
+      this.mods.entries.map { CollectionItemEntity(it.key, id, it.value.toEntity()) }.toList()
 }

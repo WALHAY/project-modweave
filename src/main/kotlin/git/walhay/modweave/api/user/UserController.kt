@@ -24,9 +24,9 @@ class UserController(private val userService: IUserService) {
   ): Page<UserResponseDto> =
       userService.findUsersWithFilter(page, size, username, sort).map { it.toUserResponseDto() }
 
-  @GetMapping("/{login}")
-  fun getUser(@PathVariable username: UserId): UserResponseDto =
-      userService.findUserByUsername(username).toUserResponseDto()
+  @GetMapping("/{userId}")
+  fun getUser(@PathVariable userId: UserId): UserResponseDto =
+      userService.findUserByUsername(userId).toUserResponseDto()
 
   @PostMapping
   fun registerUser(@ModelAttribute @Valid registerForm: UserRegisterDto): UserResponseDto =

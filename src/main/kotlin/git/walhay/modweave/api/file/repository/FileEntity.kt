@@ -25,5 +25,5 @@ class FileEntity(
       versionId: VersionId
   ) : this(FileId(), filename, filePath, 0, versionId)
 
-  constructor() : this("", "", VersionId(0))
+  constructor() : this("", "", VersionId())
 }

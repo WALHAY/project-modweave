@@ -1,6 +1,7 @@
 package git.walhay.modweave.api.version.repository
 
 import git.walhay.modweave.api.version.Version
+import git.walhay.modweave.api.version.VersionId
 import git.walhay.modweave.api.version.toEntity
 import org.springframework.stereotype.Repository
 
@@ -10,5 +11,5 @@ class JpaVersionRepository(private val repository: SpringDataVersionRepository) 
   override fun save(version: Version): Version =
       repository.save<VersionEntity>(version.toEntity()).toModel()
 
-  override fun delete(version: Version) = repository.delete(version.toEntity())
+  override fun delete(versionId: VersionId) = repository.deleteById(versionId.value)
 }

@@ -1,16 +1,17 @@
 package git.walhay.modweave.api.user.repository
 
-import java.util.*
+import git.walhay.modweave.api.user.UserId
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import java.util.*
 
 interface SpringDataUserRepository : JpaRepository<UserEntity, UUID> {
-  fun existsByUsernameIgnoreCase(login: String): Boolean
+  fun existsByUsernameIgnoreCase(userId: UserId): Boolean
 
   fun existsByEmailIgnoreCase(email: String): Boolean
 
-  fun findByUsernameIgnoreCase(login: String): UserEntity?
+  fun findByUsernameIgnoreCase(userId: UserId): UserEntity?
 
   fun findAllByNameContainingIgnoreCase(name: String, pageable: Pageable): Page<UserEntity>
 }

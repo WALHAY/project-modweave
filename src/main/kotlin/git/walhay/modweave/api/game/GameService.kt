@@ -4,6 +4,7 @@ import git.walhay.modweave.api.game.dto.GameUploadDto
 import git.walhay.modweave.api.game.exception.GameExistsException
 import git.walhay.modweave.api.game.exception.GameNotFoundException
 import git.walhay.modweave.api.game.repository.GameRepository
+import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.storage.ISimpleStorageService
 import org.apache.commons.io.FilenameUtils
 import org.springframework.data.domain.Page
@@ -18,7 +19,7 @@ class GameService(
     private val gameRepository: GameRepository,
     private val simpleStorageService: ISimpleStorageService
 ) : IGameService {
-  override fun findGameById(modId: String): Game =
+  override fun findGameById(modId: ModId): Game =
       gameRepository.findById(modId) ?: throw GameNotFoundException("Game with id=$modId not found")
 
   override fun findGamesWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Game> {

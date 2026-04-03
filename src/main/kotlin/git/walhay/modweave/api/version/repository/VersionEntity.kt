@@ -3,10 +3,11 @@ package git.walhay.modweave.api.version.repository
 import git.walhay.modweave.api.file.repository.FileEntity
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.Version
+import git.walhay.modweave.api.version.VersionId
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
-import java.time.LocalDateTime
 import org.hibernate.annotations.ColumnTransformer
+import java.time.LocalDateTime
 
 @Entity
 @Table(schema = "modweave", name = "mod_versions")
@@ -15,7 +16,7 @@ class VersionEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    val id: Long,
+    val id: VersionId,
     @Column(name = "name", nullable = false) val name: String,
     @Column(name = "changes", columnDefinition = "text") val changes: String? = null,
     @Column(name = "upload_date", nullable = false) val uploadDate: LocalDateTime,
@@ -36,7 +37,7 @@ class VersionEntity(
       changes: String? = null,
       modId: ModId
   ) : this(
-      id = 0,
+      id = VersionId(),
       name = name,
       changes = changes,
       uploadDate = LocalDateTime.now(),

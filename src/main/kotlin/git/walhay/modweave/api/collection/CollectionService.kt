@@ -18,27 +18,27 @@ class CollectionService(
   override fun getCollectionById(id: CollectionId): Collection =
       collectionRepository.findById(id) ?: throw CollectionNotFoundException(id)
 
-  override fun createCollection(username: UserId, dto: CollectionCreateDto): Collection =
-      dto.let { (name, description) -> Collection(name, description, username) }
+  override fun createCollection(userId: UserId, dto: CollectionCreateDto): Collection =
+      dto.let { (name, description) -> Collection(name, description, userId) }
           .also { collectionRepository.save(it) }
 
   override fun addModToCollection(
-      username: UserId,
+      userId: UserId,
       collectionId: CollectionId,
       modId: ModId,
       index: Int?
   ): Collection {
     val collection = getCollectionById(collectionId)
-    if (username != collection.owner) {
+    if (userId != collection.owner) {
       throw Exception("Wrong user")
     }
 
-    val mod = modService.findModById(modId.value)
+    val mod = modService.findModById(modId)
     collection.mods.putIfAbsent(index ?: collection.mods.size, mod)
     return collectionRepository.save(collection)
   }
 
-  override fun removeModFromCollection(username: UserId, collectionId: CollectionId, modId: ModId) {
+  override fun removeModFromCollection(userId: UserId, collectionId: CollectionId, modId: ModId) {
     TODO("Not yet implemented")
   }
 }

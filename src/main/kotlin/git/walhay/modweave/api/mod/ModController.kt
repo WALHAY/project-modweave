@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*
 class ModController(private val modService: IModService) {
 
   @GetMapping("/{modId}")
-  fun getMod(@PathVariable modId: String): ModResponseDto =
+  fun getMod(@PathVariable modId: ModId): ModResponseDto =
       modService.findModById(modId).toModResponseDto()
 
   @GetMapping
@@ -39,7 +39,7 @@ class ModController(private val modService: IModService) {
           ?.toModResponseDto() ?: throw ModCreationFailedException("Failed to create mod")
 
   @DeleteMapping("/{modId}")
-  fun deleteMod(@PathVariable modId: String): Unit {
+  fun deleteMod(@PathVariable modId: ModId) {
     SecurityContextHolder.getContext().authentication?.name?.let {
       modService.deleteMod(UserId(it), modId)
     }

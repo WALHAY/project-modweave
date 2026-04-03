@@ -20,9 +20,9 @@ class UserService(
     private val passwordEncoder: PasswordEncoder
 ) : IUserService {
 
-  override fun findUserByUsername(username: UserId): User =
-      userRepository.findByUsername(username)
-          ?: throw UserNotFoundException("User with username=$username not found")
+  override fun findUserByUsername(userId: UserId): User =
+      userRepository.findByUsername(userId)
+          ?: throw UserNotFoundException("User with username=$userId not found")
 
   override fun findUsersWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<User> {
     val pageRequest = PageRequest.of(page, size, sort)
@@ -50,8 +50,8 @@ class UserService(
     return userRepository.save(user)
   }
 
-  override fun updateUserProfile(username: UserId, update: UserUpdateDto): User {
-    val user: User = findUserByUsername(username)
+  override fun updateUserProfile(userId: UserId, update: UserUpdateDto): User {
+    val user: User = findUserByUsername(userId)
 
     update.username?.let { user.name = it }
     update.password?.let {
