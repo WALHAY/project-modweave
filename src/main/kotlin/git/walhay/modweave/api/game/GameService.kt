@@ -1,11 +1,10 @@
 package git.walhay.modweave.api.game
 
-import git.walhay.modweave.api.game.dto.AddGameDto
-import git.walhay.modweave.api.game.dto.GameDto
+import git.walhay.modweave.api.game.dto.GameUploadDto
 import git.walhay.modweave.api.game.exception.GameExistsException
 import git.walhay.modweave.api.game.exception.GameNotFoundException
-import git.walhay.modweave.api.service.SimpleStorageService
-import git.walhay.modweave.util.spinalCase
+import git.walhay.modweave.api.game.repository.GameRepository
+import git.walhay.modweave.api.storage.ISimpleStorageService
 import org.apache.commons.io.FilenameUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -17,31 +16,31 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class GameService(
     private val gameRepository: GameRepository,
-    private val simpleStorageService: SimpleStorageService
-) {
-  fun findGameById(modId: String): Game =
-      gameRepository
-          .findById(modId)
-          .orElseThrow { GameNotFoundException("Game with id=$modId not found") }
+    private val simpleStorageService: ISimpleStorageService
+) : IGameService {
+  override fun findGameById(modId: String): Game =
+      gameRepository.findById(modId) ?: throw GameNotFoundException("Game with id=$modId not found")
 
-  fun findGamesWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Game> {
+  override fun findGamesWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Game> {
     val pageRequest = PageRequest.of(page, size, sort)
     if (name == null) {
       return gameRepository.findAll(pageRequest)
     }
-    return gameRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
+    return gameRepository.findAll(name, pageRequest)
   }
 
-  fun uploadGame(dto: AddGameDto): Game {
-    // TODO: add image path
-    if (gameRepository.existsById(dto.name.spinalCase())) {
-      throw GameExistsException("Game with id=${dto.name.spinalCase()} already exist")
+  override fun uploadGame(dto: GameUploadDto): Game {
+    if (gameRepository.existsById(dto.nameSpinal)) {
+      throw GameExistsException("Game with id=${dto.nameSpinal} already exist")
     }
 
-    val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
+    var game = Game(dto.name, dto.description)
+    game = gameRepository.save(game)
 
-    val game =
-        Game(dto.name, dto.description, simpleStorageService.uploadImage(imagePath, dto.image))
+    game.imagePath =
+        simpleStorageService.uploadImage(
+            "${game.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}",
+            dto.image)
 
     return gameRepository.save(game)
   }

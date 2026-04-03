@@ -1,0 +1,93 @@
+@startuml
+' ER Диаграмма для платформы модов
+
+' Настройка внешнего вида
+!define table(entity) entity ** << (T,#FFAAAA) >>
+!define attribute(entity) entity : __<u>первичный_ключ</u>__
+!define attribute(entity) entity : атрибут
+hide circle
+hide methods
+
+' === Сущности ===
+entity "Пользователь" as user {
+  *логин : text (PK)
+  --
+  имя : text
+  хэш пароля : text
+  почта : text
+  админ : boolean
+  дата регистрации : datetime
+}
+
+entity "Игра" as game {
+  *идентификатор : integer (PK)
+  --
+  название : text
+  описание : text
+  путь к картинке : text
+  дата создания : date
+}
+
+entity "Модификация" as mod {
+  *идентификатор : integer (PK)
+  --
+  название : text
+  описание : text
+  путь к картинке : text
+  дата создания : date
+}
+
+entity "Версия" as version {
+  *идентификатор : integer (PK)
+  --
+  название : text
+  описание изменений : text
+  дата изменения : date
+  количество скачиваний : integer
+  на проверке : boolean
+}
+
+entity "Категория" as category {
+  *идентификатор : integer (PK)
+  --
+  название : text
+  описание : text
+}
+
+entity "Комментарий" as comment {
+  *идентификатор : integer (PK)
+  --
+  текст : text
+  дата : datetime
+}
+
+entity "Файл" as file {
+  *идентификатор : integer (PK)
+  --
+  название : text
+  путь к файлу : text
+  метадата : json
+}
+
+' === Отношения ===
+
+' Пользователь публикует модификацию
+user ||--o{ mod : опубликовал
+
+' Пользователь комментирует модификацию
+user ||--o{ comment : комментирует
+mod ||--o{ comment : ""
+
+' Модификация имеет версии
+mod ||--o{ version : "состоит из"
+
+' Модификация имеет категории
+mod }o--o{ category : имеет
+
+' Версия включает файл
+version ||..|| file : включает
+
+' Игра имеет модификации
+game ||..o{ mod : имеет
+
+@enduml

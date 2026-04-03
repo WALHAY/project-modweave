@@ -1,17 +1,20 @@
 package git.walhay.modweave.api.mod
 
-import git.walhay.modweave.api.category.CategoryRepository
-import git.walhay.modweave.api.game.GameRepository
-import git.walhay.modweave.api.game.exception.GameNotFoundException
-import git.walhay.modweave.api.mod.dto.ModDto
+import git.walhay.modweave.api.category.CategoryId
+import git.walhay.modweave.api.category.repository.CategoryRepository
+import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.mod.dto.ModUploadDto
 import git.walhay.modweave.api.mod.exception.ModExistsException
 import git.walhay.modweave.api.mod.exception.ModNotFoundException
-import git.walhay.modweave.api.service.SimpleStorageService
-import git.walhay.modweave.api.user.UserRepository
-import git.walhay.modweave.api.user.exception.UserNotFoundException
-import git.walhay.modweave.api.version.VersionService
+import git.walhay.modweave.api.mod.repository.ModRepository
+import git.walhay.modweave.api.storage.ISimpleStorageService
+import git.walhay.modweave.api.user.IUserService
+import git.walhay.modweave.api.user.UserId
+import git.walhay.modweave.api.version.IVersionService
+import git.walhay.modweave.api.version.dto.VersionUploadDto
 import git.walhay.modweave.util.spinalCase
+import mu.KLogger
+import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -22,59 +25,52 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional
 class ModService(
-	private val modRepository: ModRepository,
-	private val userRepository: UserRepository,
-	private val categoryRepository: CategoryRepository,
-	private val gameRepository: GameRepository,
-	private val versionService: VersionService,
-	private val simpleStorageService: SimpleStorageService
-) {
+    private val modRepository: ModRepository,
+    private val userService: IUserService,
+    private val categoryRepository: CategoryRepository,
+    private val gamerService: IGameService,
+    private val versionService: IVersionService,
+    private val simpleStorageService: ISimpleStorageService,
+    private val logger: KLogger = KotlinLogging.logger {}
+) : IModService {
 
-	fun findModById(id: String): Mod =
-		modRepository
-			.findById(id)
-			.orElseThrow { ModNotFoundException("Mod with id=$id not found") }
+  override fun findModById(id: String): Mod =
+      modRepository.findById(id) ?: throw ModNotFoundException("Mod with id=$id not found")
 
-	fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
-		val pageRequest = PageRequest.of(page, size, sort)
-		if (name == null) {
-			return modRepository.findAll(pageRequest)
-		}
-		return modRepository.findAllByNameContainingIgnoreCase(name, pageRequest)
-	}
+  override fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
+    val pageRequest = PageRequest.of(page, size, sort)
+    if (name == null) {
+      return modRepository.findAll(pageRequest)
+    }
+    return modRepository.findAll(name, pageRequest)
+  }
 
-	fun uploadMod(login: String, dto: ModUploadDto): Mod {
-		if (modRepository.existsById(dto.name.spinalCase())) {
-			throw ModExistsException(
-				"Mod with id=${dto.name.spinalCase()} or name=${dto.name} already exists"
-			)
-		}
+  override fun uploadMod(username: UserId, dto: ModUploadDto): Mod {
+    if (modRepository.existsById(dto.name.spinalCase())) {
+      throw ModExistsException(
+          "Mod with id=${dto.name.spinalCase()} or name=${dto.name} already exists")
+    }
 
-		val user =
-			userRepository.findByLoginIgnoreCase(login)
-				?: throw UserNotFoundException("User with login=${login} not found")
-		val game =
-			gameRepository.findById(dto.game).orElseThrow {
-				GameNotFoundException("Game with id=${dto.game} not found")
-			}
-		val categories = categoryRepository.findAllByNameIn(dto.categories)
+    val user = userService.findUserByUsername(username)
+    val game = gamerService.findGameById(dto.game)
+    val categories = categoryRepository.findAllByNameIn(dto.categories)
 
-		val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
+    val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
 
-		val mod =
-			Mod(
-				dto.name,
-				dto.description,
-				user,
-				game,
-				simpleStorageService.uploadImage(imagePath, dto.image),
-				categories
-			)
-		versionService.uploadModVersionTransient(mod, dto.versionName, dto.files)
-		return modRepository.save(mod)
-	}
+    val mod =
+        modRepository.save(
+            Mod(
+                dto.name,
+                dto.description,
+                user.username,
+                game.id,
+                simpleStorageService.uploadImage(imagePath, dto.image),
+                categories.map { CategoryId(it.name) }.toSet()))
+    versionService.uploadModVersion(mod, VersionUploadDto(dto.versionName, null, dto.files))
+    return modRepository.save(mod)
+  }
 
-	fun deleteMod(login: String, modId: String) {
-		modRepository.deleteById(modId)
-	}
+  override fun deleteMod(username: UserId, modId: String) {
+    modRepository.deleteById(modId)
+  }
 }

@@ -1,63 +1,43 @@
 package git.walhay.modweave.api.version
 
-import git.walhay.modweave.api.file.FileService
+import git.walhay.modweave.api.file.IFileService
+import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.Mod
-import git.walhay.modweave.api.mod.ModRepository
-import git.walhay.modweave.api.mod.exception.ModNotFoundException
-import git.walhay.modweave.api.version.dto.VersionDto
 import git.walhay.modweave.api.version.dto.VersionUploadDto
 import git.walhay.modweave.api.version.exception.VersionNotFoundException
+import git.walhay.modweave.api.version.repository.VersionRepository
 import jakarta.transaction.Transactional
+import mu.KLogger
+import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional
 class VersionService(
-	private val versionRepository: VersionRepository,
-	private val fileService: FileService,
-	private val modRepository: ModRepository,
-) {
+    private val versionRepository: VersionRepository,
+    private val fileService: IFileService,
+    private val logger: KLogger = KotlinLogging.logger {}
+) : IVersionService {
+  @Lazy @Autowired private lateinit var modService: IModService
 
-	fun uploadModVersion(mod: Mod, modVersionUploadDTO: VersionUploadDto): Version {
-		val version = Version(modVersionUploadDTO.name, null, mod)
-		mod.versions.addLast(version)
+  override fun uploadModVersion(mod: Mod, versionUploadDTO: VersionUploadDto): Version {
+    val version = versionRepository.save(Version(versionUploadDTO.name, null, mod.id))
+    mod.versions.addLast(version)
 
-		fileService.uploadFilesTransient(version, modVersionUploadDTO.files)
-		return versionRepository.save(version)
-	}
+    fileService.uploadVersionFiles(version, versionUploadDTO.files)
+    logger.info("Files after upload: {}", version.files)
+    return versionRepository.save(version)
+  }
 
-	fun uploadModVersion(modId: String, modVersionUploadDTO: VersionUploadDto): Version {
-		val mod =
-			modRepository.findById(modId).orElseThrow {
-				throw ModNotFoundException("Mod with id=$modId not found")
-			}
-		return uploadModVersion(mod, modVersionUploadDTO)
-	}
+  override fun uploadModVersion(modId: String, versionUploadDTO: VersionUploadDto): Version =
+      uploadModVersion(modService.findModById(modId), versionUploadDTO)
 
-	fun uploadModVersionTransient(
-		mod: Mod,
-		name: String,
-		changes: String?,
-		files: List<MultipartFile>
-	): Version {
-		val version = Version(name, changes, mod)
-		fileService.uploadFilesTransient(version, files)
+  override fun deleteModVersion(modId: String, version: String) {
+    val mod = modService.findModById(modId)
 
-		mod.versions.addLast(version)
-		return version
-	}
-
-	fun uploadModVersionTransient(mod: Mod, name: String, files: List<MultipartFile>) =
-		uploadModVersionTransient(mod, name, null, files)
-
-	fun deleteModVersion(modId: String, version: String) {
-		val mod =
-			modRepository.findById(modId).orElseThrow {
-				ModNotFoundException("Mod with modid=$modId not found")
-			}
-
-		mod.versions.find { it.name == version }?.let { versionRepository.delete(it) }
-			?: throw VersionNotFoundException("Version with name=$version not found for deletion")
-	}
+    mod.versions.find { it.name == version }?.let { versionRepository.delete(it) }
+        ?: throw VersionNotFoundException("Version with name=$version not found for deletion")
+  }
 }

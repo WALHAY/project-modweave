@@ -1,11 +1,14 @@
 package git.walhay.modweave.api.user
 
-import git.walhay.modweave.api.user.dto.UserDto
 import git.walhay.modweave.api.user.dto.UserRegisterDto
 import git.walhay.modweave.api.user.dto.UserUpdateDto
 import git.walhay.modweave.api.user.exception.UserEmailExistsException
 import git.walhay.modweave.api.user.exception.UserLoginExistsException
 import git.walhay.modweave.api.user.exception.UserNotFoundException
+import git.walhay.modweave.api.user.repository.UserRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -13,48 +16,55 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional
 class UserService(
-	private val userRepository: UserRepository,
-	private val passwordEncoder: PasswordEncoder
-) {
+    private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder
+) : IUserService {
 
-	fun findUserById(login: String): User =
-		userRepository.findByLoginIgnoreCase(login) ?: throw UserNotFoundException("User with login=$login not found")
+  override fun findUserByUsername(username: UserId): User =
+      userRepository.findByUsername(username)
+          ?: throw UserNotFoundException("User with username=$username not found")
 
-	fun registerNewUser(register: UserRegisterDto): User {
-		if (userRepository.existsByLoginIgnoreCase(register.login)) {
-			throw UserLoginExistsException("Login ${register.login} already in use")
-		}
+  override fun findUsersWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<User> {
+    val pageRequest = PageRequest.of(page, size, sort)
+    if (name == null) {
+      return userRepository.findAll(pageRequest)
+    }
+    return userRepository.findAll(name, pageRequest)
+  }
 
-		if (userRepository.existsByEmailIgnoreCase(register.email)) {
-			throw UserEmailExistsException("Email ${register.email} already in use")
-		}
+  override fun registerNewUser(register: UserRegisterDto): User {
+    if (userRepository.existsByUsername(UserId(register.username))) {
+      throw UserLoginExistsException("Login ${register.username} already in use")
+    }
 
-		val encodedPass =
-			passwordEncoder.encode(register.password)
-				?: throw IllegalStateException("Failed to encode password")
+    if (userRepository.existsByEmail(register.email)) {
+      throw UserEmailExistsException("Email ${register.email} already in use")
+    }
 
-		val user = User(register.login, register.username, register.email, encodedPass)
+    val encodedPass =
+        passwordEncoder.encode(register.password)
+            ?: throw IllegalStateException("Failed to encode password")
 
-		return userRepository.save(user)
-	}
+    val user = User(register.username, register.name, register.email, encodedPass)
 
-	fun updateUserProfile(login: String, update: UserUpdateDto): User {
-		val user: User =
-			userRepository.findByLoginIgnoreCase(login)
-				?: throw UserNotFoundException("User with login=$login not found")
+    return userRepository.save(user)
+  }
 
-		update.username?.let { user.username = it }
-		update.password?.let {
-			user.password =
-				passwordEncoder.encode(it) ?: throw IllegalStateException("Failed to encode password")
-		}
-		update.email?.let {
-			if (it != user.email && userRepository.existsByEmailIgnoreCase(it)) {
-				throw UserEmailExistsException("Email $it already in use")
-			}
-			user.email = it
-		}
+  override fun updateUserProfile(username: UserId, update: UserUpdateDto): User {
+    val user: User = findUserByUsername(username)
 
-		return userRepository.save(user)
-	}
+    update.username?.let { user.name = it }
+    update.password?.let {
+      user.password =
+          passwordEncoder.encode(it) ?: throw IllegalStateException("Failed to encode password")
+    }
+    update.email?.let {
+      if (it != user.email && userRepository.existsByEmail(it)) {
+        throw UserEmailExistsException("Email $it already in use")
+      }
+      user.email = it
+    }
+
+    return userRepository.save(user)
+  }
 }
