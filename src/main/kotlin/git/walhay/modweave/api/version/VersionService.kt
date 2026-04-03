@@ -28,17 +28,16 @@ class VersionService(
     mod.versions.addLast(version)
 
     fileService.uploadVersionFiles(version, versionUploadDTO.files)
-    logger.info("Files after upload: {}", version.files)
     return versionRepository.save(version)
   }
 
   override fun uploadModVersion(modId: ModId, versionUploadDTO: VersionUploadDto): Version =
       uploadModVersion(modService.findModById(modId), versionUploadDTO)
 
-  override fun deleteModVersion(modId: ModId, version: VersionId) {
+  override fun deleteModVersion(modId: ModId, versionId: VersionId) {
     val mod = modService.findModById(modId)
 
-    mod.versions.find { it.id == version }?.let { versionRepository.delete(it.id) }
-        ?: throw VersionNotFoundException("Version with name=$version not found for deletion")
+    mod.versions.find { it.id == versionId }?.let { versionRepository.delete(it.id) }
+        ?: throw VersionNotFoundException(versionId)
   }
 }

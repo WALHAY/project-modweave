@@ -7,6 +7,6 @@ import io.mcarle.konvert.api.KonvertTo
 @KonvertTo(CategoryEntity::class, mapFunctionName = "toEntity")
 @KonvertTo(CategoryResponseDto::class)
 data class Category(
-    var name: String,
+    var name: CategoryId,
     var description: String? = null,
 )

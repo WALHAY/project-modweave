@@ -17,7 +17,7 @@ class CategoryService(val categoryRepository: CategoryRepository) : ICategorySer
 
   override fun uploadCategory(dto: CategoryUploadDto): Category {
     if (categoryRepository.existsByNameIgnoreCase(dto.name)) {
-      throw CategoryExistsException("Category with name=${dto.name} already exists")
+      throw CategoryExistsException(dto.name)
     }
 
     return categoryRepository.save(dto.toCategory())
@@ -25,7 +25,7 @@ class CategoryService(val categoryRepository: CategoryRepository) : ICategorySer
 
   override fun deleteCategory(categoryId: CategoryId) {
     if (!categoryRepository.existsByNameIgnoreCase(categoryId)) {
-      throw CategoryNotFoundException("Category with name=$categoryId not found for deletion")
+      throw CategoryNotFoundException(categoryId)
     }
 
     categoryRepository.deleteByNameIgnoreCase(categoryId)
@@ -33,7 +33,7 @@ class CategoryService(val categoryRepository: CategoryRepository) : ICategorySer
 
   override fun updateCategory(dto: CategoryUpdateDto): Category {
     if (!categoryRepository.existsByNameIgnoreCase(dto.name)) {
-      throw CategoryNotFoundException("Category with name=${dto.name} not found for update")
+      throw CategoryNotFoundException(dto.name)
     }
 
     return categoryRepository.save(dto.toCategory())

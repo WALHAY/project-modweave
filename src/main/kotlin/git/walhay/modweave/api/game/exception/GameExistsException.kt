@@ -1,3 +1,5 @@
 package git.walhay.modweave.api.game.exception
 
-class GameExistsException(message: String) : Exception(message)
+import git.walhay.modweave.api.game.GameId
+
+class GameExistsException(gameId: GameId) : Exception("Game with id=\"$gameId\" already exists")

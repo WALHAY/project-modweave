@@ -9,5 +9,5 @@ interface IVersionService {
 
   fun uploadModVersion(modId: ModId, versionUploadDTO: VersionUploadDto): Version
 
-  fun deleteModVersion(modId: ModId, version: VersionId)
+  fun deleteModVersion(modId: ModId, versionId: VersionId)
 }

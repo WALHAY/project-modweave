@@ -21,8 +21,7 @@ class UserService(
 ) : IUserService {
 
   override fun findUserByUsername(userId: UserId): User =
-      userRepository.findByUsername(userId)
-          ?: throw UserNotFoundException("User with username=$userId not found")
+      userRepository.findByUsername(userId) ?: throw UserNotFoundException(userId)
 
   override fun findUsersWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<User> {
     val pageRequest = PageRequest.of(page, size, sort)
@@ -33,12 +32,12 @@ class UserService(
   }
 
   override fun registerNewUser(register: UserRegisterDto): User {
-    if (userRepository.existsByUsername(UserId(register.username))) {
-      throw UserLoginExistsException("Login ${register.username} already in use")
+    if (userRepository.existsByUsername(register.username)) {
+      throw UserLoginExistsException(register.username)
     }
 
     if (userRepository.existsByEmail(register.email)) {
-      throw UserEmailExistsException("Email ${register.email} already in use")
+      throw UserEmailExistsException(register.email)
     }
 
     val encodedPass =

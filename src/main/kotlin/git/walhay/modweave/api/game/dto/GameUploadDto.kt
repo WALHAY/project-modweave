@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.game.dto
 
+import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.util.ValidImage
 import git.walhay.modweave.util.spinalCase
 import jakarta.validation.constraints.NotBlank
@@ -11,5 +12,5 @@ data class GameUploadDto(
     val description: String?,
     @field:NotNull @field:ValidImage val image: MultipartFile
 ) {
-  val nameSpinal = name.spinalCase()
+  val nameSpinal = GameId(name.spinalCase())
 }

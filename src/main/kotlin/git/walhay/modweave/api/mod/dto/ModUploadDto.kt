@@ -1,5 +1,7 @@
 package git.walhay.modweave.api.mod.dto
 
+import git.walhay.modweave.api.category.CategoryId
+import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.util.spinalCase
 import jakarta.validation.constraints.NotBlank
@@ -13,10 +15,10 @@ data class ModUploadDto(
     @field:NotBlank @field:Size(min = 3) val name: String,
     val description: String,
     @field:NotNull val image: MultipartFile,
-    val categories: Set<String> = mutableSetOf(),
+    val categories: Set<CategoryId> = mutableSetOf(),
     @field:NotBlank val versionName: String,
     @field:NotEmpty val files: List<MultipartFile> = mutableListOf(),
-    @field:NotBlank val game: String
+    @field:NotBlank val gameId: GameId
 ) {
   init {
     modId = ModId(name.spinalCase())

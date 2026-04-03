@@ -1,6 +1,5 @@
 package git.walhay.modweave.api.mod
 
-import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.category.repository.CategoryRepository
 import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.mod.dto.ModUploadDto
@@ -12,7 +11,6 @@ import git.walhay.modweave.api.user.IUserService
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.IVersionService
 import git.walhay.modweave.api.version.dto.VersionUploadDto
-import git.walhay.modweave.util.spinalCase
 import mu.KLogger
 import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
@@ -35,7 +33,7 @@ class ModService(
 ) : IModService {
 
   override fun findModById(modId: ModId): Mod =
-      modRepository.findById(modId) ?: throw ModNotFoundException("Mod with id=$modId not found")
+      modRepository.findById(modId) ?: throw ModNotFoundException(modId)
 
   override fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
     val pageRequest = PageRequest.of(page, size, sort)
@@ -47,12 +45,11 @@ class ModService(
 
   override fun uploadMod(userId: UserId, dto: ModUploadDto): Mod {
     if (modRepository.existsById(dto.modIdGenerated())) {
-      throw ModExistsException(
-          "Mod with id=${dto.name.spinalCase()} or name=${dto.name} already exists")
+      throw ModExistsException(dto.modIdGenerated())
     }
 
     val user = userService.findUserByUsername(userId)
-    val game = gamerService.findGameById(dto.game)
+    val game = gamerService.findGameById(dto.gameId)
     val categories = categoryRepository.findAllByNameIn(dto.categories)
 
     val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
@@ -65,7 +62,7 @@ class ModService(
                 user.username,
                 game.id,
                 simpleStorageService.uploadImage(imagePath, dto.image),
-                categories.map { CategoryId(it.name) }.toSet()))
+                categories.map { it.name }.toSet()))
     versionService.uploadModVersion(mod, VersionUploadDto(dto.versionName, null, dto.files))
     return modRepository.save(mod)
   }

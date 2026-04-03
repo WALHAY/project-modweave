@@ -24,11 +24,11 @@ class GameController(private val gameService: IGameService) {
       gameService.findGamesWithFilter(page, size, name, sort).map { it.toGameResponseDto() }
 
   @GetMapping("/{gameId}")
-  fun getGame(@PathVariable gameId: String): GameResponseDto =
+  fun getGame(@PathVariable gameId: GameId): GameResponseDto =
       gameService.findGameById(gameId).toGameResponseDto()
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  fun addGame(@Valid @ModelAttribute addGame: GameUploadDto): GameResponseDto =
-      gameService.uploadGame(addGame).toGameResponseDto()
+  fun addGame(@Valid @ModelAttribute dto: GameUploadDto): GameResponseDto =
+      gameService.uploadGame(dto).toGameResponseDto()
 }

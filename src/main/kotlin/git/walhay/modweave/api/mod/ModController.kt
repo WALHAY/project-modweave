@@ -31,12 +31,12 @@ class ModController(private val modService: IModService) {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  fun uploadMod(@Valid @ModelAttribute modUploadForm: ModUploadDto): ModResponseDto =
+  fun uploadMod(@Valid @ModelAttribute dto: ModUploadDto): ModResponseDto =
       SecurityContextHolder.getContext()
           .authentication
           ?.name
-          ?.let { modService.uploadMod(UserId(it), modUploadForm) }
-          ?.toModResponseDto() ?: throw ModCreationFailedException("Failed to create mod")
+          ?.let { modService.uploadMod(UserId(it), dto) }
+          ?.toModResponseDto() ?: throw ModCreationFailedException()
 
   @DeleteMapping("/{modId}")
   fun deleteMod(@PathVariable modId: ModId) {
