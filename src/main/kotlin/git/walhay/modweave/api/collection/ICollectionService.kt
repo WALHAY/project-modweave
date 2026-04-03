@@ -9,7 +9,7 @@ interface ICollectionService {
 
   fun createCollection(username: UserId, dto: CollectionCreateDto): Collection
 
-  fun addModToCollection(username: UserId, collectionId: CollectionId, modId: ModId): Collection
+  fun addModToCollection(username: UserId, collectionId: CollectionId, modId: ModId, index: Int?): Collection
 
   fun removeModFromCollection(username: UserId, collectionId: CollectionId, modId: ModId)
 }

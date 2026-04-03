@@ -26,10 +26,10 @@ class CollectionController(private val collectionService: ICollectionService) {
           ?.toCollectionResponseDto() ?: throw CollectionCreationFailedException()
 
   @PutMapping("/{id}")
-  fun addModToCollection(@PathVariable id: CollectionId, @RequestParam modId: ModId) =
+  fun addModToCollection(@PathVariable id: CollectionId, @RequestParam modId: ModId, @RequestParam(required = false) index: Int?) =
       SecurityContextHolder.getContext()
           .authentication
           ?.name
-          ?.let { collectionService.addModToCollection(UserId(it), id, modId) }
+          ?.let { collectionService.addModToCollection(UserId(it), id, modId, index) }
           ?.toCollectionResponseDto() ?: throw CollectionCreationFailedException()
 }

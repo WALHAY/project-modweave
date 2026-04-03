@@ -43,7 +43,7 @@ create table modweave.mod_files (
     filename varchar not null,
     file_path varchar not null,
     downloads int,
-    mod_version_id bigserial not null references modweave.mod_versions (id) on delete cascade
+    mod_version_id bigint not null references modweave.mod_versions (id) on delete cascade
     -- возможно стоит задуматься о on delete set null и проверять файлы без связи раз в какое-то время
 );
 
@@ -53,9 +53,9 @@ create table modweave.categories (
 );
 
 create table modweave.mods_categories (
-    id serial primary key,
     mod_id varchar not null references modweave.mods (id) on delete cascade,
-    category_name varchar references modweave.categories (name) on delete set null
+    category_name varchar references modweave.categories (name) on delete set null,
+    primary key(mod_id, category_name)
 );
 
 create table modweave.comments (
@@ -70,11 +70,14 @@ create table modweave.collections (
     id bigserial primary key,
     name varchar not null,
     description text,
-    owner varchar not null references modweave.users (username) on delete cascade
+    owner varchar not null references modweave.users (username) on delete cascade,
+    unique(name, owner)
 );
 
 create table modweave.collections_mods (
-    id bigserial primary key,
-    collection_id bigserial not null references modweave.collections (id) on delete cascade,
-    mod_id varchar not null references modweave.mods (id) on delete cascade
+    collection_id bigint not null references modweave.collections (id) on delete cascade,
+    "index" int not null,
+    mod_id varchar not null references modweave.mods (id) on delete cascade,
+    primary key(collection_id, "index"),
+    unique(collection_id, mod_id)
 );

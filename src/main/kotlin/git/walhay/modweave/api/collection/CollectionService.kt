@@ -25,7 +25,8 @@ class CollectionService(
   override fun addModToCollection(
       username: UserId,
       collectionId: CollectionId,
-      modId: ModId
+      modId: ModId,
+      index: Int?
   ): Collection {
     val collection = getCollectionById(collectionId)
     if (username != collection.owner) {
@@ -33,7 +34,7 @@ class CollectionService(
     }
 
     val mod = modService.findModById(modId.value)
-    collection.mods.addLast(mod)
+    collection.mods.putIfAbsent(index ?: collection.mods.size, mod)
     return collectionRepository.save(collection)
   }
 
