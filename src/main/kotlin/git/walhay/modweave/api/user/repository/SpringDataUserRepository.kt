@@ -4,9 +4,8 @@ import git.walhay.modweave.api.user.UserId
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
-import java.util.*
 
-interface SpringDataUserRepository : JpaRepository<UserEntity, UUID> {
+interface SpringDataUserRepository : JpaRepository<UserEntity, UserId> {
   fun existsByUsernameIgnoreCase(userId: UserId): Boolean
 
   fun existsByEmailIgnoreCase(email: String): Boolean

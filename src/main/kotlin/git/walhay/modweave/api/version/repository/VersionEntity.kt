@@ -4,6 +4,7 @@ import git.walhay.modweave.api.file.repository.FileEntity
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.Version
 import git.walhay.modweave.api.version.VersionId
+import git.walhay.modweave.api.version.VersionStatus
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnTransformer

@@ -1,4 +1,4 @@
-package git.walhay.modweave.api.version.repository
+package git.walhay.modweave.api.version
 
 enum class VersionStatus {
   APPROVED,
