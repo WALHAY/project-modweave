@@ -11,5 +11,5 @@ class JpaVersionRepository(private val repository: SpringDataVersionRepository) 
   override fun save(version: Version): Version =
       repository.save<VersionEntity>(version.toEntity()).toModel()
 
-  override fun delete(versionId: VersionId) = repository.deleteById(versionId)
+  override fun delete(versionId: VersionId) = repository.deleteById(versionId.value)
 }

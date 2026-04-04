@@ -55,9 +55,18 @@ class ModService(
         "${command.name}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}"
 
     val mod =
-        command.let { (id, name, description, image) ->
-            Mod(id, name, description, simpleStorageService.uploadImage(imagePath, image), user.username, game.id, categories.map { it.name }.toSet())
-        }.also { modRepository.save(it) }
+        command
+            .let { (id, name, description, image) ->
+              Mod(
+                  id,
+                  name,
+                  description,
+                  simpleStorageService.uploadImage(imagePath, image),
+                  user.username,
+                  game.id,
+                  categories.map { it.name }.toSet())
+            }
+            .also { modRepository.save(it) }
 
     versionService.uploadModVersion(mod, command)
     return modRepository.save(mod)

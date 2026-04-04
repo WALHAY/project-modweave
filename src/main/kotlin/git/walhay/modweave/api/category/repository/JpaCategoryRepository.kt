@@ -11,13 +11,13 @@ class JpaCategoryRepository(private val repository: SpringDataCategoryRepository
   override fun findAll(): List<Category> = repository.findAll().map { it.toModel() }
 
   override fun findAllByNameIn(categories: Collection<CategoryId>): Set<Category> =
-      repository.findAllByNameIn(categories).map { it.toModel() }.toSet()
+      repository.findAllByNameIn(categories.map { it.value }).map { it.toModel() }.toSet()
 
   override fun existsByNameIgnoreCase(categoryId: CategoryId): Boolean =
-      repository.existsByNameIgnoreCase(categoryId)
+      repository.existsByNameIgnoreCase(categoryId.value)
 
   override fun deleteByNameIgnoreCase(categoryId: CategoryId) =
-      repository.deleteByNameIgnoreCase(categoryId)
+      repository.deleteByNameIgnoreCase(categoryId.value)
 
   override fun save(category: Category): Category = repository.save(category.toEntity()).toModel()
 }

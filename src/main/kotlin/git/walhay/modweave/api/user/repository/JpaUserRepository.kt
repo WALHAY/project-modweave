@@ -10,12 +10,12 @@ import org.springframework.stereotype.Repository
 @Repository
 class JpaUserRepository(private val repository: SpringDataUserRepository) : UserRepository {
   override fun existsByUsername(userId: UserId): Boolean =
-      repository.existsByUsernameIgnoreCase(userId)
+      repository.existsByUsernameIgnoreCase(userId.value)
 
   override fun existsByEmail(email: String): Boolean = repository.existsByEmailIgnoreCase(email)
 
   override fun findByUsername(userId: UserId): User? =
-      repository.findByUsernameIgnoreCase(userId)?.toModel()
+      repository.findByUsernameIgnoreCase(userId.value)?.toModel()
 
   override fun findAll(pageable: Pageable): Page<User> =
       repository.findAll(pageable).map { it.toModel() }

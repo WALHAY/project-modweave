@@ -1,12 +1,11 @@
 package git.walhay.modweave.api.category.repository
 
-import git.walhay.modweave.api.category.CategoryId
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface SpringDataCategoryRepository : JpaRepository<CategoryEntity, CategoryId> {
-  fun findAllByNameIn(categories: Collection<CategoryId>): Set<CategoryEntity>
+interface SpringDataCategoryRepository : JpaRepository<CategoryEntity, String> {
+  fun findAllByNameIn(categories: Collection<String>): Set<CategoryEntity>
 
-  fun existsByNameIgnoreCase(categoryId: CategoryId): Boolean
+  fun existsByNameIgnoreCase(name: String): Boolean
 
-  fun deleteByNameIgnoreCase(categoryId: CategoryId)
+  fun deleteByNameIgnoreCase(name: String)
 }
