@@ -6,9 +6,9 @@ import git.walhay.modweave.api.mod.ModId
 import org.springframework.web.multipart.MultipartFile
 
 data class ModCreateCommand(
-    val modId: ModId,
+    val id: ModId,
     val name: String,
-    val description: String,
+    val description: String?,
     val image: MultipartFile,
     val categories: Set<CategoryId> = mutableSetOf(),
     val versionName: String,

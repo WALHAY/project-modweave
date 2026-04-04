@@ -6,7 +6,6 @@ import git.walhay.modweave.api.mod.http.dto.ModResponseDto
 import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.Version
-import git.walhay.modweave.util.spinalCase
 import io.mcarle.konvert.api.KonvertTo
 import java.time.LocalDateTime
 
@@ -17,22 +16,23 @@ data class Mod(
     val name: String,
     val description: String? = null,
     val imagePath: String,
-    val creationDate: LocalDateTime,
+    val creationDate: LocalDateTime = LocalDateTime.now(),
     val publisherId: UserId,
     val gameId: GameId,
     val categories: Set<CategoryId> = emptySet(),
     val versions: MutableList<Version> = mutableListOf()
 ) {
   constructor(
+      id: ModId,
       name: String,
       description: String? = null,
+      imagePath: String,
       publisherId: UserId,
       gameId: GameId,
-      imagePath: String,
       categories: Set<CategoryId> = emptySet(),
       versions: List<Version> = emptyList()
   ) : this(
-      id = ModId(name.spinalCase()),
+      id = id,
       name = name,
       description = description,
       imagePath = imagePath,

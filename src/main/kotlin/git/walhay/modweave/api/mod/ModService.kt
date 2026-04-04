@@ -43,8 +43,8 @@ class ModService(
   }
 
   override fun uploadMod(userId: UserId, command: ModCreateCommand): Mod {
-    if (modRepository.existsById(command.modId)) {
-      throw ModExistsException(command.modId)
+    if (modRepository.existsById(command.id)) {
+      throw ModExistsException(command.id)
     }
 
     val user = userService.findUserByUsername(userId)
@@ -55,14 +55,10 @@ class ModService(
         "${command.name}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}"
 
     val mod =
-        modRepository.save(
-            Mod(
-                command.name,
-                command.description,
-                user.username,
-                game.id,
-                simpleStorageService.uploadImage(imagePath, command.image),
-                categories.map { it.name }.toSet()))
+        command.let { (id, name, description, image) ->
+            Mod(id, name, description, simpleStorageService.uploadImage(imagePath, image), user.username, game.id, categories.map { it.name }.toSet())
+        }.also { modRepository.save(it) }
+
     versionService.uploadModVersion(mod, command)
     return modRepository.save(mod)
   }
