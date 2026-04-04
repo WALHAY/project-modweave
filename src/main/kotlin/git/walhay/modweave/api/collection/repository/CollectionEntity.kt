@@ -1,7 +1,6 @@
 package git.walhay.modweave.api.collection.repository
 
 import git.walhay.modweave.api.collection.Collection
-import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.repository.toModel
 import git.walhay.modweave.api.user.UserId
@@ -16,14 +15,14 @@ import jakarta.persistence.*
     mapFunctionName = "toModel",
     mappings = [Mapping("mods", expression = "modsListToMap()")])
 class CollectionEntity(
-    @Id val id: CollectionId,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column("id") val id: Long,
     @Column("name", nullable = false) val name: String,
     @Column("description") val description: String?,
     @Column("owner", nullable = false) val owner: UserId,
     @OneToMany(mappedBy = "collectionId", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val mods: List<CollectionItemEntity> = emptyList()
 ) {
-  constructor() : this(CollectionId(), "", null, UserId())
+  constructor() : this(0, "", null, UserId())
 
   fun modsListToMap(): MutableMap<Int, Mod> =
       this.mods.associate { it.index to it.mod.toModel() }.toMutableMap()

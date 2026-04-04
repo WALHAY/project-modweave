@@ -15,12 +15,12 @@ class VersionExceptionHandler(private val logger: KLogger = KotlinLogging.logger
   @ExceptionHandler(VersionNotFoundException::class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   fun versionNotFoundHandler(e: VersionNotFoundException) {
-      logger.error { e }
+    logger.error { e }
   }
 
-    @ExceptionHandler(VersionExistsException::class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    fun versionNotFoundHandler(e: VersionExistsException) {
-        logger.error { e }
-    }
+  @ExceptionHandler(VersionExistsException::class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  fun versionNotFoundHandler(e: VersionExistsException) {
+    logger.error { e }
+  }
 }

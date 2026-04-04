@@ -12,14 +12,12 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(schema = "modweave", name = "mod_versions")
-@KonvertTo(Version::class, mapFunctionName = "toModel", options = [
-    Konfig(key = "konvert.enforce-not-null", value = "true")
-])
+@KonvertTo(
+    Version::class,
+    mapFunctionName = "toModel",
+    options = [Konfig(key = "konvert.enforce-not-null", value = "true")])
 class VersionEntity(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    val id: Long,
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id") val id: Long,
     @Column(name = "name", nullable = false) val name: String,
     @Column(name = "changes", columnDefinition = "text") val changes: String? = null,
     @Column(name = "upload_date", nullable = false) val uploadDate: LocalDateTime,
