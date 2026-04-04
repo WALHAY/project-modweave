@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface SpringDataGameRepository : JpaRepository<GameEntity, GameId> {
   fun findAllByNameContainingIgnoreCase(name: String, pageable: Pageable): Page<GameEntity>
+
+  fun existsByIdIgnoreCase(gameId: GameId): Boolean
 }

@@ -12,7 +12,7 @@ interface GameRepository {
 
   fun findAll(name: String, pageable: Pageable): Page<Game>
 
-  fun existsById(gameId: GameId): Boolean
+  fun existsByIdIgnoreCase(gameId: GameId): Boolean
 
   fun save(game: Game): Game
 }

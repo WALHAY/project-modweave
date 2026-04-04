@@ -21,8 +21,7 @@ class FileService(
         val filename = "${version.modId}/${version.name}/${file.originalFilename}"
         uploadedFiles.add(simpleStorageService.uploadVersionFile(filename, file))
 
-        val file =
-            fileRepository.save(File(file.originalFilename!!, filename, version.id))
+        val file = fileRepository.save(File(file.originalFilename!!, filename, version.id))
         version.files.addFirst(file)
       }
     } catch (e: Exception) {

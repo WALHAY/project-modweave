@@ -18,7 +18,8 @@ class JpaGameRepository(private val repository: SpringDataGameRepository) : Game
   override fun findAll(name: String, pageable: Pageable): Page<Game> =
       repository.findAllByNameContainingIgnoreCase(name, pageable).map { it.toModel() }
 
-  override fun existsById(gameId: GameId): Boolean = repository.existsById(gameId)
+  override fun existsByIdIgnoreCase(gameId: GameId): Boolean =
+      repository.existsByIdIgnoreCase(gameId)
 
   override fun save(game: Game): Game = repository.save<GameEntity>(game.toEntity()).toModel()
 }

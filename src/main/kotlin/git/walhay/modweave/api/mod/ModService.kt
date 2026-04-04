@@ -2,7 +2,7 @@ package git.walhay.modweave.api.mod
 
 import git.walhay.modweave.api.category.repository.CategoryRepository
 import git.walhay.modweave.api.game.IGameService
-import git.walhay.modweave.api.mod.dto.ModUploadDto
+import git.walhay.modweave.api.mod.command.ModCreateCommand
 import git.walhay.modweave.api.mod.exception.ModExistsException
 import git.walhay.modweave.api.mod.exception.ModNotFoundException
 import git.walhay.modweave.api.mod.repository.ModRepository
@@ -10,7 +10,6 @@ import git.walhay.modweave.api.storage.ISimpleStorageService
 import git.walhay.modweave.api.user.IUserService
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.IVersionService
-import git.walhay.modweave.api.version.dto.VersionUploadDto
 import mu.KLogger
 import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
@@ -43,27 +42,28 @@ class ModService(
     return modRepository.findAll(name, pageRequest)
   }
 
-  override fun uploadMod(userId: UserId, dto: ModUploadDto): Mod {
-    if (modRepository.existsById(dto.modIdGenerated())) {
-      throw ModExistsException(dto.modIdGenerated())
+  override fun uploadMod(userId: UserId, command: ModCreateCommand): Mod {
+    if (modRepository.existsById(command.modId)) {
+      throw ModExistsException(command.modId)
     }
 
     val user = userService.findUserByUsername(userId)
-    val game = gamerService.findGameById(dto.gameId)
-    val categories = categoryRepository.findAllByNameIn(dto.categories)
+    val game = gamerService.findGameById(command.gameId)
+    val categories = categoryRepository.findAllByNameIn(command.categories)
 
-    val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
+    val imagePath =
+        "${command.name}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}"
 
     val mod =
         modRepository.save(
             Mod(
-                dto.name,
-                dto.description,
+                command.name,
+                command.description,
                 user.username,
                 game.id,
-                simpleStorageService.uploadImage(imagePath, dto.image),
+                simpleStorageService.uploadImage(imagePath, command.image),
                 categories.map { it.name }.toSet()))
-    versionService.uploadModVersion(mod, VersionUploadDto(dto.versionName, null, dto.files))
+    versionService.uploadModVersion(mod, command)
     return modRepository.save(mod)
   }
 

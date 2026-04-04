@@ -1,8 +1,7 @@
 package git.walhay.modweave.api.category
 
-import git.walhay.modweave.api.category.dto.CategoryUpdateDto
-import git.walhay.modweave.api.category.dto.CategoryUploadDto
-import git.walhay.modweave.api.category.dto.toCategory
+import git.walhay.modweave.api.category.command.CategoryCreateCommand
+import git.walhay.modweave.api.category.command.CategoryUpdateCommand
 import git.walhay.modweave.api.category.exception.CategoryExistsException
 import git.walhay.modweave.api.category.exception.CategoryNotFoundException
 import git.walhay.modweave.api.category.repository.CategoryRepository
@@ -15,12 +14,24 @@ class CategoryService(val categoryRepository: CategoryRepository) : ICategorySer
 
   override fun getCategories(): List<Category> = categoryRepository.findAll()
 
-  override fun uploadCategory(dto: CategoryUploadDto): Category {
-    if (categoryRepository.existsByNameIgnoreCase(dto.name)) {
-      throw CategoryExistsException(dto.name)
+  override fun uploadCategory(command: CategoryCreateCommand): Category {
+    if (categoryRepository.existsByNameIgnoreCase(command.name)) {
+      throw CategoryExistsException(command.name)
     }
 
-    return categoryRepository.save(dto.toCategory())
+    return command
+        .let { (name, description) -> Category(name, description) }
+        .also { categoryRepository.save(it) }
+  }
+
+  override fun updateCategory(command: CategoryUpdateCommand): Category {
+    if (!categoryRepository.existsByNameIgnoreCase(command.name)) {
+      throw CategoryNotFoundException(command.name)
+    }
+
+    return command
+        .let { (name, description) -> Category(name, description) }
+        .also { categoryRepository.save(it) }
   }
 
   override fun deleteCategory(categoryId: CategoryId) {
@@ -29,13 +40,5 @@ class CategoryService(val categoryRepository: CategoryRepository) : ICategorySer
     }
 
     categoryRepository.deleteByNameIgnoreCase(categoryId)
-  }
-
-  override fun updateCategory(dto: CategoryUpdateDto): Category {
-    if (!categoryRepository.existsByNameIgnoreCase(dto.name)) {
-      throw CategoryNotFoundException(dto.name)
-    }
-
-    return categoryRepository.save(dto.toCategory())
   }
 }

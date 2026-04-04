@@ -9,8 +9,7 @@ import org.springframework.stereotype.Repository
 @Repository
 class JpaCollectionRepository(private val repository: SpringDataCollectionRepository) :
     CollectionRepository {
-  override fun findById(id: CollectionId): Collection? =
-      repository.findByIdOrNull(id)?.toModel()
+  override fun findById(id: CollectionId): Collection? = repository.findByIdOrNull(id)?.toModel()
 
   override fun save(collection: Collection): Collection =
       repository.save(collection.toEntity()).toModel()

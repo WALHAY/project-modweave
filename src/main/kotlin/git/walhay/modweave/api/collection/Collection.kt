@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.collection
 
-import git.walhay.modweave.api.collection.dto.CollectionResponseDto
+import git.walhay.modweave.api.collection.http.dto.CollectionResponseDto
 import git.walhay.modweave.api.collection.repository.CollectionEntity
 import git.walhay.modweave.api.collection.repository.CollectionItemEntity
 import git.walhay.modweave.api.mod.Mod

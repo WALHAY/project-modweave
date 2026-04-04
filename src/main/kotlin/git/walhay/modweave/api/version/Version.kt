@@ -2,7 +2,7 @@ package git.walhay.modweave.api.version
 
 import git.walhay.modweave.api.file.File
 import git.walhay.modweave.api.mod.ModId
-import git.walhay.modweave.api.version.dto.VersionResponseDto
+import git.walhay.modweave.api.version.http.dto.VersionResponseDto
 import git.walhay.modweave.api.version.repository.VersionEntity
 import io.mcarle.konvert.api.KonvertTo
 import java.time.LocalDateTime

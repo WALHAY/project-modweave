@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.game
 
-import git.walhay.modweave.api.game.dto.GameUploadDto
+import git.walhay.modweave.api.game.command.GameCreateCommand
 import git.walhay.modweave.api.game.exception.GameExistsException
 import git.walhay.modweave.api.game.exception.GameNotFoundException
 import git.walhay.modweave.api.game.repository.GameRepository
@@ -29,18 +29,20 @@ class GameService(
     return gameRepository.findAll(name, pageRequest)
   }
 
-  override fun uploadGame(dto: GameUploadDto): Game {
-    if (gameRepository.existsById(dto.nameSpinal)) {
-      throw GameExistsException(dto.nameSpinal)
+  override fun uploadGame(command: GameCreateCommand): Game {
+    if (gameRepository.existsByIdIgnoreCase(command.id)) {
+      throw GameExistsException(command.id)
     }
 
-    var game = Game(dto.name, dto.description)
-    game = gameRepository.save(game)
+    val game =
+        command
+            .let { (id, name, description) -> Game(id, name, description) }
+            .also { gameRepository.save(it) }
 
     game.imagePath =
         simpleStorageService.uploadImage(
-            "${game.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}",
-            dto.image)
+            "${game.name}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}",
+            command.image)
 
     return gameRepository.save(game)
   }

@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.category
 
-import git.walhay.modweave.api.category.dto.CategoryResponseDto
+import git.walhay.modweave.api.category.http.dto.CategoryResponseDto
 import git.walhay.modweave.api.category.repository.CategoryEntity
 import io.mcarle.konvert.api.KonvertTo
 
