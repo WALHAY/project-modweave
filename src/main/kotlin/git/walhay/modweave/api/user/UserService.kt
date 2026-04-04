@@ -46,7 +46,7 @@ class UserService(
 
     return command
         .let { (username, name, _, email) -> User(username, name, email, encodedPass) }
-        .also { userRepository.save(it) }
+        .let { userRepository.save(it) }
   }
 
   override fun updateUserProfile(userId: UserId, command: UserUpdateCommand): User {

@@ -16,7 +16,7 @@ import jakarta.persistence.*
     mapFunctionName = "toModel",
     mappings = [Mapping("mods", expression = "modsListToMap()")])
 class CollectionEntity(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: CollectionId,
+    @Id val id: CollectionId,
     @Column("name", nullable = false) val name: String,
     @Column("description") val description: String?,
     @Column("owner", nullable = false) val owner: UserId,

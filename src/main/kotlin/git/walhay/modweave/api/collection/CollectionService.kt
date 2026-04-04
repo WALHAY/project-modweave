@@ -21,7 +21,7 @@ class CollectionService(
   override fun createCollection(userId: UserId, command: CollectionCreateCommand): Collection =
       command
           .let { (name, description) -> Collection(name, description, userId) }
-          .also { collectionRepository.save(it) }
+          .let { collectionRepository.save(it) }
 
   override fun addModToCollection(
       userId: UserId,

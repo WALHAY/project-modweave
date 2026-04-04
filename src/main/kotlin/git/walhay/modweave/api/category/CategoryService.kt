@@ -31,7 +31,7 @@ class CategoryService(val categoryRepository: CategoryRepository) : ICategorySer
 
     return command
         .let { (name, description) -> Category(name, description) }
-        .also { categoryRepository.save(it) }
+        .let { categoryRepository.save(it) }
   }
 
   override fun deleteCategory(categoryId: CategoryId) {

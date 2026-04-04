@@ -6,6 +6,7 @@ import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.command.ModCreateCommand
 import git.walhay.modweave.api.version.command.VersionCreateCommand
+import git.walhay.modweave.api.version.exception.VersionExistsException
 import git.walhay.modweave.api.version.exception.VersionNotFoundException
 import git.walhay.modweave.api.version.repository.VersionRepository
 import jakarta.transaction.Transactional
@@ -25,7 +26,8 @@ class VersionService(
   @Lazy @Autowired private lateinit var modService: IModService
 
   override fun uploadModVersion(mod: Mod, command: ModCreateCommand): Version {
-    val version = versionRepository.save(Version(command.name, null, mod.id))
+    val version = Version(command.versionName, null, mod.id)
+        .let { versionRepository.save(it) }
     mod.versions.addLast(version)
 
     fileService.uploadVersionFiles(version, command.files)
@@ -35,10 +37,13 @@ class VersionService(
   override fun uploadModVersion(modId: ModId, command: VersionCreateCommand): Version {
     val mod = modService.findModById(modId)
 
-    val version =
-        command
-            .let { (name, changes) -> Version(name, changes, mod.id) }
-            .also { versionRepository.save(it) }
+      mod.versions.find { it.name == command.name }?.let {
+        throw VersionExistsException(command.name)
+      }
+
+      val version = command.let { (name, changes) ->
+        Version(name, changes, mod.id)
+      }.let { versionRepository.save(it) }
 
     fileService.uploadVersionFiles(version, command.files)
     return versionRepository.save(version)

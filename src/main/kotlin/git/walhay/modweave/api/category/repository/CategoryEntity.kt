@@ -11,7 +11,7 @@ import jakarta.persistence.*
 @KonvertTo(Category::class, mapFunctionName = "toModel")
 @KonvertTo(CategoryId::class)
 class CategoryEntity(
-    @Id @Column(name = "name", nullable = false) var name: CategoryId,
+    @Id @Column(name = "name", nullable = false) var name: String,
     @Column(name = "description", columnDefinition = "text") var description: String? = null,
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -21,12 +21,12 @@ class CategoryEntity(
         inverseJoinColumns = [JoinColumn(name = "mod_id")])
     val mods: Set<ModEntity> = emptySet()
 ) {
-  constructor() : this(CategoryId())
+  constructor() : this("")
 
   @PrePersist
   @PreUpdate
   fun normalize() {
-    name = CategoryId(name.value.trim())
+    name = name.trim()
     description = description?.trim()
   }
 }

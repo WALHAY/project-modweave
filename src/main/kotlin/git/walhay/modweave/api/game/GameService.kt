@@ -37,7 +37,7 @@ class GameService(
     val game =
         command
             .let { (id, name, description) -> Game(id, name, description) }
-            .also { gameRepository.save(it) }
+            .let { gameRepository.save(it) }
 
     game.imagePath =
         simpleStorageService.uploadImage(

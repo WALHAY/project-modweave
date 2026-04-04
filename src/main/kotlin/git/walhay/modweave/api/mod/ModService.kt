@@ -66,7 +66,7 @@ class ModService(
                   game.id,
                   categories.map { it.name }.toSet())
             }
-            .also { modRepository.save(it) }
+            .let { modRepository.save(it) }
 
     versionService.uploadModVersion(mod, command)
     return modRepository.save(mod)
