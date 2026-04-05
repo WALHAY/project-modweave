@@ -35,7 +35,7 @@ class CollectionService(
     }
 
     val mod = modService.findModById(modId)
-    collection.mods.putIfAbsent(index ?: collection.mods.size, mod)
+    collection.mods.addLast(mod)
     return collectionRepository.save(collection)
   }
 

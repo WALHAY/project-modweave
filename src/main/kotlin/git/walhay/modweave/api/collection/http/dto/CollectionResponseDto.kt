@@ -1,9 +1,12 @@
 package git.walhay.modweave.api.collection.http.dto
 
-import git.walhay.modweave.api.mod.Mod
+import git.walhay.modweave.api.collection.Collection
+import io.mcarle.konvert.api.KonvertFrom
 
+@KonvertFrom(Collection::class)
 data class CollectionResponseDto(
     val name: String,
-    val description: String?,
-    val mods: Map<Int, Mod>
-)
+    val description: String?
+) {
+    companion object
+}
