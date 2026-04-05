@@ -4,7 +4,7 @@ import git.walhay.modweave.api.file.repository.FileEntity
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.Version
 import git.walhay.modweave.api.version.VersionStatus
-import io.mcarle.konvert.api.Konfig
+import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnTransformer
@@ -12,10 +12,8 @@ import java.time.LocalDateTime
 
 @Entity
 @Table(schema = "modweave", name = "mod_versions")
-@KonvertTo(
-    Version::class,
-    mapFunctionName = "toModel",
-    options = [Konfig(key = "konvert.enforce-not-null", value = "true")])
+@KonvertTo(Version::class, mapFunctionName = "toDomain")
+@KonvertFrom(Version::class)
 class VersionEntity(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id") val id: Long,
     @Column(name = "name", nullable = false) val name: String,
@@ -47,4 +45,6 @@ class VersionEntity(
       files = mutableListOf())
 
   constructor() : this("", null, ModId(""))
+
+  companion object
 }
