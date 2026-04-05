@@ -17,5 +17,5 @@ class CommentEntity(
     @Column("user_id", nullable = false) val authorId: String = "",
     @Column("mod_id", nullable = false) val modId: String = ""
 ) {
-    companion object
+  companion object
 }

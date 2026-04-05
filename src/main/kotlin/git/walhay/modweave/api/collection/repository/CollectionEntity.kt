@@ -19,11 +19,24 @@ class CollectionEntity(
 ) {
   constructor() : this(0, "", null, UserId())
 
-    fun toDomain(): Collection = Collection(
-        name, description, owner, mods.sortedBy { it.index }.map { it.mod.toDomain() }.toMutableList())
+  fun toDomain(): Collection =
+      Collection(
+          name,
+          description,
+          owner,
+          mods.sortedBy { it.index }.map { it.mod.toDomain() }.toMutableList())
 
-    companion object {
-        fun fromCollection(collection: Collection): CollectionEntity = collection.let { (id, name, description, owner, mods) -> CollectionEntity(id.value, name, description, owner, mods.mapIndexed { index, mod -> CollectionItemEntity(index, id,
-            ModEntity.fromMod(mod)) } ) }
-    }
+  companion object {
+    fun fromCollection(collection: Collection): CollectionEntity =
+        collection.let { (id, name, description, owner, mods) ->
+          CollectionEntity(
+              id.value,
+              name,
+              description,
+              owner,
+              mods.mapIndexed { index, mod ->
+                CollectionItemEntity(index, id, ModEntity.fromMod(mod))
+              })
+        }
+  }
 }

@@ -27,5 +27,5 @@ class FileEntity(
 
   constructor() : this("", "", 0)
 
-    companion object
+  companion object
 }

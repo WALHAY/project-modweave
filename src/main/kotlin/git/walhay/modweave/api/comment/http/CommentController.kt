@@ -19,7 +19,10 @@ class CommentController(private val service: ICommentService) {
   fun createComment(
       @ModelAttribute @Valid dto: CommentCreateDto,
       @AuthenticationPrincipal user: UserDetails
-  ) = service.createComment(UserId(user.username), dto.toCommentCreateCommand()).let { CommentResponseDto.fromComment(it) }
+  ) =
+      service.createComment(UserId(user.username), dto.toCommentCreateCommand()).let {
+        CommentResponseDto.fromComment(it)
+      }
 
   @DeleteMapping("/{id}")
   fun deleteComment(@PathVariable id: Long, @AuthenticationPrincipal user: UserDetails) =

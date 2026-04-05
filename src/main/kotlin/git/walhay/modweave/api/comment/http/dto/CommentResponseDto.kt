@@ -10,5 +10,5 @@ data class CommentResponseDto(
     val publishDate: LocalDateTime,
     val authorId: String
 ) {
-    companion object
+  companion object
 }

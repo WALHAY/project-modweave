@@ -10,10 +10,10 @@ data class Collection(
     val owner: UserId,
     val mods: MutableList<Mod> = mutableListOf()
 ) {
-    constructor(
-        name: String,
-        description: String?,
-        owner: UserId,
-        mods: MutableList<Mod> = mutableListOf()
-    ) : this(CollectionId(), name, description, owner, mods)
+  constructor(
+      name: String,
+      description: String?,
+      owner: UserId,
+      mods: MutableList<Mod> = mutableListOf()
+  ) : this(CollectionId(), name, description, owner, mods)
 }

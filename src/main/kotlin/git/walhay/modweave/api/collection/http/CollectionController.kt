@@ -19,11 +19,18 @@ class CollectionController(private val collectionService: ICollectionService) {
 
   @GetMapping("/{collectionId}")
   fun getCollection(@PathVariable collectionId: CollectionId): CollectionResponseDto =
-      collectionService.getCollectionById(collectionId).let { CollectionResponseDto.fromCollection(it) }
+      collectionService.getCollectionById(collectionId).let {
+        CollectionResponseDto.fromCollection(it)
+      }
 
   @PostMapping
-  fun createCollection(@Valid @ModelAttribute dto: CollectionCreateDto, @AuthenticationPrincipal user: UserDetails): CollectionResponseDto =
-      collectionService.createCollection(UserId(user.username), dto.toCollectionCreateCommand()).let { CollectionResponseDto.fromCollection(it) }
+  fun createCollection(
+      @Valid @ModelAttribute dto: CollectionCreateDto,
+      @AuthenticationPrincipal user: UserDetails
+  ): CollectionResponseDto =
+      collectionService
+          .createCollection(UserId(user.username), dto.toCollectionCreateCommand())
+          .let { CollectionResponseDto.fromCollection(it) }
 
   @PutMapping("/{collectionId}")
   fun addModToCollection(
@@ -31,5 +38,7 @@ class CollectionController(private val collectionService: ICollectionService) {
       @RequestParam modId: String,
       @RequestParam(required = false) index: Int?,
       @AuthenticationPrincipal user: UserDetails
-  ) = collectionService.addModToCollection(UserId(user.username), CollectionId(collectionId), ModId(modId), index)
+  ) =
+      collectionService.addModToCollection(
+          UserId(user.username), CollectionId(collectionId), ModId(modId), index)
 }

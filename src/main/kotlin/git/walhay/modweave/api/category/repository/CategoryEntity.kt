@@ -1,15 +1,15 @@
 package git.walhay.modweave.api.category.repository
 
 import git.walhay.modweave.api.category.Category
-import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.mod.repository.ModEntity
+import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 
 @Entity
 @Table(schema = "modweave", name = "categories")
-@KonvertTo(Category::class, mapFunctionName = "toModel")
-@KonvertTo(CategoryId::class)
+@KonvertTo(Category::class, mapFunctionName = "toDomain")
+@KonvertFrom(Category::class)
 class CategoryEntity(
     @Id @Column(name = "name", nullable = false) var name: String,
     @Column(name = "description", columnDefinition = "text") var description: String? = null,
@@ -29,4 +29,6 @@ class CategoryEntity(
     name = name.trim()
     description = description?.trim()
   }
+
+  companion object
 }
