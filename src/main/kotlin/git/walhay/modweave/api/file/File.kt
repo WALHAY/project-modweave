@@ -1,10 +1,7 @@
 package git.walhay.modweave.api.file
 
-import git.walhay.modweave.api.file.repository.FileEntity
 import git.walhay.modweave.api.version.VersionId
-import io.mcarle.konvert.api.KonvertTo
 
-@KonvertTo(FileEntity::class, mapFunctionName = "toEntity")
 data class File(
     val id: FileId,
     val filename: String,

@@ -3,8 +3,9 @@ package git.walhay.modweave.api.comment.http
 import git.walhay.modweave.api.comment.CommentId
 import git.walhay.modweave.api.comment.ICommentService
 import git.walhay.modweave.api.comment.http.dto.CommentCreateDto
+import git.walhay.modweave.api.comment.http.dto.CommentResponseDto
+import git.walhay.modweave.api.comment.http.dto.fromComment
 import git.walhay.modweave.api.comment.http.dto.toCommentCreateCommand
-import git.walhay.modweave.api.comment.toResponseDto
 import git.walhay.modweave.api.user.UserId
 import jakarta.validation.Valid
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -18,7 +19,7 @@ class CommentController(private val service: ICommentService) {
   fun createComment(
       @ModelAttribute @Valid dto: CommentCreateDto,
       @AuthenticationPrincipal user: UserDetails
-  ) = service.createComment(UserId(user.username), dto.toCommentCreateCommand()).toResponseDto()
+  ) = service.createComment(UserId(user.username), dto.toCommentCreateCommand()).let { CommentResponseDto.fromComment(it) }
 
   @DeleteMapping("/{id}")
   fun deleteComment(@PathVariable id: Long, @AuthenticationPrincipal user: UserDetails) =
