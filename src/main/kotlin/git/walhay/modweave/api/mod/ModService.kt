@@ -72,7 +72,7 @@ class ModService(
             }
             .let { modRepository.save(it) }
 
-    versionService.uploadModVersion(mod, command)
+    versionService.createModVersion(mod, command)
     return modRepository.save(mod)
   }
 

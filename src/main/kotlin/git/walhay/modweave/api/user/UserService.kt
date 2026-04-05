@@ -57,12 +57,14 @@ class UserService(
       user.password =
           passwordEncoder.encode(it) ?: throw IllegalStateException("Failed to encode password")
     }
-    command.email?.let {
-      if (it != user.email && userRepository.existsByEmail(it)) {
-        throw UserEmailExistsException("Email $it already in use")
-      }
-      user.email = it
-    }
+    command.email
+        ?.takeUnless { it == user.email }
+        ?.let {
+          if (userRepository.existsByEmail(it)) {
+            throw UserEmailExistsException("Email $it already in use")
+          }
+          user.email = it
+        }
 
     return userRepository.save(user)
   }

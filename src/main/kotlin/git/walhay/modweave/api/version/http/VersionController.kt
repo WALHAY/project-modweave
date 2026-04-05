@@ -22,7 +22,7 @@ class VersionController(
       @PathVariable modId: ModId,
       @Valid @ModelAttribute dto: VersionUploadDto
   ): VersionResponseDto =
-      versionService.uploadModVersion(modId, dto.toVersionCreateCommand()).let {
+      versionService.createModVersion(modId, dto.toVersionCreateCommand()).let {
         VersionResponseDto.fromVersion(it)
       }
 

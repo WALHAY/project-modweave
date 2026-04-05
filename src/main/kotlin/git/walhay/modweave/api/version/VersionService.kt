@@ -25,7 +25,7 @@ class VersionService(
 ) : IVersionService {
   @Lazy @Autowired private lateinit var modService: IModService
 
-  override fun uploadModVersion(mod: Mod, command: ModCreateCommand): Version {
+  override fun createModVersion(mod: Mod, command: ModCreateCommand): Version {
     val version = Version(command.versionName, null, mod.id).let { versionRepository.save(it) }
     mod.versions.addLast(version)
 
@@ -33,7 +33,7 @@ class VersionService(
     return versionRepository.save(version)
   }
 
-  override fun uploadModVersion(modId: ModId, command: VersionCreateCommand): Version {
+  override fun createModVersion(modId: ModId, command: VersionCreateCommand): Version {
     val mod = modService.findModById(modId)
 
     mod.versions
