@@ -4,7 +4,7 @@ import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.game.http.dto.GameResponseDto
 import git.walhay.modweave.api.game.http.dto.GameUploadDto
-import git.walhay.modweave.api.game.toGameResponseDto
+import git.walhay.modweave.api.game.http.dto.fromGame
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import org.springframework.data.domain.Page
@@ -24,14 +24,14 @@ class GameController(private val gameService: IGameService) {
       @RequestParam(required = false) name: String?,
       @SortDefault(sort = ["name"]) sort: Sort
   ): Page<GameResponseDto> =
-      gameService.findGamesWithFilter(page, size, name, sort).map { it.toGameResponseDto() }
+      gameService.findGamesWithFilter(page, size, name, sort).map { GameResponseDto.fromGame(it) }
 
   @GetMapping("/{gameId}")
   fun getGame(@PathVariable gameId: GameId): GameResponseDto =
-      gameService.findGameById(gameId).toGameResponseDto()
+      gameService.findGameById(gameId).let { GameResponseDto.fromGame(it) }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   fun addGame(@Valid @ModelAttribute dto: GameUploadDto): GameResponseDto =
-      gameService.uploadGame(dto.toGameCreateCommand()).toGameResponseDto()
+      gameService.uploadGame(dto.toGameCreateCommand()).let { GameResponseDto.fromGame(it) }
 }
