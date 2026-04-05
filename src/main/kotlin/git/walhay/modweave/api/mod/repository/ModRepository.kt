@@ -2,6 +2,7 @@ package git.walhay.modweave.api.mod.repository
 
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
+import git.walhay.modweave.api.user.UserId
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
@@ -11,6 +12,8 @@ interface ModRepository {
   fun findAll(pageable: Pageable): Page<Mod>
 
   fun findAll(name: String, pageable: Pageable): Page<Mod>
+
+  fun findAllByUser(username: UserId, pageable: Pageable): Page<Mod>
 
   fun existsById(modId: ModId): Boolean
 

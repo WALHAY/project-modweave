@@ -5,6 +5,7 @@ import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.repository.VersionEntity
+import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import io.mcarle.konvert.api.Mapping
 import jakarta.persistence.*
@@ -15,7 +16,8 @@ import java.time.LocalDateTime
 @Entity
 @Table(schema = "modweave", name = "mods")
 @KonvertTo(
-    Mod::class, mapFunctionName = "toModel", mappings = [Mapping("categoryNames", "categories")])
+    Mod::class, mapFunctionName = "toDomain", mappings = [Mapping("categoryNames", "categories")])
+@KonvertFrom(Mod::class)
 class ModEntity(
     @Id @Column(name = "id", nullable = false, length = 50) val id: String,
     @Column(name = "name", nullable = false, length = 255) val name: String,
@@ -40,4 +42,6 @@ class ModEntity(
     val versions: MutableList<VersionEntity> = mutableListOf()
 ) {
   constructor() : this("", "", null, "", LocalDateTime.now(), UserId(), GameId(""))
+
+  companion object
 }

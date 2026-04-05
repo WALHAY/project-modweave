@@ -2,7 +2,7 @@ package git.walhay.modweave.api.collection.repository
 
 import git.walhay.modweave.api.collection.Collection
 import git.walhay.modweave.api.mod.Mod
-import git.walhay.modweave.api.mod.repository.toModel
+import git.walhay.modweave.api.mod.repository.toDomain
 import git.walhay.modweave.api.user.UserId
 import io.mcarle.konvert.api.KonvertTo
 import io.mcarle.konvert.api.Mapping
@@ -25,5 +25,5 @@ class CollectionEntity(
   constructor() : this(0, "", null, UserId())
 
   fun modsListToMap(): MutableMap<Int, Mod> =
-      this.mods.associate { it.index to it.mod.toModel() }.toMutableMap()
+      this.mods.associate { it.index to it.mod.toDomain() }.toMutableMap()
 }

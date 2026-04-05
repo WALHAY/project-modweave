@@ -2,15 +2,10 @@ package git.walhay.modweave.api.mod
 
 import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.game.GameId
-import git.walhay.modweave.api.mod.http.dto.ModResponseDto
-import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.Version
-import io.mcarle.konvert.api.KonvertTo
 import java.time.LocalDateTime
 
-@KonvertTo(ModEntity::class, mapFunctionName = "toEntity")
-@KonvertTo(ModResponseDto::class)
 data class Mod(
     val id: ModId,
     val name: String,

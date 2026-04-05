@@ -10,7 +10,7 @@ interface IUserService {
 
   fun findUsersWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<User>
 
-  fun registerNewUser(command: UserCreateCommand): User
+  fun createUser(command: UserCreateCommand): User
 
-  fun updateUserProfile(userId: UserId, command: UserUpdateCommand): User
+  fun updateUser(userId: UserId, command: UserUpdateCommand): User
 }

@@ -42,6 +42,10 @@ class ModService(
     return modRepository.findAll(name, pageRequest)
   }
 
+  override fun findAllUserMods(id: UserId, page: Int, size: Int, sort: Sort): Page<Mod> {
+    return modRepository.findAllByUser(id, PageRequest.of(page, size, sort))
+  }
+
   override fun uploadMod(userId: UserId, command: ModCreateCommand): Mod {
     if (modRepository.existsById(command.id)) {
       throw ModExistsException(command.id)

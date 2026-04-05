@@ -10,6 +10,8 @@ interface IModService {
 
   fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod>
 
+  fun findAllUserMods(id: UserId, page: Int, size: Int, sort: Sort): Page<Mod>
+
   fun uploadMod(userId: UserId, command: ModCreateCommand): Mod
 
   fun deleteMod(userId: UserId, modId: ModId)

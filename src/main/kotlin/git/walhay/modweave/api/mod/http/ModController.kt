@@ -2,17 +2,17 @@ package git.walhay.modweave.api.mod.http
 
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
-import git.walhay.modweave.api.mod.exception.ModCreationFailedException
 import git.walhay.modweave.api.mod.http.dto.ModResponseDto
 import git.walhay.modweave.api.mod.http.dto.ModUploadDto
-import git.walhay.modweave.api.mod.toModResponseDto
+import git.walhay.modweave.api.mod.http.dto.fromMod
 import git.walhay.modweave.api.user.UserId
 import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -21,7 +21,7 @@ class ModController(private val modService: IModService) {
 
   @GetMapping("/{modId}")
   fun getMod(@PathVariable modId: ModId): ModResponseDto =
-      modService.findModById(modId).toModResponseDto()
+      modService.findModById(modId).let { ModResponseDto.fromMod(it) }
 
   @GetMapping
   fun getMods(
@@ -30,21 +30,19 @@ class ModController(private val modService: IModService) {
       @RequestParam(required = false) name: String?,
       @SortDefault(sort = ["name"]) sort: Sort
   ): Page<ModResponseDto> =
-      modService.findModsWithFilter(page, size, name, sort).map { it.toModResponseDto() }
+      modService.findModsWithFilter(page, size, name, sort).map { ModResponseDto.fromMod(it) }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  fun uploadMod(@Valid @ModelAttribute dto: ModUploadDto): ModResponseDto =
-      SecurityContextHolder.getContext()
-          .authentication
-          ?.name
-          ?.let { modService.uploadMod(UserId(it), dto.toModCreateCommand()) }
-          ?.toModResponseDto() ?: throw ModCreationFailedException()
+  fun uploadMod(
+      @Valid @ModelAttribute dto: ModUploadDto,
+      @AuthenticationPrincipal user: UserDetails
+  ): ModResponseDto =
+      modService.uploadMod(UserId(user.username), dto.toModCreateCommand()).let {
+        ModResponseDto.fromMod(it)
+      }
 
   @DeleteMapping("/{modId}")
-  fun deleteMod(@PathVariable modId: ModId) {
-    SecurityContextHolder.getContext().authentication?.name?.let {
-      modService.deleteMod(UserId(it), modId)
-    }
-  }
+  fun deleteMod(@PathVariable modId: ModId, @AuthenticationPrincipal user: UserDetails) =
+      modService.deleteMod(UserId(user.username), modId)
 }

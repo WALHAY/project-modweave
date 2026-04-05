@@ -31,7 +31,7 @@ class UserService(
     return userRepository.findAll(name, pageRequest)
   }
 
-  override fun registerNewUser(command: UserCreateCommand): User {
+  override fun createUser(command: UserCreateCommand): User {
     if (userRepository.existsByUsername(command.username)) {
       throw UserLoginExistsException(command.username)
     }
@@ -49,7 +49,7 @@ class UserService(
         .let { userRepository.save(it) }
   }
 
-  override fun updateUserProfile(userId: UserId, command: UserUpdateCommand): User {
+  override fun updateUser(userId: UserId, command: UserUpdateCommand): User {
     val user: User = findUserByUsername(userId)
 
     command.username?.let { user.name = it }

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
 @KonvertTo(UserCreateCommand::class)
-data class UserRegisterDto(
+data class UserCreateDto(
     @field:NotBlank @field:Size(min = 3) val username: String,
     @field:NotBlank val name: String,
     @field:NotBlank @field:Size(min = 8) val password: String,

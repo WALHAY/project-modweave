@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface SpringDataModRepository : JpaRepository<ModEntity, String> {
   fun findAllByNameContainingIgnoreCase(name: String, pageable: Pageable): Page<ModEntity>
+
+  fun findAllByPublisherId(id: String, pageable: Pageable): Page<ModEntity>
 }

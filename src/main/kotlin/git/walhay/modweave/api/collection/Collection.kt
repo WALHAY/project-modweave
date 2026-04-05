@@ -4,7 +4,8 @@ import git.walhay.modweave.api.collection.http.dto.CollectionResponseDto
 import git.walhay.modweave.api.collection.repository.CollectionEntity
 import git.walhay.modweave.api.collection.repository.CollectionItemEntity
 import git.walhay.modweave.api.mod.Mod
-import git.walhay.modweave.api.mod.toEntity
+import git.walhay.modweave.api.mod.repository.ModEntity
+import git.walhay.modweave.api.mod.repository.fromMod
 import git.walhay.modweave.api.user.UserId
 import io.mcarle.konvert.api.KonvertTo
 import io.mcarle.konvert.api.Mapping
@@ -28,5 +29,7 @@ data class Collection(
   ) : this(CollectionId(), name, description, owner)
 
   fun modsMapToList(): List<CollectionItemEntity> =
-      this.mods.entries.map { CollectionItemEntity(it.key, id, it.value.toEntity()) }.toList()
+      this.mods.entries
+          .map { CollectionItemEntity(it.key, id, ModEntity.fromMod(it.value)) }
+          .toList()
 }
