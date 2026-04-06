@@ -7,4 +7,6 @@ interface CollectionRepository {
   fun findById(id: CollectionId): Collection?
 
   fun save(collection: Collection): Collection
+
+  fun deleteById(id: CollectionId)
 }

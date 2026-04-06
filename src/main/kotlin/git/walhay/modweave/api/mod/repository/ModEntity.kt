@@ -41,7 +41,7 @@ class ModEntity(
         cascade = [CascadeType.ALL])
     val versions: MutableList<VersionEntity> = mutableListOf()
 ) {
-  constructor() : this("", "", null, "", LocalDateTime.now(), UserId(), GameId(""))
+  constructor() : this("", "", null, "", LocalDateTime.now(), UserId(), GameId())
 
   companion object
 }

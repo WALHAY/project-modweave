@@ -23,6 +23,15 @@ class CollectionService(
           .let { (name, description) -> Collection(name, description, userId) }
           .let { collectionRepository.save(it) }
 
+  override fun deleteCollection(userId: UserId, collectionId: CollectionId) {
+    val collection = getCollectionById(collectionId)
+    if (collection.owner == userId) {
+      throw Exception("Forbidden")
+    }
+
+    collectionRepository.deleteById(collectionId)
+  }
+
   override fun addModToCollection(
       userId: UserId,
       collectionId: CollectionId,
@@ -39,5 +48,5 @@ class CollectionService(
     return collectionRepository.save(collection)
   }
 
-  override fun removeModFromCollection(userId: UserId, collectionId: CollectionId, modId: ModId) {}
+  override fun deleteModFromCollection(userId: UserId, collectionId: CollectionId, modId: ModId) {}
 }

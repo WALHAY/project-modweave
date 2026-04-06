@@ -9,6 +9,8 @@ interface ICollectionService {
 
   fun createCollection(userId: UserId, command: CollectionCreateCommand): Collection
 
+  fun deleteCollection(userId: UserId, collectionId: CollectionId)
+
   fun addModToCollection(
       userId: UserId,
       collectionId: CollectionId,
@@ -16,5 +18,5 @@ interface ICollectionService {
       index: Int?
   ): Collection
 
-  fun removeModFromCollection(userId: UserId, collectionId: CollectionId, modId: ModId)
+  fun deleteModFromCollection(userId: UserId, collectionId: CollectionId, modId: ModId)
 }

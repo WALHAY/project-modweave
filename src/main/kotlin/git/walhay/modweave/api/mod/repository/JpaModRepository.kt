@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.mod.repository
 
+import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.UserId
@@ -24,6 +25,9 @@ class JpaModRepository(private val repository: SpringDataModRepository) : ModRep
 
   override fun findAllByUser(username: UserId, pageable: Pageable): Page<Mod> =
       repository.findAllByPublisherId(username.value, pageable).map { it.toDomain() }
+
+  override fun findModsInCollection(collectionId: CollectionId, pageable: Pageable): Page<Mod> =
+      repository.findByCollectionId(collectionId.value, pageable).map { it.toDomain() }
 
   override fun existsById(modId: ModId): Boolean = repository.existsById(modId.value)
 }

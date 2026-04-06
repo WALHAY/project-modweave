@@ -13,4 +13,6 @@ class JpaCollectionRepository(private val repository: SpringDataCollectionReposi
 
   override fun save(collection: Collection): Collection =
       repository.save(CollectionEntity.fromCollection(collection)).toDomain()
+
+  override fun deleteById(id: CollectionId) = repository.deleteById(id.value)
 }

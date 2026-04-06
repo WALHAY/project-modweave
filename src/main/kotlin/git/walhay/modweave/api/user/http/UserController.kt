@@ -39,7 +39,7 @@ class UserController(private val userService: IUserService, private val modServi
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
       @SortDefault(sort = ["name"]) sort: Sort
-  ): Page<Mod> = modService.findAllUserMods(UserId(id), page, size, sort)
+  ): Page<Mod> = modService.findModsOfUser(UserId(id), page, size, sort)
 
   @PostMapping
   fun createUser(@ModelAttribute @Valid dto: UserCreateDto): UserResponseDto =

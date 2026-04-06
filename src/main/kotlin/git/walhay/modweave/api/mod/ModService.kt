@@ -1,6 +1,7 @@
 package git.walhay.modweave.api.mod
 
 import git.walhay.modweave.api.category.repository.CategoryRepository
+import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.mod.command.ModCreateCommand
 import git.walhay.modweave.api.mod.exception.ModExistsException
@@ -42,9 +43,11 @@ class ModService(
     return modRepository.findAll(name, pageRequest)
   }
 
-  override fun findAllUserMods(id: UserId, page: Int, size: Int, sort: Sort): Page<Mod> {
-    return modRepository.findAllByUser(id, PageRequest.of(page, size, sort))
-  }
+  override fun findModsOfUser(id: UserId, page: Int, size: Int, sort: Sort): Page<Mod> =
+      modRepository.findAllByUser(id, PageRequest.of(page, size, sort))
+
+  override fun findModsInCollection(id: CollectionId, page: Int, size: Int, sort: Sort): Page<Mod> =
+      modRepository.findModsInCollection(id, PageRequest.of(page, size, sort))
 
   override fun uploadMod(userId: UserId, command: ModCreateCommand): Mod {
     if (modRepository.existsById(command.id)) {
@@ -58,25 +61,35 @@ class ModService(
     val imagePath =
         "${command.name}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}"
 
-    val mod =
-        command
-            .let { (id, name, description, image) ->
-              Mod(
-                  id,
-                  name,
-                  description,
-                  simpleStorageService.uploadImage(imagePath, image),
-                  user.username,
-                  game.id,
-                  categories.map { it.name }.toSet())
-            }
-            .let { modRepository.save(it) }
+    try {
+      val mod =
+          command
+              .let { (id, name, description, image) ->
+                Mod(
+                    id,
+                    name,
+                    description,
+                    simpleStorageService.uploadImage(imagePath, image),
+                    user.username,
+                    game.id,
+                    categories.map { it.name }.toSet())
+              }
+              .let { modRepository.save(it) }
 
-    versionService.createModVersion(mod, command)
-    return modRepository.save(mod)
+      versionService.createModVersion(mod, command)
+      return modRepository.save(mod)
+    } catch (e: Exception) {
+      simpleStorageService.removeImage(imagePath)
+      throw e
+    }
   }
 
   override fun deleteMod(userId: UserId, modId: ModId) {
+    val mod = findModById(modId)
+    if (mod.publisherId == userId) {
+      throw Exception("Forbidden")
+    }
+
     modRepository.deleteById(modId)
   }
 }

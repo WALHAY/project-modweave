@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.mod.repository
 
+import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.UserId
@@ -14,6 +15,8 @@ interface ModRepository {
   fun findAll(name: String, pageable: Pageable): Page<Mod>
 
   fun findAllByUser(username: UserId, pageable: Pageable): Page<Mod>
+
+  fun findModsInCollection(collectionId: CollectionId, pageable: Pageable): Page<Mod>
 
   fun existsById(modId: ModId): Boolean
 

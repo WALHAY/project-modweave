@@ -1,6 +1,7 @@
 package git.walhay.modweave.api.collection.repository
 
 import git.walhay.modweave.api.collection.Collection
+import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.mod.repository.fromMod
 import git.walhay.modweave.api.mod.repository.toDomain
@@ -15,12 +16,14 @@ class CollectionEntity(
     @Column("description") val description: String?,
     @Column("owner", nullable = false) val owner: UserId,
     @OneToMany(mappedBy = "collectionId", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OrderBy("index")
     val mods: List<CollectionItemEntity> = emptyList()
 ) {
   constructor() : this(0, "", null, UserId())
 
   fun toDomain(): Collection =
       Collection(
+          CollectionId(id),
           name,
           description,
           owner,
