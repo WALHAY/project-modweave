@@ -6,11 +6,9 @@ import git.walhay.modweave.api.user.repository.UserRepository
 import git.walhay.modweave.testutils.PostgresTestTemplate
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
-@DataJpaTest
 @Import(JpaUserRepository::class, BCryptPasswordEncoder::class)
 class UserRepositoryTest : PostgresTestTemplate() {
 

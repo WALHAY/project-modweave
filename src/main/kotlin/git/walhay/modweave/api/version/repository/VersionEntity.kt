@@ -8,6 +8,8 @@ import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnTransformer
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.time.LocalDateTime
 
 @Entity
@@ -20,8 +22,9 @@ class VersionEntity(
     @Column(name = "changes", columnDefinition = "text") val changes: String? = null,
     @Column(name = "upload_date", nullable = false) val uploadDate: LocalDateTime,
     @Enumerated(EnumType.STRING)
-    @Column("status", columnDefinition = "version_status")
-    @ColumnTransformer(write = "?::version_status")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "status", columnDefinition = "modweave.version_status")
+    @ColumnTransformer(write = "?::modweave.version_status")
     val status: VersionStatus,
     @Column(name = "mod_id", nullable = false) val modId: ModId,
     @OneToMany(

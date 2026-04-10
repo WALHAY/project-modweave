@@ -13,10 +13,8 @@ class JpaVersionRepository(private val repository: SpringDataVersionRepository) 
   override fun save(version: Version): Version =
       repository.save<VersionEntity>(VersionEntity.fromVersion(version)).toDomain()
 
-    override fun findVersionsByModId(
-        modId: ModId,
-        pageable: Pageable
-    ): Page<Version> = repository.findAllByModId(modId.value, pageable)
+  override fun findVersionsByModId(modId: ModId, pageable: Pageable): Page<Version> =
+      repository.findAllByModId(modId.value, pageable).map { it.toDomain() }
 
-    override fun delete(versionId: VersionId) = repository.deleteById(versionId.value)
+  override fun delete(versionId: VersionId) = repository.deleteById(versionId.value)
 }
