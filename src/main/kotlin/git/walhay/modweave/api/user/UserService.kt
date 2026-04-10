@@ -1,7 +1,7 @@
 package git.walhay.modweave.api.user
 
-import git.walhay.modweave.api.user.dto.UserRegisterDto
-import git.walhay.modweave.api.user.dto.UserUpdateDto
+import git.walhay.modweave.api.user.command.UserCreateCommand
+import git.walhay.modweave.api.user.command.UserUpdateCommand
 import git.walhay.modweave.api.user.exception.UserEmailExistsException
 import git.walhay.modweave.api.user.exception.UserLoginExistsException
 import git.walhay.modweave.api.user.exception.UserNotFoundException
@@ -20,9 +20,8 @@ class UserService(
     private val passwordEncoder: PasswordEncoder
 ) : IUserService {
 
-  override fun findUserByUsername(username: UserId): User =
-      userRepository.findByUsername(username)
-          ?: throw UserNotFoundException("User with username=$username not found")
+  override fun findUserByUsername(userId: UserId): User =
+      userRepository.findByUsername(userId) ?: throw UserNotFoundException(userId)
 
   override fun findUsersWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<User> {
     val pageRequest = PageRequest.of(page, size, sort)
@@ -32,38 +31,40 @@ class UserService(
     return userRepository.findAll(name, pageRequest)
   }
 
-  override fun registerNewUser(register: UserRegisterDto): User {
-    if (userRepository.existsByUsername(UserId(register.username))) {
-      throw UserLoginExistsException("Login ${register.username} already in use")
+  override fun createUser(command: UserCreateCommand): User {
+    if (userRepository.existsByUsername(command.username)) {
+      throw UserLoginExistsException(command.username)
     }
 
-    if (userRepository.existsByEmail(register.email)) {
-      throw UserEmailExistsException("Email ${register.email} already in use")
+    if (userRepository.existsByEmail(command.email)) {
+      throw UserEmailExistsException(command.email)
     }
 
     val encodedPass =
-        passwordEncoder.encode(register.password)
+        passwordEncoder.encode(command.password)
             ?: throw IllegalStateException("Failed to encode password")
 
-    val user = User(register.username, register.name, register.email, encodedPass)
-
-    return userRepository.save(user)
+    return command
+        .let { (username, name, _, email) -> User(username, name, email, encodedPass) }
+        .let { userRepository.save(it) }
   }
 
-  override fun updateUserProfile(username: UserId, update: UserUpdateDto): User {
-    val user: User = findUserByUsername(username)
+  override fun updateUser(userId: UserId, command: UserUpdateCommand): User {
+    val user: User = findUserByUsername(userId)
 
-    update.username?.let { user.name = it }
-    update.password?.let {
+    command.username?.let { user.name = it }
+    command.password?.let {
       user.password =
           passwordEncoder.encode(it) ?: throw IllegalStateException("Failed to encode password")
     }
-    update.email?.let {
-      if (it != user.email && userRepository.existsByEmail(it)) {
-        throw UserEmailExistsException("Email $it already in use")
-      }
-      user.email = it
-    }
+    command.email
+        ?.takeUnless { it == user.email }
+        ?.let {
+          if (userRepository.existsByEmail(it)) {
+            throw UserEmailExistsException("Email $it already in use")
+          }
+          user.email = it
+        }
 
     return userRepository.save(user)
   }

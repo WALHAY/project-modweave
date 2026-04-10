@@ -1,12 +1,17 @@
 package git.walhay.modweave.api.version
 
 import git.walhay.modweave.api.mod.Mod
-import git.walhay.modweave.api.version.dto.VersionUploadDto
+import git.walhay.modweave.api.mod.ModId
+import git.walhay.modweave.api.mod.command.ModCreateCommand
+import git.walhay.modweave.api.version.command.VersionCreateCommand
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 interface IVersionService {
-  fun uploadModVersion(mod: Mod, versionUploadDTO: VersionUploadDto): Version
+    fun getModVersions(modId: ModId, pageable: Pageable): Page<Version>
+  fun createModVersion(mod: Mod, command: ModCreateCommand): Version
 
-  fun uploadModVersion(modId: String, versionUploadDTO: VersionUploadDto): Version
+  fun createModVersion(modId: ModId, command: VersionCreateCommand): Version
 
-  fun deleteModVersion(modId: String, version: String)
+  fun deleteModVersion(modId: ModId, versionId: VersionId)
 }

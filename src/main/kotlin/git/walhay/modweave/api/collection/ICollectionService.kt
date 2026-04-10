@@ -1,15 +1,22 @@
 package git.walhay.modweave.api.collection
 
-import git.walhay.modweave.api.collection.dto.CollectionCreateDto
+import git.walhay.modweave.api.collection.command.CollectionCreateCommand
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.UserId
 
 interface ICollectionService {
   fun getCollectionById(id: CollectionId): Collection
 
-  fun createCollection(username: UserId, dto: CollectionCreateDto): Collection
+  fun createCollection(userId: UserId, command: CollectionCreateCommand): Collection
 
-  fun addModToCollection(username: UserId, collectionId: CollectionId, modId: ModId, index: Int?): Collection
+  fun deleteCollection(userId: UserId, collectionId: CollectionId)
 
-  fun removeModFromCollection(username: UserId, collectionId: CollectionId, modId: ModId)
+  fun addModToCollection(
+      userId: UserId,
+      collectionId: CollectionId,
+      modId: ModId,
+      index: Int?
+  ): Collection
+
+  fun deleteModFromCollection(userId: UserId, collectionId: CollectionId, modId: ModId)
 }

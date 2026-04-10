@@ -1,7 +1,7 @@
 package git.walhay.modweave.api.category
 
-import git.walhay.modweave.api.category.dto.CategoryResponseDto
-import git.walhay.modweave.api.category.dto.toCategory
+import git.walhay.modweave.api.category.command.CategoryCreateCommand
+import git.walhay.modweave.api.category.command.CategoryUpdateCommand
 import git.walhay.modweave.api.category.exception.CategoryExistsException
 import git.walhay.modweave.api.category.exception.CategoryNotFoundException
 import git.walhay.modweave.api.category.repository.CategoryRepository
@@ -14,28 +14,31 @@ class CategoryService(val categoryRepository: CategoryRepository) : ICategorySer
 
   override fun getCategories(): List<Category> = categoryRepository.findAll()
 
-  override fun uploadCategory(dto: CategoryResponseDto): Category {
-    if (categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
-      throw CategoryExistsException("Category with name=${dto.name.lowercase()} already exists")
+  override fun uploadCategory(command: CategoryCreateCommand): Category {
+    if (categoryRepository.existsByNameIgnoreCase(command.name)) {
+      throw CategoryExistsException(command.name)
     }
 
-    return categoryRepository.save(dto.toCategory())
+    return command
+        .let { (name, description) -> Category(name, description) }
+        .also { categoryRepository.save(it) }
   }
 
-  override fun deleteCategory(name: String) {
-    if (!categoryRepository.existsByNameIgnoreCase(name)) {
-      throw CategoryNotFoundException("Category with name=$name not found for deletion")
+  override fun updateCategory(command: CategoryUpdateCommand): Category {
+    if (!categoryRepository.existsByNameIgnoreCase(command.name)) {
+      throw CategoryNotFoundException(command.name)
     }
 
-    categoryRepository.deleteByNameIgnoreCase(name)
+    return command
+        .let { (name, description) -> Category(name, description) }
+        .let { categoryRepository.save(it) }
   }
 
-  override fun updateCategory(dto: CategoryResponseDto): Category {
-    if (!categoryRepository.existsByNameIgnoreCase(dto.name.lowercase())) {
-      throw CategoryNotFoundException(
-          "Category with name=${dto.name.lowercase()} not found for update")
+  override fun deleteCategory(categoryId: CategoryId) {
+    if (!categoryRepository.existsByNameIgnoreCase(categoryId)) {
+      throw CategoryNotFoundException(categoryId)
     }
 
-    return categoryRepository.save(dto.toCategory())
+    categoryRepository.deleteByNameIgnoreCase(categoryId)
   }
 }

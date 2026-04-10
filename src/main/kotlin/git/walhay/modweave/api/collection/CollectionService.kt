@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.collection
 
-import git.walhay.modweave.api.collection.dto.CollectionCreateDto
+import git.walhay.modweave.api.collection.command.CollectionCreateCommand
 import git.walhay.modweave.api.collection.exception.CollectionNotFoundException
 import git.walhay.modweave.api.collection.repository.CollectionRepository
 import git.walhay.modweave.api.mod.IModService
@@ -18,27 +18,35 @@ class CollectionService(
   override fun getCollectionById(id: CollectionId): Collection =
       collectionRepository.findById(id) ?: throw CollectionNotFoundException(id)
 
-  override fun createCollection(username: UserId, dto: CollectionCreateDto): Collection =
-      dto.let { (name, description) -> Collection(name, description, username) }
-          .also { collectionRepository.save(it) }
+  override fun createCollection(userId: UserId, command: CollectionCreateCommand): Collection =
+      command
+          .let { (name, description) -> Collection(name, description, userId) }
+          .let { collectionRepository.save(it) }
+
+  override fun deleteCollection(userId: UserId, collectionId: CollectionId) {
+    val collection = getCollectionById(collectionId)
+    if (collection.owner == userId) {
+      throw Exception("Forbidden")
+    }
+
+    collectionRepository.deleteById(collectionId)
+  }
 
   override fun addModToCollection(
-      username: UserId,
+      userId: UserId,
       collectionId: CollectionId,
       modId: ModId,
       index: Int?
   ): Collection {
     val collection = getCollectionById(collectionId)
-    if (username != collection.owner) {
+    if (userId != collection.owner) {
       throw Exception("Wrong user")
     }
 
-    val mod = modService.findModById(modId.value)
-    collection.mods.putIfAbsent(index ?: collection.mods.size, mod)
+    val mod = modService.findModById(modId)
+    collection.mods.addLast(mod)
     return collectionRepository.save(collection)
   }
 
-  override fun removeModFromCollection(username: UserId, collectionId: CollectionId, modId: ModId) {
-    TODO("Not yet implemented")
-  }
+  override fun deleteModFromCollection(userId: UserId, collectionId: CollectionId, modId: ModId) {}
 }

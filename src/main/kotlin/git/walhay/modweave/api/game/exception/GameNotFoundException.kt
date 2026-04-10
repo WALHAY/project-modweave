@@ -1,3 +1,5 @@
 package git.walhay.modweave.api.game.exception
 
-class GameNotFoundException(message: String) : Exception(message)
+import git.walhay.modweave.api.game.GameId
+
+class GameNotFoundException(gameId: GameId) : Exception("Game with id=\"$gameId\" not found")

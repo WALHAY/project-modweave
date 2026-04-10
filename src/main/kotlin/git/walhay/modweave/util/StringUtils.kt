@@ -12,17 +12,3 @@ fun String.spinalCase(): String {
 
   return stringBuilder.toString()
 }
-
-fun String.spinalCaseWithDots(): String {
-  val stringBuilder = StringBuilder()
-
-  for (c in this) {
-    when {
-      c.isLetterOrDigit() -> stringBuilder.append(c.lowercase())
-      c.isWhitespace() -> stringBuilder.append('-')
-      c == '.' -> stringBuilder.append('.')
-    }
-  }
-
-  return stringBuilder.toString()
-}

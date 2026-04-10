@@ -1,3 +1,5 @@
 package git.walhay.modweave.api.mod.exception
 
-class ModExistsException(message: String) : Exception(message)
+import git.walhay.modweave.api.mod.ModId
+
+class ModExistsException(modId: ModId) : Exception("Mod with id=\"$modId\" already exists")

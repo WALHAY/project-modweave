@@ -1,3 +1,6 @@
 package git.walhay.modweave.api.category.exception
 
-class CategoryNotFoundException(message: String) : Exception(message)
+import git.walhay.modweave.api.category.CategoryId
+
+class CategoryNotFoundException(categoryId: CategoryId) :
+    Exception("Category with id=\"$categoryId\" already exists")

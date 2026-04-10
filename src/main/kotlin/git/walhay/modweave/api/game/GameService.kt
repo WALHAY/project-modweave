@@ -1,6 +1,6 @@
 package git.walhay.modweave.api.game
 
-import git.walhay.modweave.api.game.dto.GameUploadDto
+import git.walhay.modweave.api.game.command.GameCreateCommand
 import git.walhay.modweave.api.game.exception.GameExistsException
 import git.walhay.modweave.api.game.exception.GameNotFoundException
 import git.walhay.modweave.api.game.repository.GameRepository
@@ -18,8 +18,8 @@ class GameService(
     private val gameRepository: GameRepository,
     private val simpleStorageService: ISimpleStorageService
 ) : IGameService {
-  override fun findGameById(modId: String): Game =
-      gameRepository.findById(modId) ?: throw GameNotFoundException("Game with id=$modId not found")
+  override fun findGameById(gameId: GameId): Game =
+      gameRepository.findById(gameId) ?: throw GameNotFoundException(gameId)
 
   override fun findGamesWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Game> {
     val pageRequest = PageRequest.of(page, size, sort)
@@ -29,18 +29,20 @@ class GameService(
     return gameRepository.findAll(name, pageRequest)
   }
 
-  override fun uploadGame(dto: GameUploadDto): Game {
-    if (gameRepository.existsById(dto.nameSpinal)) {
-      throw GameExistsException("Game with id=${dto.nameSpinal} already exist")
+  override fun uploadGame(command: GameCreateCommand): Game {
+    if (gameRepository.existsByIdIgnoreCase(command.id)) {
+      throw GameExistsException(command.id)
     }
 
-    var game = Game(dto.name, dto.description)
-    game = gameRepository.save(game)
+    val game =
+        command
+            .let { (id, name, description) -> Game(id, name, description) }
+            .let { gameRepository.save(it) }
 
     game.imagePath =
         simpleStorageService.uploadImage(
-            "${game.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}",
-            dto.image)
+            "${game.name}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}",
+            command.image)
 
     return gameRepository.save(game)
   }

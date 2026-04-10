@@ -85,4 +85,8 @@ class SimpleStorageService(
   override fun removeVersionFile(filename: String) {
     removeFileFromBucket(modsBucket, filename)
   }
+
+  override fun removeImage(filename: String) {
+    removeFileFromBucket(modsBucket, filename)
+  }
 }

@@ -1,9 +1,9 @@
 package git.walhay.modweave.api.mod
 
-import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.category.repository.CategoryRepository
+import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.game.IGameService
-import git.walhay.modweave.api.mod.dto.ModUploadDto
+import git.walhay.modweave.api.mod.command.ModCreateCommand
 import git.walhay.modweave.api.mod.exception.ModExistsException
 import git.walhay.modweave.api.mod.exception.ModNotFoundException
 import git.walhay.modweave.api.mod.repository.ModRepository
@@ -11,8 +11,6 @@ import git.walhay.modweave.api.storage.ISimpleStorageService
 import git.walhay.modweave.api.user.IUserService
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.IVersionService
-import git.walhay.modweave.api.version.dto.VersionUploadDto
-import git.walhay.modweave.util.spinalCase
 import mu.KLogger
 import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
@@ -34,8 +32,8 @@ class ModService(
     private val logger: KLogger = KotlinLogging.logger {}
 ) : IModService {
 
-  override fun findModById(id: String): Mod =
-      modRepository.findById(id) ?: throw ModNotFoundException("Mod with id=$id not found")
+  override fun findModById(modId: ModId): Mod =
+      modRepository.findById(modId) ?: throw ModNotFoundException(modId)
 
   override fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
     val pageRequest = PageRequest.of(page, size, sort)
@@ -45,32 +43,53 @@ class ModService(
     return modRepository.findAll(name, pageRequest)
   }
 
-  override fun uploadMod(username: UserId, dto: ModUploadDto): Mod {
-    if (modRepository.existsById(dto.name.spinalCase())) {
-      throw ModExistsException(
-          "Mod with id=${dto.name.spinalCase()} or name=${dto.name} already exists")
+  override fun findModsOfUser(id: UserId, page: Int, size: Int, sort: Sort): Page<Mod> =
+      modRepository.findAllByUser(id, PageRequest.of(page, size, sort))
+
+  override fun findModsInCollection(id: CollectionId, page: Int, size: Int, sort: Sort): Page<Mod> =
+      modRepository.findModsInCollection(id, PageRequest.of(page, size, sort))
+
+  override fun uploadMod(userId: UserId, command: ModCreateCommand): Mod {
+    if (modRepository.existsById(command.id)) {
+      throw ModExistsException(command.id)
     }
 
-    val user = userService.findUserByUsername(username)
-    val game = gamerService.findGameById(dto.game)
-    val categories = categoryRepository.findAllByNameIn(dto.categories)
+    val user = userService.findUserByUsername(userId)
+    val game = gamerService.findGameById(command.gameId)
+    val categories = categoryRepository.findAllByNameIn(command.categories)
 
-    val imagePath = "${dto.name}/logo.${FilenameUtils.getExtension(dto.image.originalFilename)}"
+    val imagePath =
+        "${command.name}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}"
 
-    val mod =
-        modRepository.save(
-            Mod(
-                dto.name,
-                dto.description,
-                user.username,
-                game.id,
-                simpleStorageService.uploadImage(imagePath, dto.image),
-                categories.map { CategoryId(it.name) }.toSet()))
-    versionService.uploadModVersion(mod, VersionUploadDto(dto.versionName, null, dto.files))
-    return modRepository.save(mod)
+    try {
+      val mod =
+          command
+              .let { (id, name, description, image) ->
+                Mod(
+                    id,
+                    name,
+                    description,
+                    simpleStorageService.uploadImage(imagePath, image),
+                    user.username,
+                    game.id,
+                    categories.map { it.name }.toSet())
+              }
+              .let { modRepository.save(it) }
+
+      versionService.createModVersion(mod, command)
+      return modRepository.save(mod)
+    } catch (e: Exception) {
+      simpleStorageService.removeImage(imagePath)
+      throw e
+    }
   }
 
-  override fun deleteMod(username: UserId, modId: String) {
+  override fun deleteMod(userId: UserId, modId: ModId) {
+    val mod = findModById(modId)
+    if (mod.publisherId == userId) {
+      throw Exception("Forbidden")
+    }
+
     modRepository.deleteById(modId)
   }
 }

@@ -8,4 +8,6 @@ interface ISimpleStorageService {
   fun uploadVersionFile(filename: String, file: MultipartFile): String
 
   fun removeVersionFile(filename: String)
+
+  fun removeImage(filename: String)
 }

@@ -1,3 +1,6 @@
 package git.walhay.modweave.api.version.exception
 
-class VersionNotFoundException(message: String) : Exception(message)
+import git.walhay.modweave.api.version.VersionId
+
+class VersionNotFoundException(versionId: VersionId) :
+    Exception("Version with id=\"$versionId\" not found")

@@ -1,3 +1,3 @@
 package git.walhay.modweave.api.mod.exception
 
-class ModCreationFailedException(msg: String) : Exception(msg)
+class ModCreationFailedException() : Exception("Failed to create mod")
