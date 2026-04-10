@@ -59,7 +59,7 @@ create table modweave.mods_categories (
 );
 
 create table modweave.comments (
-    id serial primary key,
+    id bigserial primary key,
     content text not null,
     publish_date timestamp default current_date not null,
     user_id varchar not null references modweave.users (username) on delete cascade,
