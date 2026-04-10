@@ -14,6 +14,8 @@ import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -24,8 +26,11 @@ class VersionService(
     private val logger: KLogger = KotlinLogging.logger {}
 ) : IVersionService {
   @Lazy @Autowired private lateinit var modService: IModService
+    override fun getModVersions(modId: ModId, pageable: Pageable): Page<Version> {
+        return versionRepository.findVersionsByModId(modId, pageable)
+    }
 
-  override fun createModVersion(mod: Mod, command: ModCreateCommand): Version {
+    override fun createModVersion(mod: Mod, command: ModCreateCommand): Version {
     val version = Version(command.versionName, null, mod.id).let { versionRepository.save(it) }
     mod.versions.addLast(version)
 

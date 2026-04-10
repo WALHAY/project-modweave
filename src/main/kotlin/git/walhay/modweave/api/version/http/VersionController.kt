@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/mods/{modId}")
+@RequestMapping("/mods/{modId}/versions")
 class VersionController(
     private val versionService: IVersionService,
 ) {
