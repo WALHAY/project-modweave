@@ -5,10 +5,12 @@ import git.walhay.modweave.api.file.FileId
 import git.walhay.modweave.api.file.repository.FileRepository
 import git.walhay.modweave.api.file.repository.JpaFileRepository
 import git.walhay.modweave.api.game.Game
+import git.walhay.modweave.api.game.repository.GameRepository
 import git.walhay.modweave.api.game.repository.JpaGameRepository
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.repository.JpaModRepository
+import git.walhay.modweave.api.mod.repository.ModRepository
 import git.walhay.modweave.api.user.User
 import git.walhay.modweave.api.user.repository.JpaUserRepository
 import git.walhay.modweave.api.user.repository.UserRepository
@@ -34,9 +36,9 @@ class FileRepositoryTest : PostgresTestTemplate() {
 
   @Autowired lateinit var versionRepository: VersionRepository
 
-  @Autowired lateinit var modRepository: git.walhay.modweave.api.mod.repository.ModRepository
+  @Autowired lateinit var modRepository: ModRepository
 
-  @Autowired lateinit var gameRepository: git.walhay.modweave.api.game.repository.GameRepository
+  @Autowired lateinit var gameRepository: GameRepository
 
   @Autowired lateinit var userRepository: UserRepository
 

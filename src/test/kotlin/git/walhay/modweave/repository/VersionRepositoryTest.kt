@@ -1,10 +1,12 @@
 package git.walhay.modweave.repository
 
 import git.walhay.modweave.api.game.Game
+import git.walhay.modweave.api.game.repository.GameRepository
 import git.walhay.modweave.api.game.repository.JpaGameRepository
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.repository.JpaModRepository
+import git.walhay.modweave.api.mod.repository.ModRepository
 import git.walhay.modweave.api.user.User
 import git.walhay.modweave.api.user.repository.JpaUserRepository
 import git.walhay.modweave.api.user.repository.UserRepository
@@ -26,9 +28,9 @@ class VersionRepositoryTest : PostgresTestTemplate() {
 
   @Autowired lateinit var userRepository: UserRepository
 
-  @Autowired lateinit var gameRepository: git.walhay.modweave.api.game.repository.GameRepository
+  @Autowired lateinit var gameRepository: GameRepository
 
-  @Autowired lateinit var modRepository: git.walhay.modweave.api.mod.repository.ModRepository
+  @Autowired lateinit var modRepository: ModRepository
 
   private fun seedMod(): Mod {
     val publisher = userRepository.save(User("publisher", "publisher", "publisher@mail.ru", "pass"))

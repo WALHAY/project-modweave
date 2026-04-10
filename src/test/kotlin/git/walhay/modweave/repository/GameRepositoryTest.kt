@@ -26,7 +26,6 @@ class GameRepositoryTest : PostgresTestTemplate() {
     val created = seedGame()
     assertNotNull(created)
 
-    // Verify persistence by fetching it back using the id returned by the repository.
     val refetched = gameRepository.findById(GameId(created.id.value))
     assertNotNull(refetched)
   }
@@ -38,7 +37,6 @@ class GameRepositoryTest : PostgresTestTemplate() {
     val found = gameRepository.findById(GameId(created.id.value))
     assertNotNull(found)
 
-    // Existence should work for the same id.
     assertTrue(gameRepository.existsByIdIgnoreCase(GameId(created.id.value)))
   }
 

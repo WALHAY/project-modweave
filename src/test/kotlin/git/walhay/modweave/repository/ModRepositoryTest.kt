@@ -1,6 +1,7 @@
 package git.walhay.modweave.repository
 
 import git.walhay.modweave.api.game.Game
+import git.walhay.modweave.api.game.repository.GameRepository
 import git.walhay.modweave.api.game.repository.JpaGameRepository
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
@@ -24,7 +25,7 @@ class ModRepositoryTest : PostgresTestTemplate() {
 
   @Autowired lateinit var userRepository: UserRepository
 
-  @Autowired lateinit var gameRepository: git.walhay.modweave.api.game.repository.GameRepository
+  @Autowired lateinit var gameRepository: GameRepository
 
   private fun seedPublisher(): User =
       userRepository.save(User("publisher", "publisher", "publisher@mail.ru", "pass"))
@@ -63,7 +64,6 @@ class ModRepositoryTest : PostgresTestTemplate() {
     assertNotNull(found)
     assertTrue(modRepository.existsById(created.id))
 
-    // List queries should work without blowing up
     modRepository.findAll(PageRequest.of(0, 10))
     modRepository.findAll("mod", PageRequest.of(0, 10))
     modRepository.findAllByUser(UserId("publisher"), PageRequest.of(0, 10))
