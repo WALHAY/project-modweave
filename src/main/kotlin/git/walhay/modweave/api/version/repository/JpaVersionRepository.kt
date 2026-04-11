@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository
 class JpaVersionRepository(private val repository: SpringDataVersionRepository) :
     VersionRepository {
   override fun save(version: Version): Version =
-      repository.save<VersionEntity>(VersionEntity.fromVersion(version)).toDomain()
+      repository.save(VersionEntity.fromVersion(version)).toDomain()
 
   override fun findVersionById(versionId: VersionId): Version? =
       repository.findByIdOrNull(versionId.value)?.toDomain()

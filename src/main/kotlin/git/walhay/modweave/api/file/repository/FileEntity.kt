@@ -5,6 +5,7 @@ import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import org.hibernate.annotations.NaturalId
+import java.io.Serializable
 
 @Entity
 @Table(schema = "modweave", name = "mod_files")
@@ -16,7 +17,7 @@ class FileEntity(
     @NaturalId @Column(name = "file_path", nullable = false) val filePath: String,
     @Column(name = "downloads") var downloads: Int = 0,
     @Column(name = "mod_version_id", nullable = false) val versionId: Long
-) {
+) : Serializable {
   constructor(
       filename: String,
       filePath: String,

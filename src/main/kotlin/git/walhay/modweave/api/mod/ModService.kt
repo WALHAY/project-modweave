@@ -35,7 +35,7 @@ class ModService(
     private val logger: KLogger = KotlinLogging.logger {}
 ) : IModService {
 
-  @Cacheable("mods", key = "#modId.value")
+  @Cacheable("mods", key = "#modId")
   override fun findModById(modId: ModId): Mod =
       modRepository.findById(modId) ?: throw ModNotFoundException(modId)
 
@@ -53,7 +53,7 @@ class ModService(
   override fun findModsInCollection(id: CollectionId, page: Int, size: Int, sort: Sort): Page<Mod> =
       modRepository.findModsInCollection(id, PageRequest.of(page, size, sort))
 
-  @CachePut("mods", key = "#result.id.value")
+  @CachePut("mods", key = "#result.id")
   override fun uploadMod(userId: UserId, command: ModCreateCommand): Mod {
     if (modRepository.existsById(command.id)) {
       throw ModExistsException(command.id)
@@ -89,7 +89,7 @@ class ModService(
     }
   }
 
-  @CacheEvict("mods", key = "#modId.value")
+  @CacheEvict("mods", key = "#modId")
   override fun deleteMod(userId: UserId, modId: ModId) {
     val mod = findModById(modId)
     if (mod.publisherId == userId) {

@@ -45,7 +45,7 @@ class ModController(
       @PathVariable modId: String,
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
-      @SortDefault(sort = ["name,desc"]) sort: Sort
+      @SortDefault(sort = ["id"], direction = Sort.Direction.DESC) sort: Sort
   ): Page<VersionResponseDto> =
       versionService.getModVersions(ModId(modId), PageRequest.of(page, size, sort)).map {
         VersionResponseDto.fromVersion(it)

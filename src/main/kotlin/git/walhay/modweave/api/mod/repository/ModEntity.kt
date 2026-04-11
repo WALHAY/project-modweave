@@ -7,16 +7,15 @@ import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.repository.VersionEntity
 import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
-import io.mcarle.konvert.api.Mapping
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
+import java.io.Serializable
 import java.time.LocalDateTime
 
 @Entity
 @Table(schema = "modweave", name = "mods")
-@KonvertTo(
-    Mod::class, mapFunctionName = "toDomain", mappings = [Mapping("categoryNames", "categories")])
+@KonvertTo(Mod::class, mapFunctionName = "toDomain")
 @KonvertFrom(Mod::class)
 class ModEntity(
     @Id @Column(name = "id", nullable = false, length = 50) val id: String,
@@ -33,14 +32,14 @@ class ModEntity(
         joinColumns = [JoinColumn(name = "mod_id", nullable = false)])
     @Column(name = "category_name")
     @JdbcTypeCode(SqlTypes.VARCHAR)
-    val categories: Set<CategoryId> = emptySet(),
+    val categories: List<CategoryId> = emptyList(),
     @OneToMany(
         mappedBy = "modId",
         fetch = FetchType.LAZY,
         orphanRemoval = true,
         cascade = [CascadeType.ALL])
     val versions: MutableList<VersionEntity> = mutableListOf()
-) {
+) : Serializable {
   constructor() : this("", "", null, "", LocalDateTime.now(), UserId(), GameId())
 
   companion object

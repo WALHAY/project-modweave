@@ -30,7 +30,7 @@ class VersionService(
 ) : IVersionService {
   @Lazy @Autowired private lateinit var modService: IModService
 
-  @Cacheable("versions", key = "#versionId.value")
+  @Cacheable("versions", key = "#versionId")
   override fun getModVersion(versionId: VersionId): Version =
       versionRepository.findVersionById(versionId) ?: throw VersionNotFoundException(versionId)
 
@@ -38,7 +38,7 @@ class VersionService(
     return versionRepository.findVersionsByModId(modId, pageable)
   }
 
-  @CachePut("versions", key = "#result.id.value")
+  @CachePut("versions", key = "#result.id")
   override fun createModVersion(mod: Mod, command: ModCreateCommand): Version {
     val version = Version(command.versionName, null, mod.id).let { versionRepository.save(it) }
     mod.versions.addLast(version)
@@ -47,13 +47,13 @@ class VersionService(
     return versionRepository.save(version)
   }
 
-  @CachePut("versions", key = "#result.id.value")
+  @CachePut("versions", key = "#result.id")
   override fun createModVersion(modId: ModId, command: VersionCreateCommand): Version {
     val mod = modService.findModById(modId)
 
-    mod.versions
-        .find { it.name == command.name }
-        ?.let { throw VersionExistsException(command.name) }
+    if (mod.versions.any { it.name == command.name }) {
+      throw VersionExistsException(command.name)
+    }
 
     val version =
         command
@@ -64,7 +64,7 @@ class VersionService(
     return versionRepository.save(version)
   }
 
-  @CacheEvict("versions", key = "#versionId.value")
+  @CacheEvict("versions", key = "#versionId")
   override fun deleteModVersion(versionId: VersionId) {
     val version = getModVersion(versionId)
 

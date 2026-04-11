@@ -7,6 +7,7 @@ import git.walhay.modweave.api.mod.repository.fromMod
 import git.walhay.modweave.api.mod.repository.toDomain
 import git.walhay.modweave.api.user.UserId
 import jakarta.persistence.*
+import java.io.Serializable
 
 @Entity
 @Table(schema = "modweave", name = "collections")
@@ -18,7 +19,7 @@ class CollectionEntity(
     @OneToMany(mappedBy = "collectionId", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @OrderBy("index")
     val mods: List<CollectionItemEntity> = emptyList()
-) {
+) : Serializable {
   constructor() : this(0, "", null, UserId())
 
   fun toDomain(): Collection =

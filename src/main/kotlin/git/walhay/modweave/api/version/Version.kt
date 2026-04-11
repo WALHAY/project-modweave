@@ -2,6 +2,7 @@ package git.walhay.modweave.api.version
 
 import git.walhay.modweave.api.file.File
 import git.walhay.modweave.api.mod.ModId
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class Version(
@@ -12,7 +13,7 @@ data class Version(
     val status: VersionStatus,
     val modId: ModId,
     val files: MutableList<File> = mutableListOf()
-) {
+) : Serializable {
   constructor(
       name: String,
       changes: String? = null,
