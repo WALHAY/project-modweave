@@ -10,4 +10,6 @@ interface IGameService {
   fun findGamesWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Game>
 
   fun uploadGame(command: GameCreateCommand): Game
+
+  fun deleteGame(gameId: GameId)
 }

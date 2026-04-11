@@ -6,6 +6,9 @@ import git.walhay.modweave.api.game.exception.GameNotFoundException
 import git.walhay.modweave.api.game.repository.GameRepository
 import git.walhay.modweave.api.storage.ISimpleStorageService
 import org.apache.commons.io.FilenameUtils
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -18,6 +21,7 @@ class GameService(
     private val gameRepository: GameRepository,
     private val simpleStorageService: ISimpleStorageService
 ) : IGameService {
+  @Cacheable("games", key = "#gameId.value")
   override fun findGameById(gameId: GameId): Game =
       gameRepository.findById(gameId) ?: throw GameNotFoundException(gameId)
 
@@ -29,6 +33,7 @@ class GameService(
     return gameRepository.findAll(name, pageRequest)
   }
 
+  @CachePut("games", key = "#result.id.value")
   override fun uploadGame(command: GameCreateCommand): Game {
     if (gameRepository.existsByIdIgnoreCase(command.id)) {
       throw GameExistsException(command.id)
@@ -46,4 +51,7 @@ class GameService(
 
     return gameRepository.save(game)
   }
+
+  @CacheEvict("games", key = "#gameId.value")
+  override fun deleteGame(gameId: GameId) = gameRepository.deleteById(gameId)
 }

@@ -19,7 +19,8 @@ class GameRepositoryTest : PostgresTestTemplate() {
   @Autowired lateinit var gameRepository: GameRepository
 
   private fun seedGame(): Game =
-      gameRepository.save(Game(name = "Skyrim", description = "RPG", imagePath = "images/skyrim.png"))
+      gameRepository.save(
+          Game(name = "Skyrim", description = "RPG", imagePath = "images/skyrim.png"))
 
   @Test
   fun `create game`() {

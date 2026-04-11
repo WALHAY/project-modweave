@@ -36,6 +36,7 @@ create table modweave.mod_versions (
     upload_date timestamp default current_date not null,
     status modweave.version_status default 'PENDING',
     mod_id varchar not null references modweave.mods (id) on delete cascade
+    unique(name, mod_id)
 );
 
 create table modweave.mod_files (

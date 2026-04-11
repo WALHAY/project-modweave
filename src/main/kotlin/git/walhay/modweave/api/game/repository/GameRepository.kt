@@ -15,4 +15,6 @@ interface GameRepository {
   fun existsByIdIgnoreCase(gameId: GameId): Boolean
 
   fun save(game: Game): Game
+
+  fun deleteById(gameId: GameId)
 }

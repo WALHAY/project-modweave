@@ -8,10 +8,13 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface IVersionService {
-    fun getModVersions(modId: ModId, pageable: Pageable): Page<Version>
+  fun getModVersion(versionId: VersionId): Version
+
+  fun getModVersions(modId: ModId, pageable: Pageable): Page<Version>
+
   fun createModVersion(mod: Mod, command: ModCreateCommand): Version
 
   fun createModVersion(modId: ModId, command: VersionCreateCommand): Version
 
-  fun deleteModVersion(modId: ModId, versionId: VersionId)
+  fun deleteModVersion(versionId: VersionId)
 }

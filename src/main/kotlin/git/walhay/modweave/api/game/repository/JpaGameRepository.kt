@@ -22,4 +22,6 @@ class JpaGameRepository(private val repository: SpringDataGameRepository) : Game
 
   override fun save(game: Game): Game =
       repository.save<GameEntity>(GameEntity.fromGame(game)).toDomain()
+
+  override fun deleteById(gameId: GameId) = repository.deleteById(gameId.value)
 }

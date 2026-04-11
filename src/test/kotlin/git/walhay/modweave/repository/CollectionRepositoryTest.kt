@@ -17,7 +17,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
 
-@Import(JpaCollectionRepository::class, JpaUserRepository::class, JpaGameRepository::class, JpaModRepository::class)
+@Import(
+    JpaCollectionRepository::class,
+    JpaUserRepository::class,
+    JpaGameRepository::class,
+    JpaModRepository::class)
 class CollectionRepositoryTest : PostgresTestTemplate() {
 
   @Autowired lateinit var collectionRepository: CollectionRepository
@@ -28,9 +32,11 @@ class CollectionRepositoryTest : PostgresTestTemplate() {
 
   @Autowired lateinit var modRepository: git.walhay.modweave.api.mod.repository.ModRepository
 
-  private fun seedUser(): User = userRepository.save(User("owner", "owner", "owner@mail.ru", "pass"))
+  private fun seedUser(): User =
+      userRepository.save(User("owner", "owner", "owner@mail.ru", "pass"))
 
-  private fun seedGame(): Game = gameRepository.save(Game(name = "Game", description = null, imagePath = "img.png"))
+  private fun seedGame(): Game =
+      gameRepository.save(Game(name = "Game", description = null, imagePath = "img.png"))
 
   private fun seedMod(owner: User, game: Game): Mod =
       modRepository.save(

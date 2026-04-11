@@ -14,6 +14,9 @@ import git.walhay.modweave.api.version.IVersionService
 import mu.KLogger
 import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -32,6 +35,7 @@ class ModService(
     private val logger: KLogger = KotlinLogging.logger {}
 ) : IModService {
 
+  @Cacheable("mods", key = "#modId.value")
   override fun findModById(modId: ModId): Mod =
       modRepository.findById(modId) ?: throw ModNotFoundException(modId)
 
@@ -49,6 +53,7 @@ class ModService(
   override fun findModsInCollection(id: CollectionId, page: Int, size: Int, sort: Sort): Page<Mod> =
       modRepository.findModsInCollection(id, PageRequest.of(page, size, sort))
 
+  @CachePut("mods", key = "#result.id.value")
   override fun uploadMod(userId: UserId, command: ModCreateCommand): Mod {
     if (modRepository.existsById(command.id)) {
       throw ModExistsException(command.id)
@@ -84,6 +89,7 @@ class ModService(
     }
   }
 
+  @CacheEvict("mods", key = "#modId.value")
   override fun deleteMod(userId: UserId, modId: ModId) {
     val mod = findModById(modId)
     if (mod.publisherId == userId) {

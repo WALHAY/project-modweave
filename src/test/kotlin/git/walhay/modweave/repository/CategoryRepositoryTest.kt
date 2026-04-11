@@ -34,7 +34,8 @@ class CategoryRepositoryTest : PostgresTestTemplate() {
     val all = categoryRepository.findAll()
     assertTrue(all.any { it.name.value.equals(created.name.value, ignoreCase = true) })
 
-    val picked = categoryRepository.findAllByNameIn(listOf(CategoryId("Gameplay"), CategoryId("Other")))
+    val picked =
+        categoryRepository.findAllByNameIn(listOf(CategoryId("Gameplay"), CategoryId("Other")))
     assertTrue(picked.any { it.name.value.equals("Gameplay", ignoreCase = true) })
   }
 
@@ -62,4 +63,3 @@ class CategoryRepositoryTest : PostgresTestTemplate() {
     assertTrue(after.isEmpty())
   }
 }
-

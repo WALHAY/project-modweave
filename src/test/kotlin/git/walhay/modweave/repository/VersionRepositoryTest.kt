@@ -21,7 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageRequest
 
-@Import(JpaVersionRepository::class, JpaUserRepository::class, JpaGameRepository::class, JpaModRepository::class)
+@Import(
+    JpaVersionRepository::class,
+    JpaUserRepository::class,
+    JpaGameRepository::class,
+    JpaModRepository::class)
 class VersionRepositoryTest : PostgresTestTemplate() {
 
   @Autowired lateinit var versionRepository: VersionRepository

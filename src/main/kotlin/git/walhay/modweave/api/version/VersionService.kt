@@ -13,6 +13,9 @@ import jakarta.transaction.Transactional
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -26,11 +29,17 @@ class VersionService(
     private val logger: KLogger = KotlinLogging.logger {}
 ) : IVersionService {
   @Lazy @Autowired private lateinit var modService: IModService
-    override fun getModVersions(modId: ModId, pageable: Pageable): Page<Version> {
-        return versionRepository.findVersionsByModId(modId, pageable)
-    }
 
-    override fun createModVersion(mod: Mod, command: ModCreateCommand): Version {
+  @Cacheable("versions", key = "#versionId.value")
+  override fun getModVersion(versionId: VersionId): Version =
+      versionRepository.findVersionById(versionId) ?: throw VersionNotFoundException(versionId)
+
+  override fun getModVersions(modId: ModId, pageable: Pageable): Page<Version> {
+    return versionRepository.findVersionsByModId(modId, pageable)
+  }
+
+  @CachePut("versions", key = "#result.id.value")
+  override fun createModVersion(mod: Mod, command: ModCreateCommand): Version {
     val version = Version(command.versionName, null, mod.id).let { versionRepository.save(it) }
     mod.versions.addLast(version)
 
@@ -38,6 +47,7 @@ class VersionService(
     return versionRepository.save(version)
   }
 
+  @CachePut("versions", key = "#result.id.value")
   override fun createModVersion(modId: ModId, command: VersionCreateCommand): Version {
     val mod = modService.findModById(modId)
 
@@ -54,10 +64,10 @@ class VersionService(
     return versionRepository.save(version)
   }
 
-  override fun deleteModVersion(modId: ModId, versionId: VersionId) {
-    val mod = modService.findModById(modId)
+  @CacheEvict("versions", key = "#versionId.value")
+  override fun deleteModVersion(versionId: VersionId) {
+    val version = getModVersion(versionId)
 
-    mod.versions.find { it.id == versionId }?.let { versionRepository.delete(it.id) }
-        ?: throw VersionNotFoundException(versionId)
+    versionRepository.delete(version.id)
   }
 }

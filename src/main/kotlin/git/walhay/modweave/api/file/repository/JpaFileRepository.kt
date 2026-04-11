@@ -11,7 +11,8 @@ class JpaFileRepository(private val repository: SpringDataFileRepository) : File
 
   override fun findById(id: FileId): File? = repository.findById(id.value).orElse(null)?.toDomain()
 
-  override fun findByFilePath(filePath: String): File? = repository.findByFilePath(filePath)?.toDomain()
+  override fun findByFilePath(filePath: String): File? =
+      repository.findByFilePath(filePath)?.toDomain()
 
   override fun findAllByVersionId(versionId: VersionId): List<File> =
       repository.findAllByVersionId(versionId.value).map { it.toDomain() }

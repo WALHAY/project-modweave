@@ -17,7 +17,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
 
-@Import(JpaCommentRepository::class, JpaUserRepository::class, JpaGameRepository::class, JpaModRepository::class)
+@Import(
+    JpaCommentRepository::class,
+    JpaUserRepository::class,
+    JpaGameRepository::class,
+    JpaModRepository::class)
 class CommentRepositoryTest : PostgresTestTemplate() {
 
   @Autowired lateinit var commentRepository: CommentRepository
@@ -45,7 +49,8 @@ class CommentRepositoryTest : PostgresTestTemplate() {
 
   private fun seedComment(): Comment {
     val (author, mod) = seedModAndAuthor()
-    return commentRepository.save(Comment(content = "hello", authorId = author.username, modId = mod.id))
+    return commentRepository.save(
+        Comment(content = "hello", authorId = author.username, modId = mod.id))
   }
 
   @Test
