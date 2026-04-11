@@ -4,6 +4,7 @@ import git.walhay.modweave.api.comment.Comment
 import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
+import java.io.Serializable
 import java.time.LocalDateTime
 
 @Entity
@@ -16,6 +17,6 @@ class CommentEntity(
     @Column("publish_date", nullable = false) val publishDate: LocalDateTime = LocalDateTime.now(),
     @Column("user_id", nullable = false) val authorId: String = "",
     @Column("mod_id", nullable = false) val modId: String = ""
-) {
+) : Serializable {
   companion object
 }

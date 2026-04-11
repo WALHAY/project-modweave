@@ -6,6 +6,7 @@ import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import org.hibernate.annotations.NaturalId
+import java.io.Serializable
 import java.time.LocalDateTime
 
 @Entity
@@ -23,7 +24,7 @@ class UserEntity(
     @Column(name = "is_admin", nullable = false) val isAdmin: Boolean = false,
     @OneToMany(mappedBy = "publisherId", fetch = FetchType.LAZY, orphanRemoval = true)
     val mods: MutableSet<ModEntity> = mutableSetOf()
-) {
+) : Serializable {
   constructor() : this("", "", "", "")
 
   constructor(

@@ -7,9 +7,12 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface VersionRepository {
-  fun save(version: Version): Version
 
-    fun findVersionsByModId(modId: ModId, pageable: Pageable): Page<Version>
+  fun findVersionById(versionId: VersionId): Version?
+
+  fun findVersionsByModId(modId: ModId, pageable: Pageable): Page<Version>
+
+  fun save(version: Version): Version
 
   fun delete(versionId: VersionId)
 }

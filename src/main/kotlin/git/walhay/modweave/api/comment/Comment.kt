@@ -2,6 +2,7 @@ package git.walhay.modweave.api.comment
 
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.UserId
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class Comment(
@@ -10,4 +11,4 @@ data class Comment(
     val publishDate: LocalDateTime = LocalDateTime.now(),
     val authorId: UserId = UserId(),
     val modId: ModId = ModId()
-)
+) : Serializable

@@ -4,6 +4,7 @@ import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.Version
+import java.io.Serializable
 import java.time.LocalDateTime
 
 data class Mod(
@@ -16,7 +17,7 @@ data class Mod(
     val gameId: GameId,
     val categories: Set<CategoryId> = emptySet(),
     val versions: MutableList<Version> = mutableListOf()
-) {
+) : Serializable {
   constructor(
       id: ModId,
       name: String,

@@ -1,4 +1,4 @@
-drop schema if exists modweave cascade;
+-- drop schema if exists modweave cascade;
 create schema modweave;
 
 create table modweave.users (
@@ -30,11 +30,12 @@ create table modweave.mods (
 create type modweave.version_status as enum ('PENDING', 'APPROVED', 'REJECTED');
 
 create table modweave.mod_versions (
+    id bigserial primary key,
     name varchar not null,
     changes text,
     upload_date timestamp default current_date not null,
     status modweave.version_status default 'PENDING',
-    mod_id varchar not null references modweave.mods (id) on delete cascade,
+    mod_id varchar not null references modweave.mods (id) on delete cascade
     unique(name, mod_id)
 );
 

@@ -5,6 +5,7 @@ import git.walhay.modweave.api.mod.repository.ModEntity
 import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
+import java.io.Serializable
 
 @Entity
 @Table(schema = "modweave", name = "categories")
@@ -20,7 +21,7 @@ class CategoryEntity(
         joinColumns = [JoinColumn("category_name")],
         inverseJoinColumns = [JoinColumn(name = "mod_id")])
     val mods: Set<ModEntity> = emptySet()
-) {
+) : Serializable {
   constructor() : this("")
 
   @PrePersist

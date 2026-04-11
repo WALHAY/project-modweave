@@ -6,6 +6,9 @@ import git.walhay.modweave.api.user.exception.UserEmailExistsException
 import git.walhay.modweave.api.user.exception.UserLoginExistsException
 import git.walhay.modweave.api.user.exception.UserNotFoundException
 import git.walhay.modweave.api.user.repository.UserRepository
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -20,6 +23,7 @@ class UserService(
     private val passwordEncoder: PasswordEncoder
 ) : IUserService {
 
+  @Cacheable("users", key = "#userId")
   override fun findUserByUsername(userId: UserId): User =
       userRepository.findByUsername(userId) ?: throw UserNotFoundException(userId)
 
@@ -31,6 +35,7 @@ class UserService(
     return userRepository.findAll(name, pageRequest)
   }
 
+  @CachePut("users", key = "#result.username")
   override fun createUser(command: UserCreateCommand): User {
     if (userRepository.existsByUsername(command.username)) {
       throw UserLoginExistsException(command.username)
@@ -49,6 +54,7 @@ class UserService(
         .let { userRepository.save(it) }
   }
 
+  @CacheEvict("users", key = "#userId")
   override fun updateUser(userId: UserId, command: UserUpdateCommand): User {
     val user: User = findUserByUsername(userId)
 

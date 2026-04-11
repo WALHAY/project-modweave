@@ -22,7 +22,10 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/mods")
-class ModController(private val modService: IModService, private val versionService: IVersionService) {
+class ModController(
+    private val modService: IModService,
+    private val versionService: IVersionService
+) {
 
   @GetMapping("/{modId}")
   fun getMod(@PathVariable modId: ModId): ModResponseDto =
@@ -37,12 +40,16 @@ class ModController(private val modService: IModService, private val versionServ
   ): Page<ModResponseDto> =
       modService.findModsWithFilter(page, size, name, sort).map { ModResponseDto.fromMod(it) }
 
-    @GetMapping("/{modId}")
-    fun getModVersions(@PathVariable modId: String,
-                       @RequestParam @Min(0) page: Int,
-                       @RequestParam @Min(1) size: Int,
-                       @SortDefault(sort = ["name,desc"]) sort: Sort): Page<VersionResponseDto> =
-        versionService.getModVersions(ModId(modId), PageRequest.of(page, size, sort)).map { VersionResponseDto.fromVersion(it) }
+  @GetMapping("/{modId}/versions")
+  fun getModVersions(
+      @PathVariable modId: String,
+      @RequestParam @Min(0) page: Int,
+      @RequestParam @Min(1) size: Int,
+      @SortDefault(sort = ["id"], direction = Sort.Direction.DESC) sort: Sort
+  ): Page<VersionResponseDto> =
+      versionService.getModVersions(ModId(modId), PageRequest.of(page, size, sort)).map {
+        VersionResponseDto.fromVersion(it)
+      }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)

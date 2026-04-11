@@ -7,6 +7,9 @@ import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.UserId
 import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
 @Service
@@ -15,14 +18,17 @@ class CollectionService(
     private val collectionRepository: CollectionRepository,
     private val modService: IModService
 ) : ICollectionService {
+  @Cacheable("collections", key = "#id.value")
   override fun getCollectionById(id: CollectionId): Collection =
       collectionRepository.findById(id) ?: throw CollectionNotFoundException(id)
 
+  @CachePut("collections", key = "#result.id.value")
   override fun createCollection(userId: UserId, command: CollectionCreateCommand): Collection =
       command
           .let { (name, description) -> Collection(name, description, userId) }
           .let { collectionRepository.save(it) }
 
+  @CacheEvict("collections", key = "#collectionId.value")
   override fun deleteCollection(userId: UserId, collectionId: CollectionId) {
     val collection = getCollectionById(collectionId)
     if (collection.owner == userId) {
