@@ -1,10 +1,11 @@
 volumes:
   postgres:
   minio:
+  redis:
 
 services:
   postgres:
-    container_name: "modweave-db"
+    container_name: modweave-db
     image: postgres:16
     environment:
       POSTGRES_DB: "database"
@@ -13,7 +14,6 @@ services:
       PGDATA: /data/postgres
     volumes:
       - ./postgres:/var/lib/postgresql/data
-      - ./database:/var/lib/postgresql/scripts
     ports:
       - "5432:5432"
     networks:
@@ -32,6 +32,16 @@ services:
     command: server /data --console-address ":9001"
     networks:
       - mynetwork
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - mynetwork
+    volumes:
+      - ./redis:/data
 
 networks:
   mynetwork:
