@@ -35,7 +35,7 @@ create table modweave.mod_versions (
     changes text,
     upload_date timestamp default current_date not null,
     status modweave.version_status default 'PENDING',
-    mod_id varchar not null references modweave.mods (id) on delete cascade
+    mod_id varchar not null references modweave.mods (id) on delete cascade,
     unique(name, mod_id)
 );
 
@@ -55,7 +55,7 @@ create table modweave.categories (
 
 create table modweave.mods_categories (
     mod_id varchar not null references modweave.mods (id) on delete cascade,
-    category_name varchar references modweave.categories (name) on delete set null,
+    category_name varchar references modweave.categories (name) on delete cascade,
     primary key(mod_id, category_name)
 );
 
