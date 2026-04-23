@@ -9,25 +9,31 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/categories")
-class CategoryController(val categoryService: ICategoryService) {
-
+class CategoryController(
+    val categoryService: ICategoryService,
+) {
   @GetMapping
   fun getCategories(): List<CategoryResponseDto> =
       categoryService.getCategories().map { CategoryResponseDto.fromCategory(it) }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  fun uploadCategory(@Valid @ModelAttribute dto: CategoryUploadDto): CategoryResponseDto =
+  fun uploadCategory(
+      @Valid @ModelAttribute dto: CategoryUploadDto,
+  ): CategoryResponseDto =
       categoryService.uploadCategory(dto.toCategoryCreateCommand()).let {
         CategoryResponseDto.fromCategory(it)
       }
 
   @DeleteMapping
-  fun deleteCategory(@RequestParam categoryId: CategoryId): Unit =
-      categoryService.deleteCategory(categoryId)
+  fun deleteCategory(
+      @RequestParam categoryId: CategoryId,
+  ): Unit = categoryService.deleteCategory(categoryId)
 
   @PatchMapping
-  fun updateCategory(@Valid @ModelAttribute dto: CategoryUpdateDto): CategoryResponseDto =
+  fun updateCategory(
+      @Valid @ModelAttribute dto: CategoryUpdateDto,
+  ): CategoryResponseDto =
       categoryService.updateCategory(dto.toCategoryUpdateCommand()).let {
         CategoryResponseDto.fromCategory(it)
       }

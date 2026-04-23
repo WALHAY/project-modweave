@@ -8,10 +8,10 @@ import git.walhay.modweave.api.version.repository.VersionEntity
 import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
-import org.hibernate.annotations.JdbcTypeCode
-import org.hibernate.type.SqlTypes
 import java.io.Serializable
 import java.time.LocalDateTime
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 
 @Entity
 @Table(schema = "modweave", name = "mods")
@@ -29,7 +29,8 @@ class ModEntity(
     @CollectionTable(
         schema = "modweave",
         name = "mods_categories",
-        joinColumns = [JoinColumn(name = "mod_id", nullable = false)])
+        joinColumns = [JoinColumn(name = "mod_id", nullable = false)],
+    )
     @Column(name = "category_name")
     @JdbcTypeCode(SqlTypes.VARCHAR)
     val categories: List<CategoryId> = emptyList(),
@@ -37,8 +38,9 @@ class ModEntity(
         mappedBy = "modId",
         fetch = FetchType.LAZY,
         orphanRemoval = true,
-        cascade = [CascadeType.ALL])
-    val versions: MutableList<VersionEntity> = mutableListOf()
+        cascade = [CascadeType.ALL],
+    )
+    val versions: MutableList<VersionEntity> = mutableListOf(),
 ) : Serializable {
   constructor() : this("", "", null, "", LocalDateTime.now(), UserId(), GameId())
 

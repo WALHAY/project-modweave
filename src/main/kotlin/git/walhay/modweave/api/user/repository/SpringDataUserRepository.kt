@@ -11,5 +11,8 @@ interface SpringDataUserRepository : JpaRepository<UserEntity, String> {
 
   fun findByUsernameIgnoreCase(username: String): UserEntity?
 
-  fun findAllByNameContainingIgnoreCase(name: String, pageable: Pageable): Page<UserEntity>
+  fun findAllByNameContainingIgnoreCase(
+      name: String,
+      pageable: Pageable,
+  ): Page<UserEntity>
 }

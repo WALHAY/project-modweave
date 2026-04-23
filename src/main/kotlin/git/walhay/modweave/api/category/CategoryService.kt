@@ -12,8 +12,9 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class CategoryService(val categoryRepository: CategoryRepository) : ICategoryService {
-
+class CategoryService(
+    val categoryRepository: CategoryRepository,
+) : ICategoryService {
   @Cacheable("categories")
   override fun getCategories(): List<Category> = categoryRepository.findAll()
 

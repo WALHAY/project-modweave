@@ -24,11 +24,12 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/collections")
 class CollectionController(
     private val collectionService: ICollectionService,
-    private val modService: IModService
+    private val modService: IModService,
 ) {
-
   @GetMapping("/{collectionId}")
-  fun getCollection(@PathVariable collectionId: CollectionId): CollectionResponseDto =
+  fun getCollection(
+      @PathVariable collectionId: CollectionId,
+  ): CollectionResponseDto =
       collectionService.getCollectionById(collectionId).let {
         CollectionResponseDto.fromCollection(it)
       }
@@ -38,7 +39,7 @@ class CollectionController(
       @PathVariable collectionId: Long,
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
-      @SortDefault(sort = ["index"]) sort: Sort
+      @SortDefault(sort = ["index"]) sort: Sort,
   ): Page<ModResponseDto> =
       modService.findModsInCollection(CollectionId(collectionId), page, size, sort).map {
         ModResponseDto.fromMod(it)
@@ -47,7 +48,7 @@ class CollectionController(
   @PostMapping
   fun createCollection(
       @Valid @ModelAttribute dto: CollectionCreateDto,
-      @AuthenticationPrincipal user: UserDetails
+      @AuthenticationPrincipal user: UserDetails,
   ): CollectionResponseDto =
       collectionService
           .createCollection(UserId(user.username), dto.toCollectionCreateCommand())
@@ -58,20 +59,22 @@ class CollectionController(
       @PathVariable collectionId: Long,
       @RequestParam modId: String,
       @RequestParam(required = false) index: Int?,
-      @AuthenticationPrincipal user: UserDetails
+      @AuthenticationPrincipal user: UserDetails,
   ) =
       collectionService.addModToCollection(
           UserId(user.username), CollectionId(collectionId), ModId(modId), index)
 
   @DeleteMapping("/{collectionId}")
-  fun deleteCollection(collectionId: Long, @AuthenticationPrincipal user: UserDetails) =
-      collectionService.deleteCollection(UserId(user.username), CollectionId(collectionId))
+  fun deleteCollection(
+      collectionId: Long,
+      @AuthenticationPrincipal user: UserDetails,
+  ) = collectionService.deleteCollection(UserId(user.username), CollectionId(collectionId))
 
   @DeleteMapping("/{collectionId}/mods/{modId}")
   fun deleteModFromCollection(
       @PathVariable collectionId: Long,
       @PathVariable modId: String,
-      @AuthenticationPrincipal user: UserDetails
+      @AuthenticationPrincipal user: UserDetails,
   ) =
       collectionService.deleteModFromCollection(
           UserId(user.username), CollectionId(collectionId), ModId(modId))

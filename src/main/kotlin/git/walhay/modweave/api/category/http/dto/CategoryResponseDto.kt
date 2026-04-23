@@ -5,6 +5,9 @@ import git.walhay.modweave.api.category.CategoryId
 import io.mcarle.konvert.api.KonvertFrom
 
 @KonvertFrom(Category::class)
-data class CategoryResponseDto(val name: CategoryId, val description: String? = null) {
+data class CategoryResponseDto(
+    val name: CategoryId,
+    val description: String? = null,
+) {
   companion object
 }

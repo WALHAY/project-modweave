@@ -7,7 +7,9 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
 @Repository
-class JpaUserRepository(private val repository: SpringDataUserRepository) : UserRepository {
+class JpaUserRepository(
+    private val repository: SpringDataUserRepository,
+) : UserRepository {
   override fun existsByUsername(userId: UserId): Boolean =
       repository.existsByUsernameIgnoreCase(userId.value)
 
@@ -19,8 +21,10 @@ class JpaUserRepository(private val repository: SpringDataUserRepository) : User
   override fun findAll(pageable: Pageable): Page<User> =
       repository.findAll(pageable).map { it.toDomain() }
 
-  override fun findAll(name: String, pageable: Pageable): Page<User> =
-      repository.findAllByNameContainingIgnoreCase(name, pageable).map { it.toDomain() }
+  override fun findAll(
+      name: String,
+      pageable: Pageable,
+  ): Page<User> = repository.findAllByNameContainingIgnoreCase(name, pageable).map { it.toDomain() }
 
   override fun save(user: User): User =
       repository.save<UserEntity>(UserEntity.fromUser(user)).toDomain()

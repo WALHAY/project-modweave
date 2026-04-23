@@ -11,10 +11,12 @@ import org.springframework.web.multipart.MultipartFile
 @Transactional
 class FileService(
     private val simpleStorageService: ISimpleStorageService,
-    private val fileRepository: FileRepository
+    private val fileRepository: FileRepository,
 ) : IFileService {
-
-  override fun uploadVersionFiles(version: Version, files: List<MultipartFile>) {
+  override fun uploadVersionFiles(
+      version: Version,
+      files: List<MultipartFile>,
+  ) {
     val uploadedFiles = mutableListOf<String>()
     try {
       for (file in files) {

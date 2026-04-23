@@ -21,9 +21,9 @@ import org.springframework.context.annotation.Import
     JpaCommentRepository::class,
     JpaUserRepository::class,
     JpaGameRepository::class,
-    JpaModRepository::class)
+    JpaModRepository::class,
+)
 class CommentRepositoryTest : PostgresTestTemplate() {
-
   @Autowired lateinit var commentRepository: CommentRepository
 
   @Autowired lateinit var userRepository: UserRepository
@@ -43,7 +43,9 @@ class CommentRepositoryTest : PostgresTestTemplate() {
                 description = null,
                 imagePath = "img.png",
                 publisherId = author.username,
-                gameId = game.id))
+                gameId = game.id,
+            ),
+        )
     return author to mod
   }
 

@@ -10,7 +10,9 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
 @Repository
-class JpaModRepository(private val repository: SpringDataModRepository) : ModRepository {
+class JpaModRepository(
+    private val repository: SpringDataModRepository,
+) : ModRepository {
   override fun findById(modId: ModId): Mod? = repository.findByIdOrNull(modId.value)?.toDomain()
 
   override fun deleteById(modId: ModId) = repository.deleteById(modId.value)
@@ -20,14 +22,20 @@ class JpaModRepository(private val repository: SpringDataModRepository) : ModRep
   override fun findAll(pageable: Pageable): Page<Mod> =
       repository.findAll(pageable).map { it.toDomain() }
 
-  override fun findAll(name: String, pageable: Pageable): Page<Mod> =
-      repository.findAllByNameContainingIgnoreCase(name, pageable).map { it.toDomain() }
+  override fun findAll(
+      name: String,
+      pageable: Pageable,
+  ): Page<Mod> = repository.findAllByNameContainingIgnoreCase(name, pageable).map { it.toDomain() }
 
-  override fun findAllByUser(username: UserId, pageable: Pageable): Page<Mod> =
-      repository.findAllByPublisherId(username.value, pageable).map { it.toDomain() }
+  override fun findAllByUser(
+      username: UserId,
+      pageable: Pageable,
+  ): Page<Mod> = repository.findAllByPublisherId(username.value, pageable).map { it.toDomain() }
 
-  override fun findModsInCollection(collectionId: CollectionId, pageable: Pageable): Page<Mod> =
-      repository.findByCollectionId(collectionId.value, pageable).map { it.toDomain() }
+  override fun findModsInCollection(
+      collectionId: CollectionId,
+      pageable: Pageable,
+  ): Page<Mod> = repository.findByCollectionId(collectionId.value, pageable).map { it.toDomain() }
 
   override fun existsById(modId: ModId): Boolean = repository.existsById(modId.value)
 }

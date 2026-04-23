@@ -12,12 +12,12 @@ import org.springframework.context.annotation.Import
 
 @Import(JpaCategoryRepository::class)
 class CategoryRepositoryTest : PostgresTestTemplate() {
-
   @Autowired lateinit var categoryRepository: CategoryRepository
 
-  private fun seedCategory(name: String = "Gameplay", description: String? = "desc"): Category {
-    return categoryRepository.save(Category(CategoryId(name), description))
-  }
+  private fun seedCategory(
+      name: String = "Gameplay",
+      description: String? = "desc",
+  ): Category = categoryRepository.save(Category(CategoryId(name), description))
 
   @Test
   fun `create category`() {

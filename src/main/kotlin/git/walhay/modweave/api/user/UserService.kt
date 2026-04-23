@@ -20,14 +20,18 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class UserService(
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
 ) : IUserService {
-
   @Cacheable("users", key = "#userId")
   override fun findUserByUsername(userId: UserId): User =
       userRepository.findByUsername(userId) ?: throw UserNotFoundException(userId)
 
-  override fun findUsersWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<User> {
+  override fun findUsersWithFilter(
+      page: Int,
+      size: Int,
+      name: String?,
+      sort: Sort,
+  ): Page<User> {
     val pageRequest = PageRequest.of(page, size, sort)
     if (name == null) {
       return userRepository.findAll(pageRequest)
@@ -55,7 +59,10 @@ class UserService(
   }
 
   @CacheEvict("users", key = "#userId")
-  override fun updateUser(userId: UserId, command: UserUpdateCommand): User {
+  override fun updateUser(
+      userId: UserId,
+      command: UserUpdateCommand,
+  ): User {
     val user: User = findUserByUsername(userId)
 
     command.username?.let { user.name = it }

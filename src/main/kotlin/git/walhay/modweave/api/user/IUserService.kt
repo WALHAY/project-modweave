@@ -8,9 +8,17 @@ import org.springframework.data.domain.Sort
 interface IUserService {
   fun findUserByUsername(userId: UserId): User
 
-  fun findUsersWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<User>
+  fun findUsersWithFilter(
+      page: Int,
+      size: Int,
+      name: String?,
+      sort: Sort,
+  ): Page<User>
 
   fun createUser(command: UserCreateCommand): User
 
-  fun updateUser(userId: UserId, command: UserUpdateCommand): User
+  fun updateUser(
+      userId: UserId,
+      command: UserUpdateCommand,
+  ): User
 }

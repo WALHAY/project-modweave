@@ -17,8 +17,8 @@ class CollectionEntity(
     @Column("description") val description: String?,
     @Column("owner", nullable = false) val owner: UserId,
     @OneToMany(mappedBy = "collectionId", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @OrderBy("index")
-    val mods: List<CollectionItemEntity> = emptyList()
+    @OrderBy("order_index")
+    val mods: List<CollectionItemEntity> = emptyList(),
 ) : Serializable {
   constructor() : this(0, "", null, UserId())
 
@@ -28,7 +28,8 @@ class CollectionEntity(
           name,
           description,
           owner,
-          mods.sortedBy { it.index }.map { it.mod.toDomain() }.toMutableList())
+          mods.sortedBy { it.index }.map { it.mod.toDomain() }.toMutableList(),
+      )
 
   companion object {
     fun fromCollection(collection: Collection): CollectionEntity =
@@ -40,7 +41,8 @@ class CollectionEntity(
               owner,
               mods.mapIndexed { index, mod ->
                 CollectionItemEntity(index, id, ModEntity.fromMod(mod))
-              })
+              },
+          )
         }
   }
 }

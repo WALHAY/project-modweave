@@ -13,18 +13,21 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 
 @RestController("/comments")
-class CommentController(private val service: ICommentService) {
-
+class CommentController(
+    private val service: ICommentService,
+) {
   @PostMapping
   fun createComment(
       @ModelAttribute @Valid dto: CommentCreateDto,
-      @AuthenticationPrincipal user: UserDetails
+      @AuthenticationPrincipal user: UserDetails,
   ) =
       service.createComment(UserId(user.username), dto.toCommentCreateCommand()).let {
         CommentResponseDto.fromComment(it)
       }
 
   @DeleteMapping("/{id}")
-  fun deleteComment(@PathVariable id: Long, @AuthenticationPrincipal user: UserDetails) =
-      service.deleteComment(UserId(user.username), CommentId(id))
+  fun deleteComment(
+      @PathVariable id: Long,
+      @AuthenticationPrincipal user: UserDetails,
+  ) = service.deleteComment(UserId(user.username), CommentId(id))
 }

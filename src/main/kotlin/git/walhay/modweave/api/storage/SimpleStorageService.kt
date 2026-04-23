@@ -14,9 +14,8 @@ class SimpleStorageService(
     private val minioClient: MinioClient,
     @param:Value($$"${minio.buckets.mods}") private val modsBucket: String,
     @param:Value($$"${minio.buckets.images}") private val imagesBucket: String,
-    private val logger: KLogger = KotlinLogging.logger {}
+    private val logger: KLogger = KotlinLogging.logger {},
 ) : ISimpleStorageService {
-
   @EventListener(ApplicationReadyEvent::class)
   fun initBuckets() {
     checkBucketExistence(modsBucket)
@@ -27,7 +26,9 @@ class SimpleStorageService(
     logger.info("Checking bucket $bucket existence")
     if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
       logger.info("Bucket $bucket is missing")
-      minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).objectLock(false).build())
+      minioClient.makeBucket(
+          MakeBucketArgs.builder().bucket(bucket).objectLock(false).build(),
+      )
 
       val policy: String =
           """
@@ -45,12 +46,17 @@ class SimpleStorageService(
               .format(bucket)
 
       minioClient.setBucketPolicy(
-          SetBucketPolicyArgs.builder().bucket(bucket).config(policy).build())
+          SetBucketPolicyArgs.builder().bucket(bucket).config(policy).build(),
+      )
       logger.info("Creating bucket $bucket")
     }
   }
 
-  private fun putFileIntoBucket(bucket: String, filename: String, file: MultipartFile): String {
+  private fun putFileIntoBucket(
+      bucket: String,
+      filename: String,
+      file: MultipartFile,
+  ): String {
     logger.info(
         "Uploading file=${file.originalFilename} into bucket=$bucket with filename=$filename")
     try {
@@ -60,7 +66,8 @@ class SimpleStorageService(
               .`object`(filename)
               .stream(file.inputStream, file.size, -1)
               .contentType(file.contentType)
-              .build())
+              .build(),
+      )
 
       return filename
     } catch (e: Exception) {
@@ -70,17 +77,24 @@ class SimpleStorageService(
     }
   }
 
-  private fun removeFileFromBucket(bucket: String, filename: String) {
-    minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).`object`(filename).build())
+  private fun removeFileFromBucket(
+      bucket: String,
+      filename: String,
+  ) {
+    minioClient.removeObject(
+        RemoveObjectArgs.builder().bucket(bucket).`object`(filename).build(),
+    )
   }
 
-  override fun uploadImage(filename: String, file: MultipartFile): String {
-    return putFileIntoBucket(imagesBucket, filename, file)
-  }
+  override fun uploadImage(
+      filename: String,
+      file: MultipartFile,
+  ): String = putFileIntoBucket(imagesBucket, filename, file)
 
-  override fun uploadVersionFile(filename: String, file: MultipartFile): String {
-    return putFileIntoBucket(modsBucket, filename, file)
-  }
+  override fun uploadVersionFile(
+      filename: String,
+      file: MultipartFile,
+  ): String = putFileIntoBucket(modsBucket, filename, file)
 
   override fun removeVersionFile(filename: String) {
     removeFileFromBucket(modsBucket, filename)

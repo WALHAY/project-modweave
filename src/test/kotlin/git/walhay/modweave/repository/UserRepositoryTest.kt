@@ -11,7 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 @Import(JpaUserRepository::class, BCryptPasswordEncoder::class)
 class UserRepositoryTest : PostgresTestTemplate() {
-
   @Autowired lateinit var userRepository: UserRepository
 
   @Autowired lateinit var passwordEncoder: BCryptPasswordEncoder

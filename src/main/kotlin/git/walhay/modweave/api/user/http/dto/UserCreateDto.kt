@@ -11,5 +11,5 @@ data class UserCreateDto(
     @field:NotBlank @field:Size(min = 3) val username: String,
     @field:NotBlank val name: String,
     @field:NotBlank @field:Size(min = 8) val password: String,
-    @field:Email val email: String
+    @field:Email val email: String,
 )

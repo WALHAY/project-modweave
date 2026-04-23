@@ -8,5 +8,5 @@ class Game(
     val name: String = "",
     val description: String? = null,
     var imagePath: String = "",
-    val mods: MutableList<Mod> = mutableListOf()
+    val mods: MutableList<Mod> = mutableListOf(),
 ) : Serializable

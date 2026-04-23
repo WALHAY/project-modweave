@@ -13,5 +13,5 @@ data class ModCreateCommand(
     val categories: Set<CategoryId> = mutableSetOf(),
     val versionName: String,
     val files: List<MultipartFile> = mutableListOf(),
-    val gameId: GameId
+    val gameId: GameId,
 )

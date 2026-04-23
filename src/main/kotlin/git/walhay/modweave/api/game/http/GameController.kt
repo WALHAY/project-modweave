@@ -15,23 +15,27 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/games")
-class GameController(private val gameService: IGameService) {
-
+class GameController(
+    private val gameService: IGameService,
+) {
   @GetMapping
   fun getGames(
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
       @RequestParam(required = false) name: String?,
-      @SortDefault(sort = ["name"]) sort: Sort
+      @SortDefault(sort = ["name"]) sort: Sort,
   ): Page<GameResponseDto> =
       gameService.findGamesWithFilter(page, size, name, sort).map { GameResponseDto.fromGame(it) }
 
   @GetMapping("/{gameId}")
-  fun getGame(@PathVariable gameId: GameId): GameResponseDto =
-      gameService.findGameById(gameId).let { GameResponseDto.fromGame(it) }
+  fun getGame(
+      @PathVariable gameId: GameId,
+  ): GameResponseDto = gameService.findGameById(gameId).let { GameResponseDto.fromGame(it) }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  fun addGame(@Valid @ModelAttribute dto: GameUploadDto): GameResponseDto =
+  fun addGame(
+      @Valid @ModelAttribute dto: GameUploadDto,
+  ): GameResponseDto =
       gameService.uploadGame(dto.toGameCreateCommand()).let { GameResponseDto.fromGame(it) }
 }

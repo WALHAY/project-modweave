@@ -16,20 +16,26 @@ import org.springframework.stereotype.Service
 @Transactional
 class CollectionService(
     private val collectionRepository: CollectionRepository,
-    private val modService: IModService
+    private val modService: IModService,
 ) : ICollectionService {
   @Cacheable("collections", key = "#id.value")
   override fun getCollectionById(id: CollectionId): Collection =
       collectionRepository.findById(id) ?: throw CollectionNotFoundException(id)
 
   @CachePut("collections", key = "#result.id.value")
-  override fun createCollection(userId: UserId, command: CollectionCreateCommand): Collection =
+  override fun createCollection(
+      userId: UserId,
+      command: CollectionCreateCommand,
+  ): Collection =
       command
           .let { (name, description) -> Collection(name, description, userId) }
           .let { collectionRepository.save(it) }
 
   @CacheEvict("collections", key = "#collectionId.value")
-  override fun deleteCollection(userId: UserId, collectionId: CollectionId) {
+  override fun deleteCollection(
+      userId: UserId,
+      collectionId: CollectionId,
+  ) {
     val collection = getCollectionById(collectionId)
     if (collection.owner == userId) {
       throw Exception("Forbidden")
@@ -42,7 +48,7 @@ class CollectionService(
       userId: UserId,
       collectionId: CollectionId,
       modId: ModId,
-      index: Int?
+      index: Int?,
   ): Collection {
     val collection = getCollectionById(collectionId)
     if (userId != collection.owner) {
@@ -54,5 +60,9 @@ class CollectionService(
     return collectionRepository.save(collection)
   }
 
-  override fun deleteModFromCollection(userId: UserId, collectionId: CollectionId, modId: ModId) {}
+  override fun deleteModFromCollection(
+      userId: UserId,
+      collectionId: CollectionId,
+      modId: ModId,
+  ) {}
 }

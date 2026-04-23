@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 data class CommentResponseDto(
     val content: String,
     val publishDate: LocalDateTime,
-    val authorId: String
+    val authorId: String,
 ) {
   companion object
 }

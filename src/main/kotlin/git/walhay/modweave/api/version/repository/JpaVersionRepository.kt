@@ -9,16 +9,19 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
 @Repository
-class JpaVersionRepository(private val repository: SpringDataVersionRepository) :
-    VersionRepository {
+class JpaVersionRepository(
+    private val repository: SpringDataVersionRepository,
+) : VersionRepository {
   override fun save(version: Version): Version =
       repository.save(VersionEntity.fromVersion(version)).toDomain()
 
   override fun findVersionById(versionId: VersionId): Version? =
       repository.findByIdOrNull(versionId.value)?.toDomain()
 
-  override fun findVersionsByModId(modId: ModId, pageable: Pageable): Page<Version> =
-      repository.findAllByModId(modId.value, pageable).map { it.toDomain() }
+  override fun findVersionsByModId(
+      modId: ModId,
+      pageable: Pageable,
+  ): Page<Version> = repository.findAllByModId(modId.value, pageable).map { it.toDomain() }
 
   override fun delete(versionId: VersionId) = repository.deleteById(versionId.value)
 }

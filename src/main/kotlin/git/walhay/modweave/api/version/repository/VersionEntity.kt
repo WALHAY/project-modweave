@@ -7,11 +7,11 @@ import git.walhay.modweave.api.version.VersionStatus
 import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
+import java.io.Serializable
+import java.time.LocalDateTime
 import org.hibernate.annotations.ColumnTransformer
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
-import java.io.Serializable
-import java.time.LocalDateTime
 
 @Entity
 @Table(schema = "modweave", name = "mod_versions")
@@ -32,13 +32,14 @@ class VersionEntity(
         mappedBy = "versionId",
         fetch = FetchType.LAZY,
         cascade = [CascadeType.ALL],
-        orphanRemoval = true)
-    val files: MutableList<FileEntity> = mutableListOf()
+        orphanRemoval = true,
+    )
+    val files: MutableList<FileEntity> = mutableListOf(),
 ) : Serializable {
   constructor(
       name: String,
       changes: String? = null,
-      modId: ModId
+      modId: ModId,
   ) : this(
       id = 0,
       name = name,
@@ -46,7 +47,8 @@ class VersionEntity(
       uploadDate = LocalDateTime.now(),
       status = VersionStatus.PENDING,
       modId = modId,
-      files = mutableListOf())
+      files = mutableListOf(),
+  )
 
   constructor() : this("", null, ModId(""))
 

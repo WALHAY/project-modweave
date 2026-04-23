@@ -6,8 +6,9 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
 @Repository
-class JpaCollectionRepository(private val repository: SpringDataCollectionRepository) :
-    CollectionRepository {
+class JpaCollectionRepository(
+    private val repository: SpringDataCollectionRepository,
+) : CollectionRepository {
   override fun findById(id: CollectionId): Collection? =
       repository.findByIdOrNull(id.value)?.toDomain()
 

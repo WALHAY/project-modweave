@@ -24,19 +24,19 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/mods")
 class ModController(
     private val modService: IModService,
-    private val versionService: IVersionService
+    private val versionService: IVersionService,
 ) {
-
   @GetMapping("/{modId}")
-  fun getMod(@PathVariable modId: ModId): ModResponseDto =
-      modService.findModById(modId).let { ModResponseDto.fromMod(it) }
+  fun getMod(
+      @PathVariable modId: ModId,
+  ): ModResponseDto = modService.findModById(modId).let { ModResponseDto.fromMod(it) }
 
   @GetMapping
   fun getMods(
       @RequestParam page: Int,
       @RequestParam size: Int,
       @RequestParam(required = false) name: String?,
-      @SortDefault(sort = ["name"]) sort: Sort
+      @SortDefault(sort = ["name"]) sort: Sort,
   ): Page<ModResponseDto> =
       modService.findModsWithFilter(page, size, name, sort).map { ModResponseDto.fromMod(it) }
 
@@ -45,7 +45,7 @@ class ModController(
       @PathVariable modId: String,
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
-      @SortDefault(sort = ["id"], direction = Sort.Direction.DESC) sort: Sort
+      @SortDefault(sort = ["id"], direction = Sort.Direction.DESC) sort: Sort,
   ): Page<VersionResponseDto> =
       versionService.getModVersions(ModId(modId), PageRequest.of(page, size, sort)).map {
         VersionResponseDto.fromVersion(it)
@@ -55,13 +55,15 @@ class ModController(
   @ResponseStatus(HttpStatus.CREATED)
   fun uploadMod(
       @Valid @ModelAttribute dto: ModUploadDto,
-      @AuthenticationPrincipal user: UserDetails
+      @AuthenticationPrincipal user: UserDetails,
   ): ModResponseDto =
       modService.uploadMod(UserId(user.username), dto.toModCreateCommand()).let {
         ModResponseDto.fromMod(it)
       }
 
   @DeleteMapping("/{modId}")
-  fun deleteMod(@PathVariable modId: ModId, @AuthenticationPrincipal user: UserDetails) =
-      modService.deleteMod(UserId(user.username), modId)
+  fun deleteMod(
+      @PathVariable modId: ModId,
+      @AuthenticationPrincipal user: UserDetails,
+  ) = modService.deleteMod(UserId(user.username), modId)
 }

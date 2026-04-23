@@ -32,14 +32,18 @@ class ModService(
     private val gamerService: IGameService,
     private val versionService: IVersionService,
     private val simpleStorageService: ISimpleStorageService,
-    private val logger: KLogger = KotlinLogging.logger {}
+    private val logger: KLogger = KotlinLogging.logger {},
 ) : IModService {
-
   @Cacheable("mods", key = "#modId")
   override fun findModById(modId: ModId): Mod =
       modRepository.findById(modId) ?: throw ModNotFoundException(modId)
 
-  override fun findModsWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Mod> {
+  override fun findModsWithFilter(
+      page: Int,
+      size: Int,
+      name: String?,
+      sort: Sort,
+  ): Page<Mod> {
     val pageRequest = PageRequest.of(page, size, sort)
     if (name == null) {
       return modRepository.findAll(pageRequest)
@@ -47,14 +51,25 @@ class ModService(
     return modRepository.findAll(name, pageRequest)
   }
 
-  override fun findModsOfUser(id: UserId, page: Int, size: Int, sort: Sort): Page<Mod> =
-      modRepository.findAllByUser(id, PageRequest.of(page, size, sort))
+  override fun findModsOfUser(
+      id: UserId,
+      page: Int,
+      size: Int,
+      sort: Sort,
+  ): Page<Mod> = modRepository.findAllByUser(id, PageRequest.of(page, size, sort))
 
-  override fun findModsInCollection(id: CollectionId, page: Int, size: Int, sort: Sort): Page<Mod> =
-      modRepository.findModsInCollection(id, PageRequest.of(page, size, sort))
+  override fun findModsInCollection(
+      id: CollectionId,
+      page: Int,
+      size: Int,
+      sort: Sort,
+  ): Page<Mod> = modRepository.findModsInCollection(id, PageRequest.of(page, size, sort))
 
   @CachePut("mods", key = "#result.id")
-  override fun uploadMod(userId: UserId, command: ModCreateCommand): Mod {
+  override fun uploadMod(
+      userId: UserId,
+      command: ModCreateCommand,
+  ): Mod {
     if (modRepository.existsById(command.id)) {
       throw ModExistsException(command.id)
     }
@@ -77,7 +92,8 @@ class ModService(
                     simpleStorageService.uploadImage(imagePath, image),
                     user.username,
                     game.id,
-                    categories.map { it.name }.toSet())
+                    categories.map { it.name }.toSet(),
+                )
               }
               .let { modRepository.save(it) }
 
@@ -90,7 +106,10 @@ class ModService(
   }
 
   @CacheEvict("mods", key = "#modId")
-  override fun deleteMod(userId: UserId, modId: ModId) {
+  override fun deleteMod(
+      userId: UserId,
+      modId: ModId,
+  ) {
     val mod = findModById(modId)
     if (mod.publisherId == userId) {
       throw Exception("Forbidden")

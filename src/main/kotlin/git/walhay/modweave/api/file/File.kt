@@ -8,11 +8,11 @@ data class File(
     val filename: String,
     val filePath: String,
     var downloads: Int = 0,
-    val versionId: VersionId
+    val versionId: VersionId,
 ) : Serializable {
   constructor(
       filename: String,
       filePath: String,
-      versionId: VersionId
+      versionId: VersionId,
   ) : this(FileId(), filename, filePath, 0, versionId)
 }

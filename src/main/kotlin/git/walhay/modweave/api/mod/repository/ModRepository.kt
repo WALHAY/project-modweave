@@ -12,11 +12,20 @@ interface ModRepository {
 
   fun findAll(pageable: Pageable): Page<Mod>
 
-  fun findAll(name: String, pageable: Pageable): Page<Mod>
+  fun findAll(
+      name: String,
+      pageable: Pageable,
+  ): Page<Mod>
 
-  fun findAllByUser(username: UserId, pageable: Pageable): Page<Mod>
+  fun findAllByUser(
+      username: UserId,
+      pageable: Pageable,
+  ): Page<Mod>
 
-  fun findModsInCollection(collectionId: CollectionId, pageable: Pageable): Page<Mod>
+  fun findModsInCollection(
+      collectionId: CollectionId,
+      pageable: Pageable,
+  ): Page<Mod>
 
   fun existsById(modId: ModId): Boolean
 

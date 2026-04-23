@@ -5,8 +5,9 @@ import git.walhay.modweave.api.category.CategoryId
 import org.springframework.stereotype.Repository
 
 @Repository
-class JpaCategoryRepository(private val repository: SpringDataCategoryRepository) :
-    CategoryRepository {
+class JpaCategoryRepository(
+    private val repository: SpringDataCategoryRepository,
+) : CategoryRepository {
   override fun findAll(): List<Category> = repository.findAll().map { it.toDomain() }
 
   override fun findAllByNameIn(categories: Collection<CategoryId>): Set<Category> =

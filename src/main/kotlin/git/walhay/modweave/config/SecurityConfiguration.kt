@@ -19,8 +19,9 @@ import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfiguration(@Lazy private val userService: UserService) {
-
+class SecurityConfiguration(
+    @Lazy private val userService: UserService,
+) {
   @Bean fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
   @Bean

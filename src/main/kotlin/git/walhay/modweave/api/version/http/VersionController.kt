@@ -15,19 +15,21 @@ import org.springframework.web.bind.annotation.*
 class VersionController(
     private val versionService: IVersionService,
 ) {
-
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   fun uploadModVersion(
       @PathVariable modId: ModId,
-      @Valid @ModelAttribute dto: VersionUploadDto
+      @Valid @ModelAttribute dto: VersionUploadDto,
   ): VersionResponseDto =
       versionService.createModVersion(modId, dto.toVersionCreateCommand()).let {
         VersionResponseDto.fromVersion(it)
       }
 
   @DeleteMapping("/{versionName}")
-  fun deleteVersion(@PathVariable modId: String, @PathVariable versionName: String) {
+  fun deleteVersion(
+      @PathVariable modId: String,
+      @PathVariable versionName: String,
+  ) {
     deleteVersion(modId, versionName)
   }
 }

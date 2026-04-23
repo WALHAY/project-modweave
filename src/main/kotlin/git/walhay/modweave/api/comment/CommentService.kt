@@ -15,14 +15,17 @@ import org.springframework.stereotype.Service
 @Transactional
 class CommentService(
     private val commentRepository: CommentRepository,
-    private val userService: IUserService
+    private val userService: IUserService,
 ) : ICommentService {
   @Cacheable("comments", key = "#id.value")
   override fun findCommentById(id: CommentId): Comment? =
       commentRepository.findById(id) ?: throw CommentNotFoundException(id)
 
   @CachePut("comments", key = "#result.id.value")
-  override fun createComment(userId: UserId, command: CommentCreateCommand): Comment {
+  override fun createComment(
+      userId: UserId,
+      command: CommentCreateCommand,
+  ): Comment {
     val user = userService.findUserByUsername(userId)
 
     return command
@@ -33,7 +36,10 @@ class CommentService(
   }
 
   @CacheEvict("comments", key = "#id.value")
-  override fun deleteComment(userId: UserId, id: CommentId) {
+  override fun deleteComment(
+      userId: UserId,
+      id: CommentId,
+  ) {
     val comment = findCommentById(id)
     if (comment?.authorId != userId) {
       throw Exception("Forbidden")

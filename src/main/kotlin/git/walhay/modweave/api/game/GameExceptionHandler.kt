@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class GameExceptionHandler(private val logger: KLogger = KotlinLogging.logger {}) {
-
+class GameExceptionHandler(
+    private val logger: KLogger = KotlinLogging.logger {},
+) {
   @ExceptionHandler(GameExistsException::class)
   @ResponseStatus(HttpStatus.CONFLICT)
   fun gameExistsHandler(e: GameExistsException) {

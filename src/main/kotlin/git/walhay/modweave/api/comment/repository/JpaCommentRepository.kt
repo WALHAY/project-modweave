@@ -6,8 +6,9 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
 @Repository
-class JpaCommentRepository(private val repository: SpringDataCommentRepository) :
-    CommentRepository {
+class JpaCommentRepository(
+    private val repository: SpringDataCommentRepository,
+) : CommentRepository {
   override fun findById(id: CommentId): Comment? = repository.findByIdOrNull(id.value)?.toDomain()
 
   override fun save(comment: Comment): Comment =

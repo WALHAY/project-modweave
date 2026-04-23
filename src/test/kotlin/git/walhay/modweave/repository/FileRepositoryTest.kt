@@ -29,9 +29,9 @@ import org.springframework.context.annotation.Import
     JpaVersionRepository::class,
     JpaModRepository::class,
     JpaGameRepository::class,
-    JpaUserRepository::class)
+    JpaUserRepository::class,
+)
 class FileRepositoryTest : PostgresTestTemplate() {
-
   @Autowired lateinit var fileRepository: FileRepository
 
   @Autowired lateinit var versionRepository: VersionRepository
@@ -53,7 +53,9 @@ class FileRepositoryTest : PostgresTestTemplate() {
                 description = null,
                 imagePath = "img.png",
                 publisherId = publisher.username,
-                gameId = game.id))
+                gameId = game.id,
+            ),
+        )
 
     return versionRepository.save(Version(name = "1.0.0", changes = null, modId = mod.id))
   }
@@ -64,7 +66,9 @@ class FileRepositoryTest : PostgresTestTemplate() {
         File(
             filename = "file.zip",
             filePath = "mods/${version.modId.value}/${version.name}/file.zip",
-            versionId = VersionId(version.id.value)))
+            versionId = VersionId(version.id.value),
+        ),
+    )
   }
 
   @Test

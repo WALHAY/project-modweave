@@ -11,5 +11,5 @@ import kotlin.reflect.KClass
 annotation class ValidImage(
     val message: String = "Only png, jpg or jpeg allowed",
     val groups: Array<KClass<*>> = [],
-    val payload: Array<KClass<out Payload>> = []
+    val payload: Array<KClass<out Payload>> = [],
 )

@@ -14,7 +14,10 @@ interface UserRepository {
 
   fun findAll(pageable: Pageable): Page<User>
 
-  fun findAll(name: String, pageable: Pageable): Page<User>
+  fun findAll(
+      name: String,
+      pageable: Pageable,
+  ): Page<User>
 
   fun save(user: User): User
 }

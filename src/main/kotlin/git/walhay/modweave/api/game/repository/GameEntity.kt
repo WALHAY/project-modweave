@@ -17,14 +17,14 @@ class GameEntity(
     @Column(name = "description", columnDefinition = "text") val description: String? = null,
     @Column(name = "image_path", nullable = false) val imagePath: String,
     @OneToMany(mappedBy = "gameId", fetch = FetchType.LAZY)
-    val mods: MutableList<ModEntity> = mutableListOf()
+    val mods: MutableList<ModEntity> = mutableListOf(),
 ) {
   constructor() : this("", "", null, "")
 
   constructor(
       name: String,
       description: String? = null,
-      imagePath: String
+      imagePath: String,
   ) : this(id = name.spinalCase(), name = name, description = description, imagePath = imagePath)
 
   companion object

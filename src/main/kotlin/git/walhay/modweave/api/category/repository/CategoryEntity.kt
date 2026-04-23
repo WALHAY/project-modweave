@@ -19,8 +19,9 @@ class CategoryEntity(
         schema = "modweave",
         name = "mods_categories",
         joinColumns = [JoinColumn("category_name")],
-        inverseJoinColumns = [JoinColumn(name = "mod_id")])
-    val mods: Set<ModEntity> = emptySet()
+        inverseJoinColumns = [JoinColumn(name = "mod_id")],
+    )
+    val mods: Set<ModEntity> = emptySet(),
 ) : Serializable {
   constructor() : this("")
 

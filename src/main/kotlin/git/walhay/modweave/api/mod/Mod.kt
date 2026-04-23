@@ -16,7 +16,7 @@ data class Mod(
     val publisherId: UserId,
     val gameId: GameId,
     val categories: Set<CategoryId> = emptySet(),
-    val versions: MutableList<Version> = mutableListOf()
+    val versions: MutableList<Version> = mutableListOf(),
 ) : Serializable {
   constructor(
       id: ModId,
@@ -26,7 +26,7 @@ data class Mod(
       publisherId: UserId,
       gameId: GameId,
       categories: Set<CategoryId> = emptySet(),
-      versions: List<Version> = emptyList()
+      versions: List<Version> = emptyList(),
   ) : this(
       id = id,
       name = name,
@@ -36,5 +36,6 @@ data class Mod(
       publisherId = publisherId,
       gameId = gameId,
       categories = categories,
-      versions = versions.toMutableList())
+      versions = versions.toMutableList(),
+  )
 }

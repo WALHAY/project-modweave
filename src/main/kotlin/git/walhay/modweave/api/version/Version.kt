@@ -12,12 +12,12 @@ data class Version(
     val uploadDate: LocalDateTime,
     val status: VersionStatus,
     val modId: ModId,
-    val files: MutableList<File> = mutableListOf()
+    val files: MutableList<File> = mutableListOf(),
 ) : Serializable {
   constructor(
       name: String,
       changes: String? = null,
-      modId: ModId
+      modId: ModId,
   ) : this(
       id = VersionId(),
       name = name,
@@ -25,7 +25,8 @@ data class Version(
       uploadDate = LocalDateTime.now(),
       status = VersionStatus.PENDING,
       modId = modId,
-      files = mutableListOf())
+      files = mutableListOf(),
+  )
 
   constructor() : this("", null, ModId())
 }

@@ -19,13 +19,18 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class GameService(
     private val gameRepository: GameRepository,
-    private val simpleStorageService: ISimpleStorageService
+    private val simpleStorageService: ISimpleStorageService,
 ) : IGameService {
   @Cacheable("games", key = "#gameId.value")
   override fun findGameById(gameId: GameId): Game =
       gameRepository.findById(gameId) ?: throw GameNotFoundException(gameId)
 
-  override fun findGamesWithFilter(page: Int, size: Int, name: String?, sort: Sort): Page<Game> {
+  override fun findGamesWithFilter(
+      page: Int,
+      size: Int,
+      name: String?,
+      sort: Sort,
+  ): Page<Game> {
     val pageRequest = PageRequest.of(page, size, sort)
     if (name == null) {
       return gameRepository.findAll(pageRequest)
@@ -47,7 +52,8 @@ class GameService(
     game.imagePath =
         simpleStorageService.uploadImage(
             "${game.name}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}",
-            command.image)
+            command.image,
+        )
 
     return gameRepository.save(game)
   }

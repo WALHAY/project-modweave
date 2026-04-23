@@ -9,7 +9,6 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 @DataJpaTest
 @Testcontainers
 class PostgresTestTemplate {
-
   companion object {
     @Container
     @JvmStatic

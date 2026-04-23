@@ -11,16 +11,17 @@ data class User(
     var password: String,
     val registerDate: LocalDateTime = LocalDateTime.now(),
     var isAdmin: Boolean = false,
-    val mods: MutableSet<Mod> = mutableSetOf()
+    val mods: MutableSet<Mod> = mutableSetOf(),
 ) : Serializable {
   constructor(
       username: String,
       name: String,
       email: String,
-      password: String
+      password: String,
   ) : this(
       username = UserId(username.lowercase().trim()),
       name = name,
       email = email.lowercase().trim(),
-      password = password)
+      password = password,
+  )
 }

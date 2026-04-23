@@ -16,7 +16,7 @@ class CommentEntity(
     @Column("content", nullable = false) val content: String = "",
     @Column("publish_date", nullable = false) val publishDate: LocalDateTime = LocalDateTime.now(),
     @Column("user_id", nullable = false) val authorId: String = "",
-    @Column("mod_id", nullable = false) val modId: String = ""
+    @Column("mod_id", nullable = false) val modId: String = "",
 ) : Serializable {
   companion object
 }

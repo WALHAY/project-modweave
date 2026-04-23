@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class UserExceptionHandler(private val logger: KLogger = KotlinLogging.logger {}) {
-
+class UserExceptionHandler(
+    private val logger: KLogger = KotlinLogging.logger {},
+) {
   @ExceptionHandler(UserEmailExistsException::class)
   @ResponseStatus(HttpStatus.CONFLICT)
   fun userEmailExistsHandler(e: UserEmailExistsException) {

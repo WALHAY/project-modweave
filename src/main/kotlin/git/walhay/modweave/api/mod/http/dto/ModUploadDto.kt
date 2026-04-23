@@ -18,7 +18,7 @@ data class ModUploadDto(
     val categories: Set<String> = mutableSetOf(),
     @field:NotBlank val versionName: String,
     @field:NotEmpty val files: List<MultipartFile> = mutableListOf(),
-    @field:NotBlank val gameId: String
+    @field:NotBlank val gameId: String,
 ) {
   fun toModCreateCommand() =
       ModCreateCommand(
@@ -29,5 +29,6 @@ data class ModUploadDto(
           categories = categories.map { CategoryId(it) }.toSet(),
           versionName = versionName,
           files = files,
-          gameId = GameId(gameId))
+          gameId = GameId(gameId),
+      )
 }

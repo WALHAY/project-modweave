@@ -6,7 +6,9 @@ import git.walhay.modweave.api.version.VersionId
 import org.springframework.stereotype.Repository
 
 @Repository
-class JpaFileRepository(private val repository: SpringDataFileRepository) : FileRepository {
+class JpaFileRepository(
+    private val repository: SpringDataFileRepository,
+) : FileRepository {
   override fun save(file: File): File = repository.save(FileEntity.fromFile(file)).toDomain()
 
   override fun findById(id: FileId): File? = repository.findById(id.value).orElse(null)?.toDomain()

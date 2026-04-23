@@ -5,6 +5,9 @@ import io.mcarle.konvert.api.KonvertFrom
 import java.time.LocalDateTime
 
 @KonvertFrom(User::class)
-data class UserResponseDto(val name: String, val registerDate: LocalDateTime) {
+data class UserResponseDto(
+    val name: String,
+    val registerDate: LocalDateTime,
+) {
   companion object
 }

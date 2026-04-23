@@ -10,5 +10,5 @@ data class Comment(
     val content: String = "",
     val publishDate: LocalDateTime = LocalDateTime.now(),
     val authorId: UserId = UserId(),
-    val modId: ModId = ModId()
+    val modId: ModId = ModId(),
 ) : Serializable

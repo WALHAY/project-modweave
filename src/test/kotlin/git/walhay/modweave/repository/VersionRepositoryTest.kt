@@ -25,9 +25,9 @@ import org.springframework.data.domain.PageRequest
     JpaVersionRepository::class,
     JpaUserRepository::class,
     JpaGameRepository::class,
-    JpaModRepository::class)
+    JpaModRepository::class,
+)
 class VersionRepositoryTest : PostgresTestTemplate() {
-
   @Autowired lateinit var versionRepository: VersionRepository
 
   @Autowired lateinit var userRepository: UserRepository
@@ -46,7 +46,9 @@ class VersionRepositoryTest : PostgresTestTemplate() {
             description = null,
             imagePath = "img.png",
             publisherId = publisher.username,
-            gameId = game.id))
+            gameId = game.id,
+        ),
+    )
   }
 
   private fun seedVersion(): Version {

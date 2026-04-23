@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class VersionExceptionHandler(private val logger: KLogger = KotlinLogging.logger {}) {
-
+class VersionExceptionHandler(
+    private val logger: KLogger = KotlinLogging.logger {},
+) {
   @ExceptionHandler(VersionNotFoundException::class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   fun versionNotFoundHandler(e: VersionNotFoundException) {

@@ -20,7 +20,6 @@ import org.springframework.data.domain.PageRequest
 
 @Import(JpaModRepository::class, JpaUserRepository::class, JpaGameRepository::class)
 class ModRepositoryTest : PostgresTestTemplate() {
-
   @Autowired lateinit var modRepository: ModRepository
 
   @Autowired lateinit var userRepository: UserRepository
@@ -44,7 +43,8 @@ class ModRepositoryTest : PostgresTestTemplate() {
             description = "desc",
             imagePath = "img.png",
             publisherId = publisher.username,
-            gameId = game.id)
+            gameId = game.id,
+        )
 
     return modRepository.save(mod)
   }

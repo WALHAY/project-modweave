@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service
 class VersionService(
     private val versionRepository: VersionRepository,
     private val fileService: IFileService,
-    private val logger: KLogger = KotlinLogging.logger {}
+    private val logger: KLogger = KotlinLogging.logger {},
 ) : IVersionService {
   @Lazy @Autowired private lateinit var modService: IModService
 
@@ -34,12 +34,16 @@ class VersionService(
   override fun getModVersion(versionId: VersionId): Version =
       versionRepository.findVersionById(versionId) ?: throw VersionNotFoundException(versionId)
 
-  override fun getModVersions(modId: ModId, pageable: Pageable): Page<Version> {
-    return versionRepository.findVersionsByModId(modId, pageable)
-  }
+  override fun getModVersions(
+      modId: ModId,
+      pageable: Pageable,
+  ): Page<Version> = versionRepository.findVersionsByModId(modId, pageable)
 
   @CachePut("versions", key = "#result.id")
-  override fun createModVersion(mod: Mod, command: ModCreateCommand): Version {
+  override fun createModVersion(
+      mod: Mod,
+      command: ModCreateCommand,
+  ): Version {
     val version = Version(command.versionName, null, mod.id).let { versionRepository.save(it) }
     mod.versions.addLast(version)
 
@@ -48,7 +52,10 @@ class VersionService(
   }
 
   @CachePut("versions", key = "#result.id")
-  override fun createModVersion(modId: ModId, command: VersionCreateCommand): Version {
+  override fun createModVersion(
+      modId: ModId,
+      command: VersionCreateCommand,
+  ): Version {
     val mod = modService.findModById(modId)
 
     if (mod.versions.any { it.name == command.name }) {

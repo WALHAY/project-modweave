@@ -7,9 +7,15 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface SpringDataModRepository : JpaRepository<ModEntity, String> {
-  fun findAllByNameContainingIgnoreCase(name: String, pageable: Pageable): Page<ModEntity>
+  fun findAllByNameContainingIgnoreCase(
+      name: String,
+      pageable: Pageable,
+  ): Page<ModEntity>
 
-  fun findAllByPublisherId(id: String, pageable: Pageable): Page<ModEntity>
+  fun findAllByPublisherId(
+      id: String,
+      pageable: Pageable,
+  ): Page<ModEntity>
 
   @Query(
       """
@@ -17,6 +23,10 @@ interface SpringDataModRepository : JpaRepository<ModEntity, String> {
         FROM CollectionItemEntity ci 
         JOIN ci.mod m 
         WHERE ci.collectionId = :id 
-    """)
-  fun findByCollectionId(@Param("id") id: Long, pageable: Pageable): Page<ModEntity>
+    """,
+  )
+  fun findByCollectionId(
+      @Param("id") id: Long,
+      pageable: Pageable,
+  ): Page<ModEntity>
 }

@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class ModExceptionHandler(private val logger: KLogger = KotlinLogging.logger {}) {
-
+class ModExceptionHandler(
+    private val logger: KLogger = KotlinLogging.logger {},
+) {
   @ExceptionHandler(ModNotFoundException::class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   fun modNotFoundHandler(e: ModNotFoundException) {

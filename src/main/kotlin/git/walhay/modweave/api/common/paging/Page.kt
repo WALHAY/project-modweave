@@ -10,7 +10,5 @@ data class Page<T>(
   val isEmpty: Boolean
     get() = content.isEmpty()
 
-  inline fun map(transform: (T) -> T): Page<T> {
-    return copy(content = content.map(transform))
-  }
+  inline fun map(transform: (T) -> T): Page<T> = copy(content = content.map(transform))
 }

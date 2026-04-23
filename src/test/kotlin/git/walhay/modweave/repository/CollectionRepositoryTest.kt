@@ -21,9 +21,9 @@ import org.springframework.context.annotation.Import
     JpaCollectionRepository::class,
     JpaUserRepository::class,
     JpaGameRepository::class,
-    JpaModRepository::class)
+    JpaModRepository::class,
+)
 class CollectionRepositoryTest : PostgresTestTemplate() {
-
   @Autowired lateinit var collectionRepository: CollectionRepository
 
   @Autowired lateinit var userRepository: UserRepository
@@ -38,7 +38,10 @@ class CollectionRepositoryTest : PostgresTestTemplate() {
   private fun seedGame(): Game =
       gameRepository.save(Game(name = "Game", description = null, imagePath = "img.png"))
 
-  private fun seedMod(owner: User, game: Game): Mod =
+  private fun seedMod(
+      owner: User,
+      game: Game,
+  ): Mod =
       modRepository.save(
           Mod(
               id = ModId("mod1"),
@@ -46,7 +49,9 @@ class CollectionRepositoryTest : PostgresTestTemplate() {
               description = null,
               imagePath = "img.png",
               publisherId = owner.username,
-              gameId = game.id))
+              gameId = game.id,
+          ),
+      )
 
   private fun seedCollection(): Collection {
     val owner = seedUser()
@@ -58,7 +63,9 @@ class CollectionRepositoryTest : PostgresTestTemplate() {
             name = "Favorites",
             description = "fav mods",
             owner = owner.username,
-            mods = mutableListOf(mod)))
+            mods = mutableListOf(mod),
+        ),
+    )
   }
 
   @Test

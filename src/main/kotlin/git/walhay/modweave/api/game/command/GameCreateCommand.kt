@@ -7,5 +7,5 @@ data class GameCreateCommand(
     val id: GameId,
     val name: String,
     val description: String?,
-    val image: MultipartFile
+    val image: MultipartFile,
 )

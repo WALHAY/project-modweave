@@ -6,5 +6,5 @@ data class UserCreateCommand(
     val username: UserId,
     val name: String,
     val password: String,
-    val email: String
+    val email: String,
 )

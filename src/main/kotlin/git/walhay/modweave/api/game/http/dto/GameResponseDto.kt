@@ -9,7 +9,7 @@ data class GameResponseDto(
     val id: GameId,
     val name: String,
     val description: String?,
-    val imagePath: String
+    val imagePath: String,
 ) {
   companion object
 }

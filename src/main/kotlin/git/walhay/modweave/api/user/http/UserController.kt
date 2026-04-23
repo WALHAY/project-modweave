@@ -16,21 +16,25 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/users")
-class UserController(private val userService: IUserService, private val modService: IModService) {
-
+class UserController(
+    private val userService: IUserService,
+    private val modService: IModService,
+) {
   @GetMapping
   fun getUsers(
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
       @RequestParam(required = false) username: String?,
-      @SortDefault(sort = ["username"]) sort: Sort
+      @SortDefault(sort = ["username"]) sort: Sort,
   ): Page<UserResponseDto> =
       userService.findUsersWithFilter(page, size, username, sort).map {
         UserResponseDto.fromUser(it)
       }
 
   @GetMapping("/{id}")
-  fun getUser(@PathVariable id: String): UserResponseDto =
+  fun getUser(
+      @PathVariable id: String,
+  ): UserResponseDto =
       userService.findUserByUsername(UserId(id)).let { UserResponseDto.fromUser(it) }
 
   @GetMapping("/{id}/mods")
@@ -38,17 +42,19 @@ class UserController(private val userService: IUserService, private val modServi
       @PathVariable id: String,
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
-      @SortDefault(sort = ["name"]) sort: Sort
+      @SortDefault(sort = ["name"]) sort: Sort,
   ): Page<Mod> = modService.findModsOfUser(UserId(id), page, size, sort)
 
   @PostMapping
-  fun createUser(@ModelAttribute @Valid dto: UserCreateDto): UserResponseDto =
+  fun createUser(
+      @ModelAttribute @Valid dto: UserCreateDto,
+  ): UserResponseDto =
       userService.createUser(dto.toUserCreateCommand()).let { UserResponseDto.fromUser(it) }
 
   @PatchMapping
   fun updateUser(
       @ModelAttribute @Valid dto: UserUpdateDto,
-      @AuthenticationPrincipal user: UserDetails
+      @AuthenticationPrincipal user: UserDetails,
   ): UserResponseDto =
       userService.updateUser(UserId(user.username), dto.toUserUpdateCommand()).let {
         UserResponseDto.fromUser(it)

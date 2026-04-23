@@ -5,5 +5,5 @@ import org.springframework.web.multipart.MultipartFile
 data class VersionCreateCommand(
     val name: String,
     val changes: String?,
-    val files: List<MultipartFile>
+    val files: List<MultipartFile>,
 )

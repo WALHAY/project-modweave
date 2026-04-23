@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Import
 @DataJpaTest
 @Import(JpaGameRepository::class)
 class GameRepositoryTest : PostgresTestTemplate() {
-
   @Autowired lateinit var gameRepository: GameRepository
 
   private fun seedGame(): Game =
@@ -51,7 +50,9 @@ class GameRepositoryTest : PostgresTestTemplate() {
                 id = created.id,
                 name = "Skyrim SE",
                 description = "RPG",
-                imagePath = "images/skyrim.png"))
+                imagePath = "images/skyrim.png",
+            ),
+        )
 
     val refetched = gameRepository.findById(GameId(updated.id.value))
     assertNotNull(refetched)
