@@ -6,6 +6,8 @@ import git.walhay.modweave.api.comment.repository.CommentRepository
 import git.walhay.modweave.api.user.IUserService
 import git.walhay.modweave.api.user.UserId
 import jakarta.transaction.Transactional
+import mu.KLogger
+import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
@@ -17,15 +19,20 @@ class CommentService(
     private val commentRepository: CommentRepository,
     private val userService: IUserService,
 ) : ICommentService {
+  private val logger: KLogger = KotlinLogging.logger {}
+
   @Cacheable("comments", key = "#id.value")
-  override fun findCommentById(id: CommentId): Comment? =
-      commentRepository.findById(id) ?: throw CommentNotFoundException(id)
+  override fun findCommentById(id: CommentId): Comment? {
+    logger.debug { "Fetching comment by id: $id" }
+    return commentRepository.findById(id) ?: throw CommentNotFoundException(id)
+  }
 
   @CachePut("comments", key = "#result.id.value")
   override fun createComment(
       userId: UserId,
       command: CommentCreateCommand,
   ): Comment {
+    logger.info { "Creating new comment for mod: ${command.modId} by user: $userId" }
     val user = userService.findUserByUsername(userId)
 
     return command
@@ -33,6 +40,7 @@ class CommentService(
           Comment(content = content, modId = modId, authorId = user.username)
         }
         .let { commentRepository.save(it) }
+        .also { logger.info { "Comment created successfully: ${it.id}" } }
   }
 
   @CacheEvict("comments", key = "#id.value")
@@ -40,11 +48,14 @@ class CommentService(
       userId: UserId,
       id: CommentId,
   ) {
+    logger.info { "Deleting comment: $id for user: $userId" }
     val comment = findCommentById(id)
     if (comment?.authorId != userId) {
+      logger.warn { "Comment deletion failed - forbidden for user: $userId" }
       throw Exception("Forbidden")
     }
 
     commentRepository.delete(id)
+    logger.info { "Comment deleted successfully: $id" }
   }
 }

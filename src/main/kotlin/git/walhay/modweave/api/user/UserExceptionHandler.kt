@@ -17,18 +17,21 @@ class UserExceptionHandler(
   @ExceptionHandler(UserEmailExistsException::class)
   @ResponseStatus(HttpStatus.CONFLICT)
   fun userEmailExistsHandler(e: UserEmailExistsException) {
-    logger.error { e }
+    logger.warn { "User registration failed: email already exists - ${e.message}" }
+    logger.debug { e }
   }
 
   @ExceptionHandler(UserLoginExistsException::class)
   @ResponseStatus(HttpStatus.CONFLICT)
   fun userLoginExistsHandler(e: UserLoginExistsException) {
-    logger.error { e }
+    logger.warn { "User registration failed: login already exists - ${e.message}" }
+    logger.debug { e }
   }
 
   @ExceptionHandler(UserNotFoundException::class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   fun userNotFoundHandler(e: UserNotFoundException) {
-    logger.error { e }
+    logger.warn { "User not found: ${e.message}" }
+    logger.debug { e }
   }
 }

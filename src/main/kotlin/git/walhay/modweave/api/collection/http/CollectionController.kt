@@ -13,6 +13,8 @@ import git.walhay.modweave.api.mod.http.dto.fromMod
 import git.walhay.modweave.api.user.UserId
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
+import mu.KLogger
+import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
@@ -26,13 +28,17 @@ class CollectionController(
     private val collectionService: ICollectionService,
     private val modService: IModService,
 ) {
+  private val logger: KLogger = KotlinLogging.logger {}
+
   @GetMapping("/{collectionId}")
   fun getCollection(
       @PathVariable collectionId: CollectionId,
-  ): CollectionResponseDto =
-      collectionService.getCollectionById(collectionId).let {
-        CollectionResponseDto.fromCollection(it)
-      }
+  ): CollectionResponseDto {
+    logger.info { "GET /collections/$collectionId" }
+    return collectionService.getCollectionById(collectionId).let {
+      CollectionResponseDto.fromCollection(it)
+    }
+  }
 
   @GetMapping("/{collectionId}/mods")
   fun getModsInCollection(
@@ -40,19 +46,25 @@ class CollectionController(
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
       @SortDefault(sort = ["index"]) sort: Sort,
-  ): Page<ModResponseDto> =
-      modService.findModsInCollection(CollectionId(collectionId), page, size, sort).map {
-        ModResponseDto.fromMod(it)
-      }
+  ): Page<ModResponseDto> {
+    logger.info { "GET /collections/$collectionId/mods - page: $page, size: $size" }
+    return modService.findModsInCollection(CollectionId(collectionId), page, size, sort).map {
+      ModResponseDto.fromMod(it)
+    }
+  }
 
   @PostMapping
   fun createCollection(
       @Valid @ModelAttribute dto: CollectionCreateDto,
       @AuthenticationPrincipal user: UserDetails,
-  ): CollectionResponseDto =
-      collectionService
-          .createCollection(UserId(user.username), dto.toCollectionCreateCommand())
-          .let { CollectionResponseDto.fromCollection(it) }
+  ): CollectionResponseDto {
+    logger.info {
+      "POST /collections - creating collection: ${dto.name} for user: ${user.username}"
+    }
+    return collectionService
+        .createCollection(UserId(user.username), dto.toCollectionCreateCommand())
+        .let { CollectionResponseDto.fromCollection(it) }
+  }
 
   @PutMapping("/{collectionId}")
   fun addModToCollection(
@@ -60,22 +72,30 @@ class CollectionController(
       @RequestParam modId: String,
       @RequestParam(required = false) index: Int?,
       @AuthenticationPrincipal user: UserDetails,
-  ) =
-      collectionService.addModToCollection(
-          UserId(user.username), CollectionId(collectionId), ModId(modId), index)
+  ): CollectionResponseDto {
+    logger.info { "PUT /collections/$collectionId - adding mod: $modId for user: ${user.username}" }
+    return collectionService
+        .addModToCollection(UserId(user.username), CollectionId(collectionId), ModId(modId), index)
+        .let { CollectionResponseDto.fromCollection(it) }
+  }
 
   @DeleteMapping("/{collectionId}")
   fun deleteCollection(
       collectionId: Long,
       @AuthenticationPrincipal user: UserDetails,
-  ) = collectionService.deleteCollection(UserId(user.username), CollectionId(collectionId))
+  ) {
+    logger.info { "DELETE /collections/$collectionId for user: ${user.username}" }
+    collectionService.deleteCollection(UserId(user.username), CollectionId(collectionId))
+  }
 
   @DeleteMapping("/{collectionId}/mods/{modId}")
   fun deleteModFromCollection(
       @PathVariable collectionId: Long,
       @PathVariable modId: String,
       @AuthenticationPrincipal user: UserDetails,
-  ) =
-      collectionService.deleteModFromCollection(
-          UserId(user.username), CollectionId(collectionId), ModId(modId))
+  ) {
+    logger.info { "DELETE /collections/$collectionId/mods/$modId for user: ${user.username}" }
+    return collectionService.deleteModFromCollection(
+        UserId(user.username), CollectionId(collectionId), ModId(modId))
+  }
 }

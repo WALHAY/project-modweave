@@ -16,12 +16,14 @@ class VersionExceptionHandler(
   @ExceptionHandler(VersionNotFoundException::class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   fun versionNotFoundHandler(e: VersionNotFoundException) {
-    logger.error { e }
+    logger.warn { "Version not found: ${e.message}" }
+    logger.debug { e }
   }
 
   @ExceptionHandler(VersionExistsException::class)
   @ResponseStatus(HttpStatus.CONFLICT)
-  fun versionNotFoundHandler(e: VersionExistsException) {
-    logger.error { e }
+  fun versionExistsHandler(e: VersionExistsException) {
+    logger.warn { "Version creation failed: version already exists - ${e.message}" }
+    logger.debug { e }
   }
 }

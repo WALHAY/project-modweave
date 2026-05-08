@@ -17,18 +17,21 @@ class ModExceptionHandler(
   @ExceptionHandler(ModNotFoundException::class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   fun modNotFoundHandler(e: ModNotFoundException) {
-    logger.error { e }
+    logger.warn { "Mod not found: ${e.message}" }
+    logger.debug { e }
   }
 
   @ExceptionHandler(ModExistsException::class)
   @ResponseStatus(HttpStatus.CONFLICT)
   fun modExistsHandler(e: ModExistsException) {
-    logger.error { e }
+    logger.warn { "Mod creation failed: mod already exists - ${e.message}" }
+    logger.debug { e }
   }
 
   @ExceptionHandler(ModCreationFailedException::class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   fun modCreationFailedHandler(e: ModCreationFailedException) {
-    logger.error { e }
+    logger.error { "Mod creation failed: ${e.message}" }
+    logger.debug { e }
   }
 }

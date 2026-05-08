@@ -11,6 +11,8 @@ import git.walhay.modweave.api.version.http.dto.VersionResponseDto
 import git.walhay.modweave.api.version.http.dto.fromVersion
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
+import mu.KLogger
+import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -26,10 +28,15 @@ class ModController(
     private val modService: IModService,
     private val versionService: IVersionService,
 ) {
+  private val logger: KLogger = KotlinLogging.logger {}
+
   @GetMapping("/{modId}")
   fun getMod(
       @PathVariable modId: ModId,
-  ): ModResponseDto = modService.findModById(modId).let { ModResponseDto.fromMod(it) }
+  ): ModResponseDto {
+    logger.info { "GET /mods/$modId" }
+    return modService.findModById(modId).let { ModResponseDto.fromMod(it) }
+  }
 
   @GetMapping
   fun getMods(
@@ -37,8 +44,10 @@ class ModController(
       @RequestParam size: Int,
       @RequestParam(required = false) name: String?,
       @SortDefault(sort = ["name"]) sort: Sort,
-  ): Page<ModResponseDto> =
-      modService.findModsWithFilter(page, size, name, sort).map { ModResponseDto.fromMod(it) }
+  ): Page<ModResponseDto> {
+    logger.debug { "GET /mods - page: $page, size: $size, name: $name" }
+    return modService.findModsWithFilter(page, size, name, sort).map { ModResponseDto.fromMod(it) }
+  }
 
   @GetMapping("/{modId}/versions")
   fun getModVersions(
@@ -46,24 +55,31 @@ class ModController(
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
       @SortDefault(sort = ["id"], direction = Sort.Direction.DESC) sort: Sort,
-  ): Page<VersionResponseDto> =
-      versionService.getModVersions(ModId(modId), PageRequest.of(page, size, sort)).map {
-        VersionResponseDto.fromVersion(it)
-      }
+  ): Page<VersionResponseDto> {
+    logger.info { "GET /mods/$modId/versions - page: $page, size: $size" }
+    return versionService.getModVersions(ModId(modId), PageRequest.of(page, size, sort)).map {
+      VersionResponseDto.fromVersion(it)
+    }
+  }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   fun uploadMod(
       @Valid @ModelAttribute dto: ModUploadDto,
       @AuthenticationPrincipal user: UserDetails,
-  ): ModResponseDto =
-      modService.uploadMod(UserId(user.username), dto.toModCreateCommand()).let {
-        ModResponseDto.fromMod(it)
-      }
+  ): ModResponseDto {
+    logger.info { "POST /mods - uploading mod: ${dto.name} for user: ${user.username}" }
+    return modService.uploadMod(UserId(user.username), dto.toModCreateCommand()).let {
+      ModResponseDto.fromMod(it)
+    }
+  }
 
   @DeleteMapping("/{modId}")
   fun deleteMod(
       @PathVariable modId: ModId,
       @AuthenticationPrincipal user: UserDetails,
-  ) = modService.deleteMod(UserId(user.username), modId)
+  ) {
+    logger.info { "DELETE /mods/$modId for user: ${user.username}" }
+    modService.deleteMod(UserId(user.username), modId)
+  }
 }

@@ -1,6 +1,8 @@
 package git.walhay.modweave.api.file.http
 
 import jakarta.servlet.http.HttpServletResponse
+import mu.KLogger
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -12,12 +14,15 @@ import org.springframework.web.bind.annotation.RestController
 class FileController(
     @param:Value($$"${minio.endpoint}") private val minioUrl: String,
 ) {
+  private val logger: KLogger = KotlinLogging.logger {}
+
   @GetMapping("/{bucket}/{fileId}/download")
   fun downloadFile(
       @PathVariable bucket: String,
       @PathVariable fileId: Long,
       response: HttpServletResponse,
   ) {
+    logger.info { "GET /files/$bucket/$fileId/download" }
     response.sendRedirect(null) // FIXME: change location to file path
   }
 }

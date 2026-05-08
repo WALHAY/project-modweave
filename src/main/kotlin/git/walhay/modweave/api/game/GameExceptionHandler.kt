@@ -16,12 +16,14 @@ class GameExceptionHandler(
   @ExceptionHandler(GameExistsException::class)
   @ResponseStatus(HttpStatus.CONFLICT)
   fun gameExistsHandler(e: GameExistsException) {
-    logger.error { e }
+    logger.warn { "Game creation failed: game already exists - ${e.message}" }
+    logger.debug { e }
   }
 
   @ExceptionHandler(GameNotFoundException::class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   fun gameNotFoundHandler(e: GameNotFoundException) {
-    logger.error { e }
+    logger.warn { "Game not found: ${e.message}" }
+    logger.debug { e }
   }
 }
