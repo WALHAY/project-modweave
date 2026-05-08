@@ -14,6 +14,7 @@ dependencies {
   implementation(kotlin("reflect"))
   implementation("org.springframework.boot:spring-boot-starter")
   implementation("org.springframework.boot:spring-boot-starter-web")
+  implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.data:spring-data-commons")
   implementation("org.springframework.shell:spring-shell-starter:4.0.1")
   implementation("org.springframework.shell:spring-shell-jline:4.0.1")
