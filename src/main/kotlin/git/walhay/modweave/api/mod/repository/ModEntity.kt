@@ -8,10 +8,12 @@ import git.walhay.modweave.api.version.repository.VersionEntity
 import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
-import java.io.Serializable
-import java.time.LocalDateTime
+import org.hibernate.annotations.JdbcType
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
+import java.io.Serializable
+import java.sql.Types
+import java.time.LocalDateTime
 
 @Entity
 @Table(schema = "modweave", name = "mods")
@@ -32,8 +34,7 @@ class ModEntity(
         joinColumns = [JoinColumn(name = "mod_id", nullable = false)],
     )
     @Column(name = "category_name")
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    val categories: List<CategoryId> = emptyList(),
+    val categories: Set<String> = emptySet(),
     @OneToMany(
         mappedBy = "modId",
         fetch = FetchType.LAZY,

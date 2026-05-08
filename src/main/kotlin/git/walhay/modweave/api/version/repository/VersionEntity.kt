@@ -7,18 +7,19 @@ import git.walhay.modweave.api.version.VersionStatus
 import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
-import java.io.Serializable
-import java.time.LocalDateTime
 import org.hibernate.annotations.ColumnTransformer
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
+import java.io.Serializable
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Entity
 @Table(schema = "modweave", name = "mod_versions")
 @KonvertTo(Version::class, mapFunctionName = "toDomain")
 @KonvertFrom(Version::class)
 class VersionEntity(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id") val id: Long,
+    @Id @Column(name = "id") val id: UUID,
     @Column(name = "name", nullable = false) val name: String,
     @Column(name = "changes", columnDefinition = "text") val changes: String? = null,
     @Column(name = "upload_date", nullable = false) val uploadDate: LocalDateTime,
@@ -41,7 +42,7 @@ class VersionEntity(
       changes: String? = null,
       modId: ModId,
   ) : this(
-      id = 0,
+      id = UUID.randomUUID(),
       name = name,
       changes = changes,
       uploadDate = LocalDateTime.now(),

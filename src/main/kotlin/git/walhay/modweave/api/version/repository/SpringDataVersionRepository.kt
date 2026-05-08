@@ -3,8 +3,9 @@ package git.walhay.modweave.api.version.repository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import java.util.UUID
 
-interface SpringDataVersionRepository : JpaRepository<VersionEntity, Long> {
+interface SpringDataVersionRepository : JpaRepository<VersionEntity, UUID> {
   fun findAllByModId(
       modId: String,
       pageable: Pageable,
