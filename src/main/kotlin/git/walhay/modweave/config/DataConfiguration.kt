@@ -14,23 +14,10 @@ class DataConfiguration
 @Autowired
 constructor(
     @param:Value($$"${minio.endpoint}") private val endpoint: String,
-    @param:Value($$"${minio.credentials.username}") private val accessKey: String,
-    @param:Value($$"${minio.credentials.password}") private val secretKey: String,
+    @param:Value($$"${minio.username}") private val accessKey: String,
+    @param:Value($$"${minio.password}") private val secretKey: String,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
-
-  @Bean
-  fun dataSource() =
-      DriverManagerDataSource().apply {
-        logger.info { "Configuring PostgreSQL data source" }
-        username = "postgres"
-        password = "postgres"
-        schema = "modweave"
-        catalog = "production"
-        url = "jdbc:postgresql://localhost:5432/"
-        setDriverClassName("org.postgresql.Driver")
-        logger.info { "PostgreSQL data source configured successfully" }
-      }
 
   @Bean
   fun minioClient(): MinioClient {
