@@ -5,8 +5,8 @@ import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import java.io.Serializable
-import org.hibernate.annotations.NaturalId
 import java.util.UUID
+import org.hibernate.annotations.NaturalId
 
 @Entity
 @Table(schema = "modweave", name = "mod_files")

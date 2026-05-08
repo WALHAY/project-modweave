@@ -21,7 +21,7 @@ class GameService(
     private val gameRepository: GameRepository,
     private val simpleStorageService: ISimpleStorageService,
 ) : IGameService {
-	@Cacheable("games", key = "#gameId")
+  @Cacheable("games", key = "#gameId")
   override fun findGameById(gameId: GameId): Game =
       gameRepository.findById(gameId) ?: throw GameNotFoundException(gameId)
 

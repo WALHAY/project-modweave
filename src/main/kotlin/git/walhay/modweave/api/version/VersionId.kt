@@ -1,7 +1,6 @@
 package git.walhay.modweave.api.version
 
 import java.util.UUID
-import kotlin.uuid.Uuid
 
 @JvmInline
 value class VersionId(

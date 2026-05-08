@@ -7,12 +7,12 @@ import git.walhay.modweave.api.version.VersionStatus
 import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
-import org.hibernate.annotations.ColumnTransformer
-import org.hibernate.annotations.JdbcTypeCode
-import org.hibernate.type.SqlTypes
 import java.io.Serializable
 import java.time.LocalDateTime
 import java.util.UUID
+import org.hibernate.annotations.ColumnTransformer
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 
 @Entity
 @Table(schema = "modweave", name = "mod_versions")

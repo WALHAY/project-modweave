@@ -1,6 +1,5 @@
 package git.walhay.modweave.api.mod.repository
 
-import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.user.UserId
@@ -8,11 +7,7 @@ import git.walhay.modweave.api.version.repository.VersionEntity
 import io.mcarle.konvert.api.KonvertFrom
 import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
-import org.hibernate.annotations.JdbcType
-import org.hibernate.annotations.JdbcTypeCode
-import org.hibernate.type.SqlTypes
 import java.io.Serializable
-import java.sql.Types
 import java.time.LocalDateTime
 
 @Entity
