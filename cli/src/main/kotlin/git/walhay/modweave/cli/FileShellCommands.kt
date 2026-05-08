@@ -13,13 +13,13 @@ class FileShellCommands(
     private val fileService: IFileService,
     private val versionService: IVersionService,
 ) : ShellCommandSupport() {
-  @Command(name = ["files", "upload-version"], description = "Upload files to existing version.")
-  fun filesUploadVersion(
+  @Command(name = ["file", "upload-version"], description = "Upload file to existing version.")
+  fun fileUploadVersion(
       @Option(longName = "version-id") versionId: UUID,
-      @Option(longName = "files") files: String,
+      @Option(longName = "file") file: String,
   ): String {
     val version = versionService.getModVersion(VersionId(versionId))
-    val multipartFiles = multipartFiles(files)
+    val multipartFiles = multipartFiles(file)
     fileService.uploadVersionFiles(version, multipartFiles)
     return "Uploaded ${multipartFiles.size} file(s) to version '$versionId'."
   }

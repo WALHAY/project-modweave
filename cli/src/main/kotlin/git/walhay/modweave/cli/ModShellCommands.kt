@@ -5,6 +5,8 @@ import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.command.ModCreateCommand
+import git.walhay.modweave.api.mod.http.dto.ModResponseDto
+import git.walhay.modweave.api.mod.http.dto.fromMod
 import git.walhay.modweave.api.user.UserId
 import java.nio.file.Path
 import org.springframework.shell.core.command.annotation.Command
@@ -15,40 +17,48 @@ import org.springframework.stereotype.Component
 class ModShellCommands(
     private val modService: IModService,
 ) : ShellCommandSupport() {
-  @Command(name = ["mods", "list"], description = "List mods with paging.")
-  fun modsList(
+  @Command(name = ["mod", "list"], description = "List mod with paging.")
+  fun modList(
       @Option(longName = "page", defaultValue = "0") page: Int,
       @Option(longName = "size", defaultValue = "20") size: Int,
       @Option(longName = "name", required = false) name: String?,
       @Option(longName = "sort", defaultValue = "name,asc") sort: String,
-  ): Any = renderPage(modService.findModsWithFilter(page, size, name, parseSort(sort)))
+  ): Any =
+      renderPage(modService.findModsWithFilter(page, size, name, parseSort(sort)).map {
+        ModResponseDto.fromMod(it)
+      })
 
-  @Command(name = ["mods", "get"], description = "Get mod by id.")
-  fun modsGet(
+  @Command(name = ["mod", "get"], description = "Get mod by id.")
+  fun modGet(
       @Option(longName = "id") id: String,
-  ): Any = renderValue(modService.findModById(ModId(id)))
+  ): Any = renderValue(ModResponseDto.fromMod(modService.findModById(ModId(id))))
 
-  @Command(name = ["mods", "user"], description = "List mods for user.")
-  fun modsUser(
+  @Command(name = ["mod", "user"], description = "List mod for user.")
+  fun modUser(
       @Option(longName = "user-id") userId: String,
       @Option(longName = "page", defaultValue = "0") page: Int,
       @Option(longName = "size", defaultValue = "20") size: Int,
       @Option(longName = "sort", defaultValue = "name,asc") sort: String,
-  ): Any = renderPage(modService.findModsOfUser(UserId(userId), page, size, parseSort(sort)))
+  ): Any =
+      renderPage(modService.findModsOfUser(UserId(userId), page, size, parseSort(sort)).map {
+        ModResponseDto.fromMod(it)
+      })
 
-  @Command(name = ["mods", "collection"], description = "List mods in collection.")
-  fun modsCollection(
+  @Command(name = ["mod", "collection"], description = "List mod in collection.")
+  fun modCollection(
       @Option(longName = "collection-id") collectionId: Long,
       @Option(longName = "page", defaultValue = "0") page: Int,
       @Option(longName = "size", defaultValue = "20") size: Int,
       @Option(longName = "sort", defaultValue = "name,asc") sort: String,
   ): Any =
       renderPage(
-          modService.findModsInCollection(CollectionId(collectionId), page, size, parseSort(sort)),
+          modService
+              .findModsInCollection(CollectionId(collectionId), page, size, parseSort(sort))
+              .map { ModResponseDto.fromMod(it) },
       )
 
-  @Command(name = ["mods", "create"], description = "Create mod.")
-  fun modsCreate(
+  @Command(name = ["mod", "create"], description = "Create mod.")
+  fun modCreate(
       @Option(longName = "user-id") userId: String,
       @Option(longName = "id") id: String,
       @Option(longName = "name") name: String,
@@ -60,23 +70,25 @@ class ModShellCommands(
       @Option(longName = "files") files: String,
   ): Any =
       renderValue(
-          modService.uploadMod(
-              UserId(userId),
-              ModCreateCommand(
-                  id = ModId(id),
-                  name = name,
-                  description = description,
-                  image = multipartFile(Path.of(imagePath)),
-                  categories = categoryIds(categories),
-                  versionName = versionName,
-                  files = multipartFiles(files),
-                  gameId = GameId(gameId),
+          ModResponseDto.fromMod(
+              modService.uploadMod(
+                  UserId(userId),
+                  ModCreateCommand(
+                      id = ModId(id),
+                      name = name,
+                      description = description,
+                      image = multipartFile(Path.of(imagePath)),
+                      categories = categoryIds(categories),
+                      versionName = versionName,
+                      files = multipartFiles(files),
+                      gameId = GameId(gameId),
+                  ),
               ),
           ),
       )
 
-  @Command(name = ["mods", "delete"], description = "Delete mod.")
-  fun modsDelete(
+  @Command(name = ["mod", "delete"], description = "Delete mod.")
+  fun modDelete(
       @Option(longName = "user-id") userId: String,
       @Option(longName = "id") id: String,
   ): String {
