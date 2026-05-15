@@ -1,64 +1,61 @@
 plugins {
-	id 'org.jetbrains.kotlin.jvm' version '2.3.0'
-    id 'com.ncorti.ktfmt.gradle' version '0.25.0'
-	id 'org.jetbrains.kotlin.plugin.spring' version '2.2.21'
-	id 'org.springframework.boot' version '4.0.5'
-	id 'io.spring.dependency-management' version '1.1.7'
-    id 'com.google.devtools.ksp' version '2.3.0'
+  id 'org.jetbrains.kotlin.jvm' version '2.3.0' apply false
+  id 'com.ncorti.ktfmt.gradle' version '0.25.0' apply false
+  id 'org.jetbrains.kotlin.plugin.spring' version '2.2.21' apply false
+  id 'org.springframework.boot' version '4.0.5' apply false
+  id 'io.spring.dependency-management' version '1.1.7' apply false
+  id 'com.google.devtools.ksp' version '2.3.0' apply false
 }
 
 group = 'git.walhay'
 version = '0.0.1'
 description = 'Game Modding Platform'
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
-	}
+allprojects {
+  repositories {
+    mavenCentral()
+  }
 }
 
-repositories {
-	mavenCentral()
-}
+subprojects {
+  apply plugin: 'org.jetbrains.kotlin.jvm'
+  apply plugin: 'org.jetbrains.kotlin.plugin.spring'
+  apply plugin: 'io.spring.dependency-management'
+  apply plugin: 'com.ncorti.ktfmt.gradle'
 
-dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-cache'
+  java {
+    toolchain {
+      languageVersion = JavaLanguageVersion.of(25)
+    }
+  }
 
-    implementation 'io.minio:minio:8.6.0'
-    implementation 'org.postgresql:postgresql:42.7.3'
+  dependencyManagement {
+    imports {
+      mavenBom 'org.springframework.boot:spring-boot-dependencies:4.0.5'
+    }
+  }
 
-	implementation 'org.jetbrains.kotlin:kotlin-reflect'
+  dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'io.github.microutils:kotlin-logging-jvm:3.0.5'
 
-    implementation "io.mcarle:konvert-api:$konvertVersion"
-    ksp "io.mcarle:konvert:$konvertVersion"
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+  }
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+  kotlin {
+    compilerOptions {
+      freeCompilerArgs.addAll '-Xjsr305=strict', '-Xannotation-default-target=param-property'
+    }
+  }
 
-	testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
-
-    testImplementation platform('org.testcontainers:testcontainers-bom:2.0.4')
-    testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
-    testImplementation 'org.testcontainers:testcontainers-postgresql'
-    testImplementation 'org.testcontainers:testcontainers-jdbc'
-
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+  tasks.named('test') {
+    useJUnitPlatform()
+  }
 }
 
-kotlin {
-	compilerOptions {
-		freeCompilerArgs.addAll '-Xjsr305=strict', '-Xannotation-default-target=param-property'
-	}
-}
-
-tasks.named('test') {
-	useJUnitPlatform()
+tasks.register('assembleComponents') {
+  group = 'build'
+  description = 'Build deployable component jars by modules'
+  dependsOn ':data-access:jar', ':business-logic:jar', ':ui:jar'
 }
