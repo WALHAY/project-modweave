@@ -7,6 +7,12 @@ plugins {
   id 'com.google.devtools.ksp' version '2.3.0' apply false
 }
 
+apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'org.jetbrains.kotlin.plugin.spring'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.ncorti.ktfmt.gradle'
+apply plugin: 'org.springframework.boot'
+
 group = 'git.walhay'
 version = '0.0.1'
 description = 'Game Modding Platform'
@@ -15,6 +21,56 @@ allprojects {
   repositories {
     mavenCentral()
   }
+}
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+  }
+}
+
+dependencyManagement {
+  imports {
+    mavenBom 'org.springframework.boot:spring-boot-dependencies:4.0.5'
+  }
+}
+
+dependencies {
+  implementation project(':business-logic')
+  implementation project(':data-access')
+  implementation project(':ui')
+
+  implementation 'org.jetbrains.kotlin:kotlin-reflect'
+  implementation 'io.github.microutils:kotlin-logging-jvm:3.0.5'
+  implementation 'org.springframework.boot:spring-boot-starter'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+  runtimeOnly 'org.postgresql:postgresql:42.7.3'
+
+  testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+  testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+  testImplementation platform('org.testcontainers:testcontainers-bom:2.0.4')
+  testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+  testImplementation 'org.testcontainers:testcontainers-postgresql'
+  testImplementation 'org.testcontainers:testcontainers-jdbc'
+  testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+kotlin {
+  compilerOptions {
+    freeCompilerArgs.addAll '-Xjsr305=strict', '-Xannotation-default-target=param-property'
+  }
+}
+
+tasks.named('test') {
+  useJUnitPlatform()
 }
 
 subprojects {
