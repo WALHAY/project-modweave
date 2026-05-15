@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class DataConfiguration(
     @param:Value("\${minio.endpoint}") private val endpoint: String,
-    @param:Value("\${minio.credentials.username}") private val accessKey: String,
-    @param:Value("\${minio.credentials.password}") private val secretKey: String,
+    @param:Value("\${minio.username}") private val accessKey: String,
+    @param:Value("\${minio.password}") private val secretKey: String,
 ) {
   @Bean
   fun minioClient(): MinioClient =
