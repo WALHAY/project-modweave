@@ -6,7 +6,6 @@ import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.command.ModCreateCommand
 import git.walhay.modweave.api.mod.http.dto.ModResponseDto
-import git.walhay.modweave.api.mod.http.dto.fromMod
 import java.nio.file.Path
 import org.springframework.shell.core.command.annotation.Command
 import org.springframework.shell.core.command.annotation.Option

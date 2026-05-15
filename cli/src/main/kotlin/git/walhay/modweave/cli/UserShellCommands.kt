@@ -5,7 +5,6 @@ import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.user.command.UserCreateCommand
 import git.walhay.modweave.api.user.command.UserUpdateCommand
 import git.walhay.modweave.api.user.http.dto.UserResponseDto
-import git.walhay.modweave.api.user.http.dto.fromUser
 import org.springframework.shell.core.command.annotation.Command
 import org.springframework.shell.core.command.annotation.Option
 import org.springframework.stereotype.Component

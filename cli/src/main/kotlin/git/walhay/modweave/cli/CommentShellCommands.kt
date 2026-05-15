@@ -4,7 +4,6 @@ import git.walhay.modweave.api.comment.CommentId
 import git.walhay.modweave.api.comment.ICommentService
 import git.walhay.modweave.api.comment.command.CommentCreateCommand
 import git.walhay.modweave.api.comment.http.dto.CommentResponseDto
-import git.walhay.modweave.api.comment.http.dto.fromComment
 import git.walhay.modweave.api.mod.ModId
 import org.springframework.shell.core.command.annotation.Command
 import org.springframework.shell.core.command.annotation.Option
