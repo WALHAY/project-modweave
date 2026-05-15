@@ -6,5 +6,6 @@ data class CollectionCreateDto(
     val name: String,
     val description: String?,
 ) {
-  fun toCollectionCreateCommand(): CollectionCreateCommand = CollectionCreateCommand(name, description)
+  fun toCollectionCreateCommand(): CollectionCreateCommand =
+      CollectionCreateCommand(name, description)
 }

@@ -7,5 +7,6 @@ data class CategoryUploadDto(
     val name: String,
     val description: String?,
 ) {
-  fun toCategoryCreateCommand(): CategoryCreateCommand = CategoryCreateCommand(CategoryId(name), description)
+  fun toCategoryCreateCommand(): CategoryCreateCommand =
+      CategoryCreateCommand(CategoryId(name), description)
 }

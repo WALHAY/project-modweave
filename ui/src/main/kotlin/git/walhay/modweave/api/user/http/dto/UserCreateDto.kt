@@ -12,5 +12,6 @@ data class UserCreateDto(
     @field:NotBlank @field:Size(min = 8) val password: String,
     @field:Email val email: String,
 ) {
-  fun toUserCreateCommand(): UserCreateCommand = UserCreateCommand(UserId(username), name, password, email)
+  fun toUserCreateCommand(): UserCreateCommand =
+      UserCreateCommand(UserId(username), name, password, email)
 }

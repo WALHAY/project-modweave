@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-  implementation project(':data-access')
   implementation project(':business-logic')
+  implementation project(':data-access')
   implementation project(':ui')
 
   implementation 'org.springframework.boot:spring-boot-starter'

@@ -2,8 +2,7 @@ package git.walhay.modweave.api.user.repository
 
 import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.user.User
-import io.mcarle.konvert.api.KonvertFrom
-import io.mcarle.konvert.api.KonvertTo
+import git.walhay.modweave.api.user.UserId
 import jakarta.persistence.*
 import java.io.Serializable
 import java.time.LocalDateTime
@@ -11,8 +10,6 @@ import org.hibernate.annotations.NaturalId
 
 @Entity
 @Table(schema = "modweave", name = "users")
-@KonvertTo(User::class, mapFunctionName = "toDomain")
-@KonvertFrom(User::class)
 class UserEntity(
     @Id @Column(name = "username", nullable = false, length = 50) var username: String,
     @Column(name = "name", unique = true, nullable = false, length = 100) var name: String,
@@ -41,5 +38,25 @@ class UserEntity(
     email = email.lowercase().trim()
   }
 
-  companion object
+  fun toDomain(): User =
+      User(
+          UserId(username),
+          name,
+          email,
+          password,
+          registerDate,
+          isAdmin,
+          mods.map { it.toDomain() }.toMutableSet())
+
+  companion object {
+    fun fromUser(user: User): UserEntity =
+        UserEntity(
+            user.username.value,
+            user.name,
+            user.email,
+            user.password,
+            user.registerDate,
+            user.isAdmin,
+            user.mods.map { ModEntity.fromMod(it) }.toMutableSet())
+  }
 }

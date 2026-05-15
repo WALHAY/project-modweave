@@ -1,16 +1,13 @@
 package git.walhay.modweave.api.game.repository
 
 import git.walhay.modweave.api.game.Game
+import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.util.spinalCase
-import io.mcarle.konvert.api.KonvertFrom
-import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 
 @Entity
 @Table(schema = "modweave", name = "games")
-@KonvertTo(Game::class, mapFunctionName = "toDomain")
-@KonvertFrom(Game::class)
 class GameEntity(
     @Id @Column(name = "id", nullable = false) val id: String,
     @Column(name = "name", nullable = false) val name: String,
@@ -27,5 +24,16 @@ class GameEntity(
       imagePath: String,
   ) : this(id = name.spinalCase(), name = name, description = description, imagePath = imagePath)
 
-  companion object
+  fun toDomain(): Game =
+      Game(GameId(id), name, description, imagePath, mods.map { it.toDomain() }.toMutableList())
+
+  companion object {
+    fun fromGame(game: Game): GameEntity =
+        GameEntity(
+            game.id.value,
+            game.name,
+            game.description,
+            game.imagePath,
+            game.mods.map { ModEntity.fromMod(it) }.toMutableList())
+  }
 }

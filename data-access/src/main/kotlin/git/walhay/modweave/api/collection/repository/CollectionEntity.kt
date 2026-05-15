@@ -3,8 +3,6 @@ package git.walhay.modweave.api.collection.repository
 import git.walhay.modweave.api.collection.Collection
 import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.mod.repository.ModEntity
-import git.walhay.modweave.api.mod.repository.fromMod
-import git.walhay.modweave.api.mod.repository.toDomain
 import git.walhay.modweave.api.user.UserId
 import jakarta.persistence.*
 import java.io.Serializable

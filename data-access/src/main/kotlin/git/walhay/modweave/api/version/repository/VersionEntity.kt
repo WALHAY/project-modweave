@@ -3,9 +3,8 @@ package git.walhay.modweave.api.version.repository
 import git.walhay.modweave.api.file.repository.FileEntity
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.Version
+import git.walhay.modweave.api.version.VersionId
 import git.walhay.modweave.api.version.VersionStatus
-import io.mcarle.konvert.api.KonvertFrom
-import io.mcarle.konvert.api.KonvertTo
 import jakarta.persistence.*
 import java.io.Serializable
 import java.time.LocalDateTime
@@ -16,8 +15,6 @@ import org.hibernate.type.SqlTypes
 
 @Entity
 @Table(schema = "modweave", name = "mod_versions")
-@KonvertTo(Version::class, mapFunctionName = "toDomain")
-@KonvertFrom(Version::class)
 class VersionEntity(
     @Id @Column(name = "id") val id: UUID,
     @Column(name = "name", nullable = false) val name: String,
@@ -28,7 +25,7 @@ class VersionEntity(
     @Column(name = "status", columnDefinition = "modweave.version_status")
     @ColumnTransformer(write = "?::modweave.version_status")
     val status: VersionStatus,
-    @Column(name = "mod_id", nullable = false) val modId: ModId,
+    @Column(name = "mod_id", nullable = false) val modId: String,
     @OneToMany(
         mappedBy = "versionId",
         fetch = FetchType.LAZY,
@@ -40,7 +37,7 @@ class VersionEntity(
   constructor(
       name: String,
       changes: String? = null,
-      modId: ModId,
+      modId: String,
   ) : this(
       id = UUID.randomUUID(),
       name = name,
@@ -51,7 +48,27 @@ class VersionEntity(
       files = mutableListOf(),
   )
 
-  constructor() : this("", null, ModId(""))
+  constructor() : this("", null, "")
 
-  companion object
+  fun toDomain(): Version =
+      Version(
+          VersionId(id),
+          name,
+          changes,
+          uploadDate,
+          status,
+          ModId(modId),
+          files.map { it.toDomain() }.toMutableList())
+
+  companion object {
+    fun fromVersion(version: Version): VersionEntity =
+        VersionEntity(
+            version.id.value,
+            version.name,
+            version.changes,
+            version.uploadDate,
+            version.status,
+            version.modId.value,
+            version.files.map { FileEntity.fromFile(it) }.toMutableList())
+  }
 }
