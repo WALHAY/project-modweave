@@ -7,7 +7,6 @@ import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.command.ModCreateCommand
 import git.walhay.modweave.api.mod.http.dto.ModResponseDto
 import git.walhay.modweave.api.mod.http.dto.fromMod
-import git.walhay.modweave.api.user.UserId
 import java.nio.file.Path
 import org.springframework.shell.core.command.annotation.Command
 import org.springframework.shell.core.command.annotation.Option
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Component
 @Component
 class ModShellCommands(
     private val modService: IModService,
+    private val authSession: CliAuthSession,
 ) : ShellCommandSupport() {
   @Command(name = ["mod", "list"], description = "List mod with paging.")
   fun modList(
@@ -35,12 +35,12 @@ class ModShellCommands(
 
   @Command(name = ["mod", "user"], description = "List mod for user.")
   fun modUser(
-      @Option(longName = "user-id") userId: String,
+      @Option(longName = "user-id", required = false) userId: String?,
       @Option(longName = "page", defaultValue = "0") page: Int,
       @Option(longName = "size", defaultValue = "20") size: Int,
       @Option(longName = "sort", defaultValue = "name,asc") sort: String,
   ): Any =
-      renderPage(modService.findModsOfUser(UserId(userId), page, size, parseSort(sort)).map {
+      renderPage(modService.findModsOfUser(authSession.resolveUserId(userId), page, size, parseSort(sort)).map {
         ModResponseDto.fromMod(it)
       })
 
@@ -59,7 +59,7 @@ class ModShellCommands(
 
   @Command(name = ["mod", "create"], description = "Create mod.")
   fun modCreate(
-      @Option(longName = "user-id") userId: String,
+      @Option(longName = "user-id", required = false) userId: String?,
       @Option(longName = "id") id: String,
       @Option(longName = "name") name: String,
       @Option(longName = "description", required = false) description: String?,
@@ -72,7 +72,7 @@ class ModShellCommands(
       renderValue(
           ModResponseDto.fromMod(
               modService.uploadMod(
-                  UserId(userId),
+                  authSession.resolveUserId(userId),
                   ModCreateCommand(
                       id = ModId(id),
                       name = name,
@@ -89,10 +89,10 @@ class ModShellCommands(
 
   @Command(name = ["mod", "delete"], description = "Delete mod.")
   fun modDelete(
-      @Option(longName = "user-id") userId: String,
+      @Option(longName = "user-id", required = false) userId: String?,
       @Option(longName = "id") id: String,
   ): String {
-    modService.deleteMod(UserId(userId), ModId(id))
+    modService.deleteMod(authSession.resolveUserId(userId), ModId(id))
     return "Mod '$id' deleted."
   }
 }

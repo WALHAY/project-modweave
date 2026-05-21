@@ -6,7 +6,6 @@ import git.walhay.modweave.api.collection.command.CollectionCreateCommand
 import git.walhay.modweave.api.collection.http.dto.CollectionResponseDto
 import git.walhay.modweave.api.collection.http.dto.fromCollection
 import git.walhay.modweave.api.mod.ModId
-import git.walhay.modweave.api.user.UserId
 import org.springframework.shell.core.command.annotation.Command
 import org.springframework.shell.core.command.annotation.Option
 import org.springframework.stereotype.Component
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Component
 @Component
 class CollectionShellCommands(
     private val collectionService: ICollectionService,
+    private val authSession: CliAuthSession,
 ) : ShellCommandSupport() {
   @Command(name = ["collection", "get"], description = "Get collection by id.")
   fun collectionGet(
@@ -22,28 +22,31 @@ class CollectionShellCommands(
 
   @Command(name = ["collection", "create"], description = "Create collection.")
   fun collectionCreate(
-      @Option(longName = "user-id") userId: String,
+      @Option(longName = "user-id", required = false) userId: String?,
       @Option(longName = "name") name: String,
       @Option(longName = "description", required = false) description: String?,
   ): Any =
       renderValue(
           CollectionResponseDto.fromCollection(
-              collectionService.createCollection(UserId(userId), CollectionCreateCommand(name, description)),
+              collectionService.createCollection(
+                  authSession.resolveUserId(userId),
+                  CollectionCreateCommand(name, description),
+              ),
           ),
       )
 
   @Command(name = ["collection", "delete"], description = "Delete collection.")
   fun collectionDelete(
-      @Option(longName = "user-id") userId: String,
+      @Option(longName = "user-id", required = false) userId: String?,
       @Option(longName = "id") id: Long,
   ): String {
-    collectionService.deleteCollection(UserId(userId), CollectionId(id))
+    collectionService.deleteCollection(authSession.resolveUserId(userId), CollectionId(id))
     return "Collection '$id' deleted."
   }
 
   @Command(name = ["collection", "add-mod"], description = "Add mod to collection.")
   fun collectionAddMod(
-      @Option(longName = "user-id") userId: String,
+      @Option(longName = "user-id", required = false) userId: String?,
       @Option(longName = "collection-id") collectionId: Long,
       @Option(longName = "mod-id") modId: String,
       @Option(longName = "index", required = false) index: Int?,
@@ -51,7 +54,7 @@ class CollectionShellCommands(
       renderValue(
           CollectionResponseDto.fromCollection(
               collectionService.addModToCollection(
-                  UserId(userId),
+                  authSession.resolveUserId(userId),
                   CollectionId(collectionId),
                   ModId(modId),
                   index,
@@ -61,11 +64,15 @@ class CollectionShellCommands(
 
   @Command(name = ["collection", "delete-mod"], description = "Delete mod from collection.")
   fun collectionDeleteMod(
-      @Option(longName = "user-id") userId: String,
+      @Option(longName = "user-id", required = false) userId: String?,
       @Option(longName = "collection-id") collectionId: Long,
       @Option(longName = "mod-id") modId: String,
   ): String {
-    collectionService.deleteModFromCollection(UserId(userId), CollectionId(collectionId), ModId(modId))
+    collectionService.deleteModFromCollection(
+        authSession.resolveUserId(userId),
+        CollectionId(collectionId),
+        ModId(modId),
+    )
     return "Mod '$modId' deleted from collection '$collectionId'."
   }
 }

@@ -82,7 +82,7 @@ class UserService(
     logger.info { "Updating user: $userId" }
     val user: User = findUserByUsername(userId)
 
-    command.username?.let {
+    command.name?.let {
       logger.debug { "Updating username for user $userId to $it" }
       user.name = it
     }
