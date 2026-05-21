@@ -4,7 +4,6 @@ import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.game.command.GameCreateCommand
 import git.walhay.modweave.api.game.http.dto.GameResponseDto
-import git.walhay.modweave.api.game.http.dto.fromGame
 import java.nio.file.Path
 import org.springframework.shell.core.command.annotation.Command
 import org.springframework.shell.core.command.annotation.Option

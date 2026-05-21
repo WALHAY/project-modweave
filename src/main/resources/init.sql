@@ -1,4 +1,4 @@
--- drop schema if exists modweave cascade;
+drop schema if exists modweave cascade;
 create schema modweave;
 
 create table modweave.users (
@@ -29,9 +29,7 @@ create table modweave.mods (
     ) on delete cascade
 );
 
-create type modweave.version_status as enum ('PENDING',
-'APPROVED',
-'REJECTED') ;
+create type modweave.version_status as enum ('PENDING', 'APPROVED', 'REJECTED');
 
 create table modweave.mod_versions (
 id uuid primary key,

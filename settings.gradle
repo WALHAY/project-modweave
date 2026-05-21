@@ -1,1 +1,5 @@
 rootProject.name = 'modweave'
+
+include 'data-access'
+include 'business-logic'
+include 'ui'

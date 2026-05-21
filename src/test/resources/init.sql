@@ -34,7 +34,7 @@ create type modweave.version_status as enum ('PENDING',
 'REJECTED') ;
 
 create table modweave.mod_versions (
-id bigserial primary key,
+id uuid primary key,
 name varchar not null,
 changes text,
 upload_date timestamp default current_date not null,
@@ -48,7 +48,7 @@ id bigserial primary key,
 filename varchar not null,
 file_path varchar not null,
 downloads int,
-mod_version_id bigint not null references modweave.mod_versions (id) on delete cascade
+mod_version_id uuid not null references modweave.mod_versions (id) on delete cascade
 ) ;
 
 create table modweave.categories (

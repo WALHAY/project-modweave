@@ -14,6 +14,7 @@ import git.walhay.modweave.api.version.Version
 import git.walhay.modweave.api.version.repository.JpaVersionRepository
 import git.walhay.modweave.api.version.repository.VersionRepository
 import git.walhay.modweave.testutils.PostgresTestTemplate
+import java.util.UUID
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -60,7 +61,7 @@ class VersionRepositoryTest : PostgresTestTemplate() {
   fun `create version`() {
     val created = seedVersion()
     assertNotNull(created)
-    assertTrue(created.id.value > 0)
+    assertTrue(created.id.value != UUID(0L, 0L))
   }
 
   @Test

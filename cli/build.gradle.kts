@@ -19,6 +19,9 @@ dependencies {
   implementation("org.springframework.shell:spring-shell-starter:4.0.1")
   implementation("org.springframework.shell:spring-shell-jline:4.0.1")
   implementation("git.walhay:modweave")
+  implementation("git.walhay:ui")
+  implementation("git.walhay:business-logic")
+  implementation("git.walhay:data-access")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

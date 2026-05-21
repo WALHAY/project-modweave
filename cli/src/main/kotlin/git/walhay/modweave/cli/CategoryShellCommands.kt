@@ -5,7 +5,6 @@ import git.walhay.modweave.api.category.ICategoryService
 import git.walhay.modweave.api.category.command.CategoryCreateCommand
 import git.walhay.modweave.api.category.command.CategoryUpdateCommand
 import git.walhay.modweave.api.category.http.dto.CategoryResponseDto
-import git.walhay.modweave.api.category.http.dto.fromCategory
 import org.springframework.shell.core.command.annotation.Command
 import org.springframework.shell.core.command.annotation.Option
 import org.springframework.stereotype.Component

@@ -4,7 +4,6 @@ import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.collection.ICollectionService
 import git.walhay.modweave.api.collection.command.CollectionCreateCommand
 import git.walhay.modweave.api.collection.http.dto.CollectionResponseDto
-import git.walhay.modweave.api.collection.http.dto.fromCollection
 import git.walhay.modweave.api.mod.ModId
 import org.springframework.shell.core.command.annotation.Command
 import org.springframework.shell.core.command.annotation.Option
