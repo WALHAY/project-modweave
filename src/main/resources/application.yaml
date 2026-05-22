@@ -38,3 +38,10 @@ minio:
 
 server:
   port: 8080
+
+security:
+  jwt:
+    issuer: modweave
+    secret: "ZmFrZS1zZWNyZXQtc2VjdXJlLWtleS1mb3ItanVzdC1kZXZlbG9wbWVudA=="
+    access-token-ttl: 15m
+    refresh-token-ttl: 30d

@@ -1,28 +1,26 @@
 package git.walhay.modweave.config
 
-import git.walhay.modweave.api.user.UserId
-import git.walhay.modweave.api.user.UserService
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Lazy
-import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
-import org.springframework.security.core.userdetails.User
-import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 class SecurityConfiguration(
-    @Lazy private val userService: UserService,
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
@@ -30,20 +28,6 @@ class SecurityConfiguration(
   fun passwordEncoder(): PasswordEncoder {
     logger.info { "Initializing BCryptPasswordEncoder bean" }
     return BCryptPasswordEncoder()
-  }
-
-  @Bean
-  fun userDetailsService(): UserDetailsService {
-    logger.info { "Initializing UserDetailsService bean" }
-    return UserDetailsService { username ->
-      logger.debug { "Loading user details for username: $username" }
-      val user = userService.findUserByUsername(UserId(username))
-
-      User.withUsername(user.username.value)
-          .password(user.password)
-          .roles(if (user.isAdmin) "ADMIN" else "USER")
-          .build()
-    }
   }
 
   @Bean
@@ -56,19 +40,15 @@ class SecurityConfiguration(
   fun filterChain(http: HttpSecurity): SecurityFilterChain {
     logger.info { "Configuring security filter chain" }
     http {
-      authorizeHttpRequests {
-        authorize(HttpMethod.GET, "/api/v1/games/**", permitAll)
-        authorize(HttpMethod.POST, "/api/v1/games", hasRole("ADMIN"))
-        authorize(HttpMethod.POST, "/api/v1/users/**", permitAll)
-        authorize(HttpMethod.GET, "/api/v1/users/**", permitAll)
-        authorize("/api/v1/categories", hasRole("ADMIN"))
-        authorize(HttpMethod.GET, "/api/v1/**", permitAll)
-        authorize(anyRequest, authenticated)
-      }
-      formLogin { loginPage = "/login" }
       csrf { disable() }
-      httpBasic {}
+      sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS }
+      authorizeHttpRequests {
+        authorize("/auth/**", permitAll)
+        authorize(anyRequest, permitAll)
+      }
+      csrf { disable() }
     }
+    http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
     logger.info { "Security filter chain configured successfully" }
     return http.build()

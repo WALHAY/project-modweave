@@ -9,6 +9,7 @@ import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -26,6 +27,7 @@ class CategoryService(
   }
 
   @CacheEvict(value = ["categories"], allEntries = true)
+  @PreAuthorize("@accessSecurity.isAdmin()")
   override fun uploadCategory(command: CategoryCreateCommand): Category {
     logger.info { "Creating new category: ${command.name}" }
     if (categoryRepository.existsByNameIgnoreCase(command.name)) {
@@ -43,6 +45,7 @@ class CategoryService(
   }
 
   @CacheEvict(value = ["categories"], allEntries = true)
+  @PreAuthorize("@accessSecurity.isAdmin()")
   override fun updateCategory(command: CategoryUpdateCommand): Category {
     logger.info { "Updating category: ${command.name}" }
     if (!categoryRepository.existsByNameIgnoreCase(command.name)) {
@@ -60,6 +63,7 @@ class CategoryService(
   }
 
   @CacheEvict(value = ["categories"], allEntries = true)
+  @PreAuthorize("@accessSecurity.isAdmin()")
   override fun deleteCategory(categoryId: CategoryId) {
     logger.info { "Deleting category: $categoryId" }
     if (!categoryRepository.existsByNameIgnoreCase(categoryId)) {

@@ -11,6 +11,7 @@ import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 
 @Service
@@ -28,6 +29,7 @@ class CommentService(
   }
 
   @CachePut("comments", key = "#result.id.value")
+  @PreAuthorize("isAuthenticated()")
   override fun createComment(
       userId: UserId,
       command: CommentCreateCommand,
@@ -44,17 +46,12 @@ class CommentService(
   }
 
   @CacheEvict("comments", key = "#id.value")
+  @PreAuthorize("@accessSecurity.isCommentOwnerOrAdmin(#userId, #id)")
   override fun deleteComment(
       userId: UserId,
       id: CommentId,
   ) {
     logger.info { "Deleting comment: $id for user: $userId" }
-    val comment = findCommentById(id)
-    if (comment?.authorId != userId) {
-      logger.warn { "Comment deletion failed - forbidden for user: $userId" }
-      throw Exception("Forbidden")
-    }
-
     commentRepository.delete(id)
     logger.info { "Comment deleted successfully: $id" }
   }

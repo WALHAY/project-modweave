@@ -15,9 +15,11 @@ import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
+import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/collections")
@@ -53,13 +55,13 @@ class CollectionController(
   @PostMapping
   fun createCollection(
       @Valid @ModelAttribute dto: CollectionCreateDto,
-      @AuthenticationPrincipal user: UserDetails,
+      @AuthenticationPrincipal user: UserDetails?,
   ): CollectionResponseDto {
-    logger.info {
-      "POST /collections - creating collection: ${dto.name} for user: ${user.username}"
-    }
+    val username =
+        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    logger.info { "POST /collections - creating collection: ${dto.name} for user: $username" }
     return collectionService
-        .createCollection(UserId(user.username), dto.toCollectionCreateCommand())
+        .createCollection(UserId(username), dto.toCollectionCreateCommand())
         .let { CollectionResponseDto.fromCollection(it) }
   }
 
@@ -68,31 +70,37 @@ class CollectionController(
       @PathVariable collectionId: Long,
       @RequestParam modId: String,
       @RequestParam(required = false) index: Int?,
-      @AuthenticationPrincipal user: UserDetails,
+      @AuthenticationPrincipal user: UserDetails?,
   ): CollectionResponseDto {
-    logger.info { "PUT /collections/$collectionId - adding mod: $modId for user: ${user.username}" }
+    val username =
+        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    logger.info { "PUT /collections/$collectionId - adding mod: $modId for user: $username" }
     return collectionService
-        .addModToCollection(UserId(user.username), CollectionId(collectionId), ModId(modId), index)
+        .addModToCollection(UserId(username), CollectionId(collectionId), ModId(modId), index)
         .let { CollectionResponseDto.fromCollection(it) }
   }
 
   @DeleteMapping("/{collectionId}")
   fun deleteCollection(
       collectionId: Long,
-      @AuthenticationPrincipal user: UserDetails,
+      @AuthenticationPrincipal user: UserDetails?,
   ) {
-    logger.info { "DELETE /collections/$collectionId for user: ${user.username}" }
-    collectionService.deleteCollection(UserId(user.username), CollectionId(collectionId))
+    val username =
+        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    logger.info { "DELETE /collections/$collectionId for user: $username" }
+    collectionService.deleteCollection(UserId(username), CollectionId(collectionId))
   }
 
   @DeleteMapping("/{collectionId}/mods/{modId}")
   fun deleteModFromCollection(
       @PathVariable collectionId: Long,
       @PathVariable modId: String,
-      @AuthenticationPrincipal user: UserDetails,
+      @AuthenticationPrincipal user: UserDetails?,
   ) {
-    logger.info { "DELETE /collections/$collectionId/mods/$modId for user: ${user.username}" }
+    val username =
+        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    logger.info { "DELETE /collections/$collectionId/mods/$modId for user: $username" }
     return collectionService.deleteModFromCollection(
-        UserId(user.username), CollectionId(collectionId), ModId(modId))
+        UserId(username), CollectionId(collectionId), ModId(modId))
   }
 }

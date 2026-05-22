@@ -16,9 +16,11 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/mods")
@@ -64,10 +66,13 @@ class ModController(
   @ResponseStatus(HttpStatus.CREATED)
   fun uploadMod(
       @Valid @ModelAttribute dto: ModUploadDto,
-      @AuthenticationPrincipal user: UserDetails,
+      @AuthenticationPrincipal user: UserDetails?,
   ): ModResponseDto {
-    logger.info { "POST /mods - uploading mod: ${dto.name} for user: ${user.username}" }
-    return modService.uploadMod(UserId(user.username), dto.toModCreateCommand()).let {
+    val authenticatedUser = requireUser(user)
+    logger.info {
+      "POST /mods - uploading mod: ${dto.name} for user: ${authenticatedUser.username}"
+    }
+    return modService.uploadMod(UserId(authenticatedUser.username), dto.toModCreateCommand()).let {
       ModResponseDto.fromMod(it)
     }
   }
@@ -75,9 +80,13 @@ class ModController(
   @DeleteMapping("/{modId}")
   fun deleteMod(
       @PathVariable modId: ModId,
-      @AuthenticationPrincipal user: UserDetails,
+      @AuthenticationPrincipal user: UserDetails?,
   ) {
-    logger.info { "DELETE /mods/$modId for user: ${user.username}" }
-    modService.deleteMod(UserId(user.username), modId)
+    val authenticatedUser = requireUser(user)
+    logger.info { "DELETE /mods/$modId for user: ${authenticatedUser.username}" }
+    modService.deleteMod(UserId(authenticatedUser.username), modId)
   }
+
+  private fun requireUser(user: UserDetails?): UserDetails =
+      user ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
 }

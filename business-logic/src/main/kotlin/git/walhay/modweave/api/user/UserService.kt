@@ -15,6 +15,7 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -77,6 +78,7 @@ class UserService(
   }
 
   @CacheEvict("users", key = "#userId")
+  @PreAuthorize("@accessSecurity.isSelfOrAdmin(#userId)")
   override fun updateUser(
       userId: UserId,
       command: UserUpdateCommand,
