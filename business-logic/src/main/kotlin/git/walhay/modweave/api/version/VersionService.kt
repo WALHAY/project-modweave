@@ -1,6 +1,7 @@
 package git.walhay.modweave.api.version
 
 import git.walhay.modweave.api.file.IFileService
+import git.walhay.modweave.api.file.repository.FileRepository
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
@@ -26,18 +27,22 @@ import org.springframework.stereotype.Service
 class VersionService(
     private val versionRepository: VersionRepository,
     private val fileService: IFileService,
+    private val fileRepository: FileRepository,
     private val logger: KLogger = KotlinLogging.logger {},
 ) : IVersionService {
   @Lazy @Autowired private lateinit var modService: IModService
 
   @Cacheable("versions", key = "#versionId")
   override fun getModVersion(versionId: VersionId): Version =
-      versionRepository.findVersionById(versionId) ?: throw VersionNotFoundException(versionId)
+      versionRepository.findVersionById(versionId)
+          ?.let(::attachFiles)
+          ?: throw VersionNotFoundException(versionId)
 
   override fun getModVersions(
       modId: ModId,
       pageable: Pageable,
-  ): Page<Version> = versionRepository.findVersionsByModId(modId, pageable)
+  ): Page<Version> =
+      versionRepository.findVersionsByModId(modId, pageable).map { attachFiles(it) }
 
   @CachePut("versions", key = "#result.id")
   override fun createModVersion(
@@ -76,5 +81,11 @@ class VersionService(
     val version = getModVersion(versionId)
 
     versionRepository.delete(version.id)
+  }
+
+  private fun attachFiles(version: Version): Version {
+    version.files.clear()
+    version.files.addAll(fileRepository.findAllByVersionId(version.id))
+    return version
   }
 }

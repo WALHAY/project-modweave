@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.storage
 
+import java.io.InputStream
 import org.springframework.web.multipart.MultipartFile
 
 interface ISimpleStorageService {
@@ -16,4 +17,6 @@ interface ISimpleStorageService {
   fun removeVersionFile(filename: String)
 
   fun removeImage(filename: String)
+
+  fun downloadVersionFile(filename: String): InputStream
 }

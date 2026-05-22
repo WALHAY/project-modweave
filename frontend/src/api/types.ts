@@ -33,6 +33,13 @@ export type Version = {
   name: string
   changes?: string | null
   uploadDate: string
+  files: VersionFile[]
+}
+
+export type VersionFile = {
+  id: string | number
+  filename: string
+  filePath: string
 }
 
 export type UserProfile = {

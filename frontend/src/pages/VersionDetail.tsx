@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getModVersions, getFileDownloadUrl } from '../api/client'
+import { getFileDownloadUrl } from '../api/client'
+import { getModVersions } from '../api/client'
 import type { Version } from '../api/types'
+import { normalizeId } from '../utils/normalize'
 
 export default function VersionDetail() {
   const { modId, versionName } = useParams()
@@ -32,9 +34,7 @@ export default function VersionDetail() {
   if (error) return <div className="status error">{error}</div>
   if (!version) return <div className="status">Loading version...</div>
 
-  // defensive file list handling
-  const files = Array.isArray((version as any).files) ? (version as any).files : []
-  const bucket = (version as any).bucket ?? 'default'
+  const files = Array.isArray(version.files) ? version.files : []
 
   return (
     <>
@@ -59,19 +59,22 @@ export default function VersionDetail() {
         {files.length === 0 ? (
           <div className="empty">No files attached to this release.</div>
         ) : (
-          files.map((file: any) => {
-            const fileId = file.id ?? file.fileId ?? file.name
-            const filename = file.name ?? String(fileId)
-            const size = file.size ? ` (${Math.round(file.size / 1024)} KB)` : ''
-            const url = getFileDownloadUrl(bucket, fileId)
+          files.map((file) => {
+            const fileId = normalizeId(file.id)
+            const filename = file.filename
             return (
               <div className="list-item" key={String(fileId)}>
                 <div>
                   <strong>{filename}</strong>
-                  <div className="muted">{file.description || ''}</div>
+                  <div className="muted">{file.filePath}</div>
                 </div>
                 <div className="inline">
-                  <a className="button small" href={url} target="_blank" rel="noreferrer">Download{size}</a>
+                  <a
+                    className="button small"
+                    href={getFileDownloadUrl('mods', fileId)}
+                  >
+                    Download
+                  </a>
                 </div>
               </div>
             )
