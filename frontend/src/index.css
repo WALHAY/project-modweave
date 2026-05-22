@@ -307,14 +307,39 @@ textarea {
 }
 
 .badge {
-  padding: 4px 10px;
+  padding: 6px 12px;
   border-radius: 999px;
   background: rgba(59, 124, 255, 0.12);
   border: 1px solid rgba(59, 124, 255, 0.35);
   color: var(--accent-500);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.3px;
   text-transform: uppercase;
+}
+
+.badge-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.badge.selectable {
+  cursor: pointer;
+  background: transparent;
+  border-color: var(--border-500);
+  color: var(--text-200);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.08s ease;
+}
+
+.badge.selectable:hover {
+  transform: translateY(-2px);
+}
+
+.badge.selectable.selected {
+  background: rgba(59, 124, 255, 0.18);
+  border-color: rgba(59, 124, 255, 0.6);
+  color: var(--accent-500);
 }
 
 .media {

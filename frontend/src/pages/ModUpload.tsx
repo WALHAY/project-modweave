@@ -152,16 +152,23 @@ export default function ModUpload() {
           {categories.length === 0 ? (
             <span className="pill">No categories yet</span>
           ) : (
-            categories.map((category) => (
-              <label key={normalizeId(category.name)} className="checkbox-item">
-                <input
-                  type="checkbox"
-                  checked={form.categories.has(normalizeId(category.name))}
-                  onChange={() => toggleCategory(normalizeId(category.name))}
-                />
-                {normalizeId(category.name)}
-              </label>
-            ))
+            <div className="badge-list">
+              {categories.map((category) => {
+                const name = normalizeId(category.name)
+                const selected = form.categories.has(name)
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    className={`badge selectable ${selected ? 'selected' : ''}`}
+                    onClick={() => toggleCategory(name)}
+                    aria-pressed={selected}
+                  >
+                    {name}
+                  </button>
+                )
+              })}
+            </div>
           )}
         </div>
         <label>
