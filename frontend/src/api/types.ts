@@ -35,10 +35,8 @@ export type UserProfile = {
   registerDate: string
 }
 
-export type AuthResponse = {
+export type TokenResponse = {
   accessToken: string
+  refreshToken: string
   tokenType: string
-  expiresInSeconds: number
-  username: string
-  roles: string[]
 }
