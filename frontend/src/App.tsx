@@ -6,6 +6,7 @@ import BrowseGames from './pages/BrowseGames'
 import ModDetail from './pages/ModDetail'
 import ModUpload from './pages/ModUpload'
 import FileDetail from './pages/FileDetail'
+import VersionDetail from './pages/VersionDetail'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
@@ -20,6 +21,7 @@ function App() {
         <Route path="mods" element={<Browse />} />
         <Route path="mods/upload" element={<ModUpload />} />
         <Route path="mods/:modId" element={<ModDetail />} />
+        <Route path="mods/:modId/versions/:versionName" element={<VersionDetail />} />
         <Route path="games" element={<BrowseGames />} />
         <Route path="files/:bucket/:fileId" element={<FileDetail />} />
         <Route path="admin/categories" element={<AdminCategoryUpload />} />

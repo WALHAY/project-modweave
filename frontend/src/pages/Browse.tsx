@@ -10,7 +10,7 @@ export default function Browse() {
   const [categories, setCategories] = useState<Category[]>([])
   const [games, setGames] = useState<Game[]>([])
   const [query, setQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
   const [selectedGame, setSelectedGame] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [searchParams] = useSearchParams()
@@ -21,19 +21,19 @@ export default function Browse() {
       const modGameId = normalizeId(mod.gameId)
       const modCategories = mod.categories.map((category) => normalizeId(category))
       const selectedGameId = selectedGame.trim().toLowerCase()
-      const selectedCategoryId = selectedCategory.trim().toLowerCase()
       if (selectedGameId && modGameId.toLowerCase() !== selectedGameId) {
         return false
       }
-      if (
-        selectedCategoryId &&
-        !modCategories.some((category) => category.toLowerCase() === selectedCategoryId)
-      ) {
-        return false
+      // if no categories selected, accept all; otherwise ensure mod has at least one selected category
+      if (selectedCategories.size > 0) {
+        const hasAny = modCategories.some((category) =>
+          Array.from(selectedCategories).some((sel) => category.toLowerCase() === sel.toLowerCase())
+        )
+        if (!hasAny) return false
       }
       return true
     })
-  }, [mods, selectedCategory, selectedGame])
+  }, [mods, selectedCategories, selectedGame])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -95,21 +95,39 @@ export default function Browse() {
               )
             })}
           </select>
-          <select
-            className="search-input"
-            value={selectedCategory}
-            onChange={(event) => setSelectedCategory(event.target.value)}
-          >
-            <option value="">All categories</option>
-            {categories.map((category) => {
-              const label = category.name
-              return (
-                <option key={label} value={label}>
-                  {label}
-                </option>
-              )
-            })}
-          </select>
+          <div className="badge-list" role="list">
+           <button
+             type="button"
+             className={`badge selectable ${selectedCategories.size === 0 ? 'selected' : ''}`}
+             onClick={() => setSelectedCategories(new Set())}
+             aria-pressed={selectedCategories.size === 0}
+           >
+             All
+           </button>
+           {categories.map((category) => {
+             const name = normalizeId(category.name)
+             const selected = selectedCategories.has(name)
+             return (
+               <button
+                 key={name}
+                 type="button"
+                 className={`badge selectable ${selected ? 'selected' : ''}`}
+                 onClick={() => {
+                   setSelectedCategories((prev) => {
+                     const next = new Set(prev)
+                     if (next.has(name)) next.delete(name)
+                     else next.add(name)
+                     return next
+                   })
+                 }}
+                 aria-pressed={selected}
+                 role="listitem"
+               >
+                 {name}
+               </button>
+             )
+           })}
+          </div>
         </div>
       </section>
 

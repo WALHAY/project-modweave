@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { getMod, getModVersions } from '../api/client'
 import type { Mod, Version } from '../api/types'
 import { normalizeId } from '../utils/normalize'
@@ -74,7 +74,11 @@ export default function ModDetail() {
           <div className="empty">No releases yet.</div>
         ) : (
           versions.map((version) => (
-            <div className="list-item" key={version.name}>
+            <Link
+              to={`/mods/${normalizeId(mod.id)}/versions/${encodeURIComponent(version.name)}`}
+              className="list-item"
+              key={version.name}
+            >
               <div>
                 <strong>{version.name}</strong>
                 <p>{version.changes || 'No release notes.'}</p>
@@ -82,7 +86,7 @@ export default function ModDetail() {
               <span className="pill">
                 {new Date(version.uploadDate).toLocaleDateString()}
               </span>
-            </div>
+            </Link>
           ))
         )}
       </div>
