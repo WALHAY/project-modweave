@@ -2,12 +2,16 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { getMod, getModVersions } from '../api/client'
 import type { Mod, Version } from '../api/types'
+import { normalizeId } from '../utils/normalize'
 
 export default function ModDetail() {
   const { modId } = useParams()
   const [mod, setMod] = useState<Mod | null>(null)
   const [versions, setVersions] = useState<Version[]>([])
   const [error, setError] = useState<string | null>(null)
+  const categories = Array.isArray(mod?.categories)
+    ? mod.categories.map((category) => normalizeId(category)).filter(Boolean)
+    : []
 
   useEffect(() => {
     if (!modId) {
@@ -44,9 +48,20 @@ export default function ModDetail() {
         <h1>{mod.name}</h1>
         <p>{mod.description || 'This mod is waiting for a full description.'}</p>
         <div className="inline">
-          <span className="pill">Game: {mod.gameId}</span>
-          <span className="pill">Publisher: {mod.publisherId}</span>
+          <span className="pill">Game: {normalizeId(mod.gameId)}</span>
+          <span className="pill">Publisher: {normalizeId(mod.publisherId)}</span>
           <span className="pill">Created: {new Date(mod.creationDate).toDateString()}</span>
+        </div>
+        <div className="inline">
+          {categories.length === 0 ? (
+            <span className="pill">No categories</span>
+          ) : (
+            categories.map((name) => (
+              <span className="badge" key={name}>
+                {name}
+              </span>
+            ))
+          )}
         </div>
       </section>
 

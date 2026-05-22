@@ -27,7 +27,7 @@ class ModEntity(
         joinColumns = [JoinColumn(name = "mod_id", nullable = false)],
     )
     @Column(name = "category_name")
-    val categories: Set<String> = emptySet(),
+    val categories: Set<String> = mutableSetOf(),
     @OneToMany(
         mappedBy = "modId",
         fetch = FetchType.LAZY,

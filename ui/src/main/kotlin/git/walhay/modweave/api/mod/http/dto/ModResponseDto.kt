@@ -1,6 +1,5 @@
 package git.walhay.modweave.api.mod.http.dto
 
-import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
@@ -8,26 +7,26 @@ import git.walhay.modweave.api.user.UserId
 import java.time.LocalDateTime
 
 data class ModResponseDto(
-    val id: ModId,
+    val id: String,
     val name: String,
     val description: String?,
     val imagePath: String,
     val creationDate: LocalDateTime = LocalDateTime.now(),
-    val publisherId: UserId,
-    val gameId: GameId,
-    val categories: List<CategoryId>,
+    val publisherId: String,
+    val gameId: String,
+    val categories: List<String>,
 ) {
   companion object {
     fun fromMod(mod: Mod): ModResponseDto =
         ModResponseDto(
-            id = mod.id,
+            id = mod.id.value,
             name = mod.name,
             description = mod.description,
             imagePath = mod.imagePath,
             creationDate = mod.creationDate,
-            publisherId = mod.publisherId,
-            gameId = mod.gameId,
-            categories = mod.categories.toList(),
+            publisherId = mod.publisherId.value,
+            gameId = mod.gameId.value,
+            categories = mod.categories.map{ it.value }.toList(),
         )
   }
 }

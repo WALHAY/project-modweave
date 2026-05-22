@@ -24,7 +24,7 @@ class JwtService(
   fun extractUsername(token: String): String = parseClaims(token).subject
 
   fun extractRoles(token: String): List<String> =
-      (parseClaims(token)["roles"] as? Collection<*>)?.mapNotNull { it as? String } ?: emptyList()
+      (parseClaims(token)["roles"] as? Collection<*>)?.filterIsInstance<String>() ?: emptyList()
 
   fun isAccessTokenValid(
       token: String,

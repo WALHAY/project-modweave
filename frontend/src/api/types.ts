@@ -24,6 +24,11 @@ export type Game = {
   imagePath: string
 }
 
+export type Category = {
+  name: string
+  description?: string | null
+}
+
 export type Version = {
   name: string
   changes?: string | null

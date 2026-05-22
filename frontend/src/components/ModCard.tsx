@@ -1,13 +1,21 @@
 import { Link } from 'react-router-dom'
 import type { Mod } from '../api/types'
+import { normalizeId } from '../utils/normalize'
 
 type Props = {
   mod: Mod
 }
 
 export default function ModCard({ mod }: Props) {
-  return (
-    <article className="card">
+  const modId = normalizeId(mod.id)
+  const gameId = normalizeId(mod.gameId)
+  const publisherId = normalizeId(mod.publisherId)
+  const categories = Array.isArray(mod.categories)
+    ? mod.categories.map((category) => normalizeId(category)).filter(Boolean)
+    : []
+
+  const cardBody = (
+    <>
       <div className="media">
         {mod.imagePath ? (
           <img src={mod.imagePath} alt={mod.name} />
@@ -20,12 +28,28 @@ export default function ModCard({ mod }: Props) {
         <p>{mod.description || 'No description provided yet.'}</p>
       </div>
       <div className="meta">
-        <span className="pill">{mod.gameId}</span>
-        <span className="pill">{mod.publisherId}</span>
+        {gameId ? <span className="pill">{gameId}</span> : null}
+        {publisherId ? <span className="pill">{publisherId}</span> : null}
+        {categories.map((category) => (
+          <span className="badge" key={category}>
+            {category}
+          </span>
+        ))}
       </div>
-      <Link className="button ghost" to={`/mods/${mod.id}`}>
-        View details
-      </Link>
-    </article>
+    </>
+  )
+
+  if (!modId) {
+    return <article className="card">{cardBody}</article>
+  }
+
+  return (
+    <Link
+      className="card card-link"
+      to={`/mods/${encodeURIComponent(modId)}`}
+      aria-label={`Open ${mod.name}`}
+    >
+      {cardBody}
+    </Link>
   )
 }
