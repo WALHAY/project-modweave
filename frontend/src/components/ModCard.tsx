@@ -18,7 +18,7 @@ export default function ModCard({ mod }: Props) {
     <>
       <div className="media">
         {mod.imagePath ? (
-          <img src={mod.imagePath} alt={mod.name} />
+          <img src={`http://localhost:9000/images/${mod.imagePath}`} alt={mod.name} />
         ) : (
           <span>No preview</span>
         )}

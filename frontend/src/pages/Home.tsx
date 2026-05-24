@@ -21,21 +21,8 @@ export default function Home() {
 
   return (
     <>
-      <section className="hero">
-        <h1>Forge the next generation of mods.</h1>
-        <p>
-          ModWeave brings Nexus-style discovery, CurseForge-grade creator tools,
-          and a fast SPA experience for your modding platform.
-        </p>
-        <div className="inline">
-          <span className="pill">Curated collections</span>
-          <span className="pill">Trusted publishers</span>
-          <span className="pill">One-click updates</span>
-        </div>
-      </section>
-
       <section className="section-title">
-        <h2>Trending mods</h2>
+        <h1>Trending mods</h1>
       </section>
 
       {error ? (

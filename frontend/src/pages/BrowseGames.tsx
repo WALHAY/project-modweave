@@ -44,12 +44,13 @@ export default function BrowseGames() {
           {games.map((game) => {
             const id = normalizeId(game.id)
             const label = normalizeId(game.name) || game.name
+			const image = "http://localhost:9000/images/" + game.name + "/logo.png"
             if (!id) {
               return (
                 <article className="card" key={label}>
                   <div className="media">
                     {game.imagePath ? (
-                      <img src={game.imagePath} alt={game.name} />
+                      <img src={image} alt={game.name} />
                     ) : (
                       <span>No cover yet</span>
                     )}
@@ -73,7 +74,7 @@ export default function BrowseGames() {
               >
               <div className="media">
                 {game.imagePath ? (
-                  <img src={game.imagePath} alt={game.name} />
+                  <img src={`http://localhost:9000/images/${game.imagePath}`} alt={game.name} />
                 ) : (
                   <span>No cover yet</span>
                 )}

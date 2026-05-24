@@ -69,11 +69,9 @@ export default function Layout() {
       <div className="content">
         <header className="topbar">
           <div className="search-bar">
-            <span>🔎</span>
             <input placeholder="Search mods, creators, or games" />
           </div>
           <div className="topbar-actions">
-            <span className="pill">Live API</span>
             {isAuthenticated ? (
               <button className="button secondary" type="button" onClick={logout}>
                 Sign out
