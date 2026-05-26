@@ -12,9 +12,11 @@ import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
+import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/users")
@@ -69,10 +71,12 @@ class UserController(
   @PatchMapping
   fun updateUser(
       @ModelAttribute @Valid dto: UserUpdateDto,
-      @AuthenticationPrincipal user: UserDetails,
+      @AuthenticationPrincipal user: UserDetails?,
   ): UserResponseDto {
-    logger.info { "PATCH /users - updating user: ${user.username}" }
-    return userService.updateUser(UserId(user.username), dto.toUserUpdateCommand()).let {
+    val username =
+        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    logger.info { "PATCH /users - updating user: $username" }
+    return userService.updateUser(UserId(username), dto.toUserUpdateCommand()).let {
       UserResponseDto.fromUser(it)
     }
   }

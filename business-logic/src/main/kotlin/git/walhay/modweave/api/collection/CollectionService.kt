@@ -12,6 +12,7 @@ import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 
 @Service
@@ -22,13 +23,14 @@ class CollectionService(
 ) : ICollectionService {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @Cacheable("collections", key = "#id.value")
+  @Cacheable("collections", key = "#id")
   override fun getCollectionById(id: CollectionId): Collection {
     logger.debug { "Fetching collection by id: $id" }
     return collectionRepository.findById(id) ?: throw CollectionNotFoundException(id)
   }
 
-  @CachePut("collections", key = "#result.id.value")
+  @CachePut("collections", key = "#result.id")
+  @PreAuthorize("isAuthenticated()")
   override fun createCollection(
       userId: UserId,
       command: CollectionCreateCommand,
@@ -40,22 +42,18 @@ class CollectionService(
         .also { logger.info { "Collection created successfully: ${it.id}" } }
   }
 
-  @CacheEvict("collections", key = "#collectionId.value")
+  @CacheEvict("collections", key = "#collectionId")
+  @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#userId, #collectionId)")
   override fun deleteCollection(
       userId: UserId,
       collectionId: CollectionId,
   ) {
     logger.info { "Deleting collection: $collectionId for user: $userId" }
-    val collection = getCollectionById(collectionId)
-    if (collection.owner == userId) {
-      logger.warn { "Collection deletion failed - forbidden for user: $userId" }
-      throw Exception("Forbidden")
-    }
-
     collectionRepository.deleteById(collectionId)
     logger.info { "Collection deleted successfully: $collectionId" }
   }
 
+  @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#userId, #collectionId)")
   override fun addModToCollection(
       userId: UserId,
       collectionId: CollectionId,
@@ -66,10 +64,6 @@ class CollectionService(
       "Adding mod: $modId to collection: $collectionId for user: $userId at index: $index"
     }
     val collection = getCollectionById(collectionId)
-    if (userId != collection.owner) {
-      logger.warn { "Add mod failed - wrong user for collection: $collectionId" }
-      throw Exception("Wrong user")
-    }
 
     val mod = modService.findModById(modId)
     collection.mods.addLast(mod)
@@ -78,6 +72,7 @@ class CollectionService(
     return result
   }
 
+  @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#userId, #collectionId)")
   override fun deleteModFromCollection(
       userId: UserId,
       collectionId: CollectionId,

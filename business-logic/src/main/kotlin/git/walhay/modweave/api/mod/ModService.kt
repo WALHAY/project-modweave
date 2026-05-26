@@ -21,6 +21,7 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -71,6 +72,7 @@ class ModService(
           id, PageRequest.of(page, pageSizePolicy.normalize(size), sort))
 
   @CachePut("mods", key = "#result.id")
+  @PreAuthorize("isAuthenticated()")
   override fun uploadMod(
       userId: UserId,
       command: ModCreateCommand,
@@ -111,15 +113,11 @@ class ModService(
   }
 
   @CacheEvict("mods", key = "#modId")
+  @PreAuthorize("@accessSecurity.isModOwnerOrAdmin(#userId, #modId)")
   override fun deleteMod(
       userId: UserId,
       modId: ModId,
   ) {
-    val mod = findModById(modId)
-    if (mod.publisherId == userId) {
-      throw Exception("Forbidden")
-    }
-
     modRepository.deleteById(modId)
   }
 }
