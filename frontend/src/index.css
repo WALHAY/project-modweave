@@ -428,6 +428,22 @@ textarea {
   flex-wrap: wrap;
 }
 
+.stack {
+  display: grid;
+  gap: 10px;
+}
+
+.button-row {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.button-row.active {
+  border-color: rgba(59, 124, 255, 0.6);
+  background: rgba(59, 124, 255, 0.08);
+}
+
 .content-grid {
   display: grid;
   gap: 20px;
@@ -464,6 +480,86 @@ textarea {
 .muted {
   color: var(--text-300);
   font-size: 13px;
+}
+
+.collection-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.collection-card {
+  border: 1px solid var(--border-500);
+  border-radius: 16px;
+  background: var(--bg-800);
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.collection-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(23, 41, 83, 0.12);
+}
+
+.collection-cover {
+  height: 72px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(59, 124, 255, 0.2), rgba(87, 147, 255, 0.1));
+  border: 1px solid rgba(59, 124, 255, 0.25);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--accent-500);
+}
+
+.collection-body {
+  display: grid;
+  gap: 4px;
+}
+
+.collection-item {
+  display: grid;
+  gap: 10px;
+}
+
+.collection-item-card .card {
+  max-width: 100%;
+}
+
+.collection-item-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 18, 31, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+  padding: 24px;
+}
+
+.modal-card {
+  width: min(560px, 100%);
+  background: var(--bg-800);
+  border-radius: 18px;
+  border: 1px solid var(--border-500);
+  box-shadow: var(--shadow-1);
+  padding: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .form {

@@ -8,6 +8,7 @@ import ModUpload from './pages/ModUpload'
 import FileDetail from './pages/FileDetail'
 import VersionDetail from './pages/VersionDetail'
 import Collections from './pages/Collections'
+import CollectionDetail from './pages/CollectionDetail'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
 import NotFound from './pages/NotFound'
@@ -25,6 +26,7 @@ function App() {
         <Route path="mods/:modId/versions/:versionId" element={<VersionDetail />} />
         <Route path="games" element={<BrowseGames />} />
         <Route path="collections" element={<Collections />} />
+        <Route path="collections/:collectionId" element={<CollectionDetail />} />
         <Route path="files/:bucket/:fileId" element={<FileDetail />} />
         <Route path="admin/categories" element={<AdminCategoryUpload />} />
         <Route path="admin/games" element={<AdminGameUpload />} />

@@ -7,6 +7,7 @@ export default function AdminCategoryUpload() {
   const { token, roles } = useAuth()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
   const [status, setStatus] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -31,6 +32,7 @@ export default function AdminCategoryUpload() {
       setStatus('Category created successfully.')
       setName('')
       setDescription('')
+      setIsOpen(false)
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message)
@@ -43,26 +45,58 @@ export default function AdminCategoryUpload() {
       <h1>Create a category</h1>
       <p>Define categories so creators can tag their mods correctly.</p>
 
-      <form className="form" onSubmit={onSubmit}>
-        <label>
-          Category name
-          <input value={name} onChange={(event) => setName(event.target.value)} />
-        </label>
-        <label>
-          Description
-          <textarea
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-          />
-        </label>
-
-        {error ? <div className="status error">{error}</div> : null}
-        {status ? <div className="status">{status}</div> : null}
-
-        <button className="button" type="submit" disabled={!name.trim()}>
-          Upload category
+      <div className="action-row">
+        <button
+          className="button"
+          type="button"
+          onClick={() => {
+            setError(null)
+            setIsOpen(true)
+          }}
+        >
+          New category
         </button>
-      </form>
+      </div>
+
+      {status ? <div className="status">{status}</div> : null}
+
+      {isOpen ? (
+        <div className="modal-backdrop" onClick={() => setIsOpen(false)}>
+          <div className="modal-card" onClick={(event) => event.stopPropagation()}>
+            <div className="section-header">
+              <h2>Create category</h2>
+            </div>
+            <form className="form" onSubmit={onSubmit}>
+              <label>
+                Category name
+                <input value={name} onChange={(event) => setName(event.target.value)} />
+              </label>
+              <label>
+                Description
+                <textarea
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                />
+              </label>
+
+              {error ? <div className="status error">{error}</div> : null}
+
+              <div className="modal-actions">
+                <button
+                  className="button ghost"
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button className="button" type="submit" disabled={!name.trim()}>
+                  Upload category
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }

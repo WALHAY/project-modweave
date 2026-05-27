@@ -1,26 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
-  addModToCollection,
   createCollection,
-  deleteCollection,
-  deleteModFromCollection,
-  getCollection,
-  getCollectionMods,
+  getCollectionsByOwner,
+  searchCollectionsByName,
 } from '../api/client'
-import type { Collection, Mod } from '../api/types'
+import type { Collection } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
-import ModCard from '../components/ModCard'
 
 export default function Collections() {
   const { token, isAuthenticated } = useAuth()
-  const [collectionId, setCollectionId] = useState('')
-  const [collection, setCollection] = useState<Collection | null>(null)
-  const [mods, setMods] = useState<Mod[]>([])
+  const navigate = useNavigate()
   const [status, setStatus] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [createForm, setCreateForm] = useState({ name: '', description: '' })
-  const [addModId, setAddModId] = useState('')
-  const [removeModId, setRemoveModId] = useState('')
+  const [myCollections, setMyCollections] = useState<Collection[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Collection[]>([])
+  const [isCreateOpen, setIsCreateOpen] = useState(false)
 
   const requireAuth = () => {
     if (!isAuthenticated || !token) {
@@ -29,21 +26,37 @@ export default function Collections() {
     return token
   }
 
-  const loadCollection = async () => {
-    if (!collectionId) return
-    setStatus(null)
-    setError(null)
+  const loadMyCollections = async () => {
+    if (!isAuthenticated || !token) {
+      setMyCollections([])
+      return
+    }
     try {
-      const [collectionResult, modsResult] = await Promise.all([
-        getCollection(Number(collectionId)),
-        getCollectionMods({ collectionId: Number(collectionId), page: 0, size: 12 }),
-      ])
-      setCollection(collectionResult)
-      setMods(modsResult.content)
+      const list = await getCollectionsByOwner(token)
+      setMyCollections(list)
     } catch (err) {
       if (err instanceof Error) setError(err.message)
     }
   }
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      setSearchResults([])
+      return
+    }
+    setStatus(null)
+    setError(null)
+    try {
+      const results = await searchCollectionsByName(searchQuery.trim())
+      setSearchResults(results)
+    } catch (err) {
+      if (err instanceof Error) setError(err.message)
+    }
+  }
+
+  useEffect(() => {
+    void loadMyCollections()
+  }, [isAuthenticated, token])
 
   const handleCreate = async () => {
     setStatus(null)
@@ -55,63 +68,11 @@ export default function Collections() {
         description: createForm.description || undefined,
         token: authToken,
       })
-      setCollectionId(String(created.id))
-      setCollection(created)
-      setMods([])
       setStatus(`Collection created: ${created.name}`)
-    } catch (err) {
-      if (err instanceof Error) setError(err.message)
-    }
-  }
-
-  const handleAddMod = async () => {
-    if (!collectionId || !addModId) return
-    setStatus(null)
-    setError(null)
-    try {
-      const authToken = requireAuth()
-      await addModToCollection({
-        collectionId: Number(collectionId),
-        modId: addModId,
-        token: authToken,
-      })
-      await loadCollection()
-      setStatus('Mod added to collection.')
-      setAddModId('')
-    } catch (err) {
-      if (err instanceof Error) setError(err.message)
-    }
-  }
-
-  const handleRemoveMod = async () => {
-    if (!collectionId || !removeModId) return
-    setStatus(null)
-    setError(null)
-    try {
-      const authToken = requireAuth()
-      await deleteModFromCollection({
-        collectionId: Number(collectionId),
-        modId: removeModId,
-        token: authToken,
-      })
-      await loadCollection()
-      setStatus('Mod removed from collection.')
-      setRemoveModId('')
-    } catch (err) {
-      if (err instanceof Error) setError(err.message)
-    }
-  }
-
-  const handleDeleteCollection = async () => {
-    if (!collectionId) return
-    setStatus(null)
-    setError(null)
-    try {
-      const authToken = requireAuth()
-      await deleteCollection({ collectionId: Number(collectionId), token: authToken })
-      setCollection(null)
-      setMods([])
-      setStatus('Collection deleted.')
+      setCreateForm({ name: '', description: '' })
+      setIsCreateOpen(false)
+      await loadMyCollections()
+      navigate(`/collections/${created.id}`)
     } catch (err) {
       if (err instanceof Error) setError(err.message)
     }
@@ -122,109 +83,105 @@ export default function Collections() {
       <section className="hero">
         <h1>Collections</h1>
         <p>Curate mod lists you can share with the community.</p>
+          <div className="action-row">
+            <button
+              className="button"
+              type="button"
+              onClick={() => {
+                setError(null)
+                setIsCreateOpen(true)
+              }}
+              disabled={!isAuthenticated}
+            >
+              New collection
+            </button>
+          </div>
+          {!isAuthenticated ? <div className="empty">Login to create collections.</div> : null}
       </section>
 
       <div className="content-grid">
         <section className="section-card">
           <div className="section-header">
-            <h2>Load collection</h2>
+            <h2>My collections</h2>
           </div>
-          <div className="action-row">
-            <input
-              className="search-input"
-              placeholder="Collection ID"
-              value={collectionId}
-              onChange={(event) => setCollectionId(event.target.value)}
-            />
-            <button className="button" type="button" onClick={loadCollection}>
-              Load
-            </button>
-          </div>
-          {collection ? (
-            <div>
-              <strong>{collection.name}</strong>
-              <p className="muted">{collection.description || 'No description yet.'}</p>
-              <div className="inline">
-                <span className="pill">Owner: {collection.ownerId}</span>
-                <span className="pill">Mods: {mods.length}</span>
+          {isAuthenticated ? (
+            myCollections.length === 0 ? (
+              <div className="empty">No collections yet.</div>
+            ) : (
+              <div className="collection-grid">
+                {myCollections.map((item) => (
+                  <button
+                    key={item.id}
+                    className="collection-card"
+                    type="button"
+                    onClick={() => navigate(`/collections/${item.id}`)}
+                  >
+                    <div className="collection-cover">
+                      <span>{item.name.slice(0, 2).toUpperCase()}</span>
+                    </div>
+                    <div className="collection-body">
+                      <strong>{item.name}</strong>
+                      <span className="muted">
+                        {item.description || 'No description yet.'}
+                      </span>
+                    </div>
+                  </button>
+                ))}
               </div>
-            </div>
-          ) : null}
-        </section>
-
-        <section className="section-card">
-          <div className="section-header">
-            <h2>Create collection</h2>
-          </div>
-          <label>
-            Name
-            <input
-              value={createForm.name}
-              onChange={(event) => setCreateForm({ ...createForm, name: event.target.value })}
-            />
-          </label>
-          <label>
-            Description
-            <textarea
-              value={createForm.description}
-              onChange={(event) =>
-                setCreateForm({ ...createForm, description: event.target.value })
-              }
-            />
-          </label>
-          <button className="button" type="button" onClick={handleCreate}>
-            Create collection
-          </button>
+            )
+          ) : (
+            <div className="empty">Login to view your collections.</div>
+          )}
         </section>
       </div>
 
-      <section className="section-card">
-        <div className="section-header">
-          <h2>Manage collection</h2>
+      {isCreateOpen ? (
+        <div className="modal-backdrop" onClick={() => setIsCreateOpen(false)}>
+          <div className="modal-card" onClick={(event) => event.stopPropagation()}>
+            <div className="section-header">
+              <h2>Create collection</h2>
+            </div>
+            <form className="form" onSubmit={(event) => event.preventDefault()}>
+              <label>
+                Name
+                <input
+                  value={createForm.name}
+                  onChange={(event) =>
+                    setCreateForm({ ...createForm, name: event.target.value })
+                  }
+                />
+              </label>
+              <label>
+                Description
+                <textarea
+                  value={createForm.description}
+                  onChange={(event) =>
+                    setCreateForm({ ...createForm, description: event.target.value })
+                  }
+                />
+              </label>
+              {error ? <div className="status error">{error}</div> : null}
+              <div className="modal-actions">
+                <button
+                  className="button ghost"
+                  type="button"
+                  onClick={() => setIsCreateOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="button"
+                  type="button"
+                  onClick={handleCreate}
+                  disabled={!createForm.name.trim()}
+                >
+                  Create collection
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div className="action-row">
-          <input
-            className="search-input"
-            placeholder="Mod ID to add"
-            value={addModId}
-            onChange={(event) => setAddModId(event.target.value)}
-          />
-          <button className="button" type="button" onClick={handleAddMod}>
-            Add mod
-          </button>
-        </div>
-        <div className="action-row">
-          <input
-            className="search-input"
-            placeholder="Mod ID to remove"
-            value={removeModId}
-            onChange={(event) => setRemoveModId(event.target.value)}
-          />
-          <button className="button secondary" type="button" onClick={handleRemoveMod}>
-            Remove mod
-          </button>
-        </div>
-        <div className="action-row">
-          <button className="button ghost" type="button" onClick={handleDeleteCollection}>
-            Delete collection
-          </button>
-        </div>
-        {error ? <div className="status error">{error}</div> : null}
-        {status ? <div className="status">{status}</div> : null}
-      </section>
-
-      <section className="section-title">
-        <h2>Collection mods</h2>
-      </section>
-      {mods.length === 0 ? (
-        <div className="empty">No mods in this collection yet.</div>
-      ) : (
-        <div className="grid">
-          {mods.map((mod) => (
-            <ModCard key={mod.id} mod={mod} />
-          ))}
-        </div>
-      )}
+      ) : null}
     </>
   )
 }

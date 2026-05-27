@@ -5,11 +5,13 @@ import {
   createModVersion,
   deleteComment,
   deleteMod,
+  addModToCollection,
+  getCollectionsByOwner,
   getCommentsForMod,
   getMod,
   getModVersions,
 } from '../api/client'
-import type { Comment, Mod, Version } from '../api/types'
+import type { Collection, Comment, Mod, Version } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { normalizeId } from '../utils/normalize'
 
@@ -29,6 +31,9 @@ export default function ModDetail() {
   const [newVersionName, setNewVersionName] = useState('')
   const [newVersionChanges, setNewVersionChanges] = useState('')
   const [newVersionFiles, setNewVersionFiles] = useState<File[]>([])
+  const [collections, setCollections] = useState<Collection[]>([])
+  const [collectionSelection, setCollectionSelection] = useState('')
+  const [collectionStatus, setCollectionStatus] = useState<string | null>(null)
   const categories = Array.isArray(mod?.categories)
     ? mod.categories.map((category) => normalizeId(category)).filter(Boolean)
     : []
@@ -61,6 +66,16 @@ export default function ModDetail() {
       })
     return () => controller.abort()
   }, [modId])
+
+  useEffect(() => {
+    if (!token) {
+      setCollections([])
+      return
+    }
+    getCollectionsByOwner(token)
+      .then((list) => setCollections(list))
+      .catch(() => setCollections([]))
+  }, [token])
 
   const refreshVersions = (signal?: AbortSignal) => {
     if (!modId) return Promise.resolve()
@@ -138,6 +153,21 @@ export default function ModDetail() {
     }
   }
 
+  const handleAddToCollection = async () => {
+    if (!token || !modId || !collectionSelection) return
+    setCollectionStatus(null)
+    try {
+      await addModToCollection({
+        collectionId: Number(collectionSelection),
+        modId,
+        token,
+      })
+      setCollectionStatus('Added to collection.')
+    } catch (err) {
+      if (err instanceof Error) setCollectionStatus(err.message)
+    }
+  }
+
   if (error) {
     return <div className="status error">{error}</div>
   }
@@ -165,6 +195,35 @@ export default function ModDetail() {
                 {name}
               </span>
             ))
+          )}
+        </div>
+        <div className="action-row">
+          {token ? (
+            <>
+              <select
+                className="search-input"
+                value={collectionSelection}
+                onChange={(event) => setCollectionSelection(event.target.value)}
+              >
+                <option value="">Add to collection...</option>
+                {collections.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="button"
+                type="button"
+                onClick={handleAddToCollection}
+                disabled={!collectionSelection}
+              >
+                Add
+              </button>
+              {collectionStatus ? <span className="pill">{collectionStatus}</span> : null}
+            </>
+          ) : (
+            <span className="pill">Login to add to collection</span>
           )}
         </div>
         {canManage ? (

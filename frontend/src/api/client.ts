@@ -263,6 +263,16 @@ export async function getCollection(collectionId: number, signal?: AbortSignal) 
   return apiFetch<Collection>(`/collections/${collectionId}`, { signal })
 }
 
+export async function getCollectionsByOwner(token?: string | null, signal?: AbortSignal) {
+  const query = buildQuery({ owner: 'true' })
+  return apiFetch<Collection[]>(`/collections?${query}`, { token, signal })
+}
+
+export async function searchCollectionsByName(name: string, signal?: AbortSignal) {
+  const query = buildQuery({ name })
+  return apiFetch<Collection[]>(`/collections?${query}`, { signal })
+}
+
 export async function getCollectionMods(params: {
   collectionId: number
   page?: number
