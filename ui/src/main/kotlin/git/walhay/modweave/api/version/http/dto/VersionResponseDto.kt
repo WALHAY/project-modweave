@@ -5,6 +5,7 @@ import git.walhay.modweave.api.version.Version
 import java.time.LocalDateTime
 
 data class VersionResponseDto(
+    val id: String,
     val name: String,
     val changes: String?,
     val uploadDate: LocalDateTime,
@@ -13,6 +14,7 @@ data class VersionResponseDto(
   companion object {
     fun fromVersion(version: Version): VersionResponseDto =
         VersionResponseDto(
+            id = version.id.value.toString(),
             name = version.name,
             changes = version.changes,
             uploadDate = version.uploadDate,

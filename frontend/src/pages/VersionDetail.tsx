@@ -1,35 +1,73 @@
-import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
-import { getFileDownloadUrl } from '../api/client'
-import { getModVersions } from '../api/client'
-import type { Version } from '../api/types'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams, Link } from 'react-router-dom'
+import { deleteModVersion, getFileDownloadUrl, getMod, getModVersion, uploadVersionFiles } from '../api/client'
+import type { Mod, Version } from '../api/types'
+import { useAuth } from '../auth/AuthContext'
 import { normalizeId } from '../utils/normalize'
 
 export default function VersionDetail() {
-  const { modId, versionName } = useParams()
+  const { modId, versionId } = useParams()
+  const navigate = useNavigate()
+  const { token, username, roles } = useAuth()
   const [version, setVersion] = useState<Version | null>(null)
+  const [mod, setMod] = useState<Mod | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [ownerError, setOwnerError] = useState<string | null>(null)
+  const [ownerStatus, setOwnerStatus] = useState<string | null>(null)
+  const [uploadFiles, setUploadFiles] = useState<File[]>([])
+  const isAdmin = roles.includes('ROLE_ADMIN')
+  const isOwner = useMemo(() => {
+    if (!username || !mod) return false
+    return normalizeId(mod.publisherId).toLowerCase() === username.toLowerCase()
+  }, [mod, username])
+  const canManage = isAdmin || isOwner
 
   useEffect(() => {
-    if (!modId || !versionName) return
+    if (!modId || !versionId) return
     const controller = new AbortController()
-    getModVersions(modId, controller.signal)
-      .then((page) => {
-        // try to find by name or id
-        const found = page.content.find(
-          (v) => (v as any).name === versionName || (v as any).id === versionName
-        )
-        if (!found) {
-          setError('Version not found')
-          return
-        }
-        setVersion(found)
+    Promise.all([
+      getMod(modId, controller.signal),
+      getModVersion(modId, versionId, controller.signal),
+    ])
+      .then(([modResult, versionResult]) => {
+        setMod(modResult)
+        setVersion(versionResult)
       })
       .catch((err) => {
         if (err instanceof Error && err.name !== 'AbortError') setError(err.message)
       })
     return () => controller.abort()
-  }, [modId, versionName])
+  }, [modId, versionId])
+
+  const handleDelete = async () => {
+    if (!modId || !versionId || !token) return
+    setOwnerError(null)
+    setOwnerStatus(null)
+    try {
+      await deleteModVersion({ modId, versionId, token })
+      navigate(`/mods/${modId}`)
+    } catch (err) {
+      if (err instanceof Error) {
+        setOwnerError(err.message)
+      }
+    }
+  }
+
+  const handleUploadFiles = async () => {
+    if (!modId || !versionId || !token || uploadFiles.length === 0) return
+    setOwnerError(null)
+    setOwnerStatus(null)
+    try {
+      const next = await uploadVersionFiles({ modId, versionId, files: uploadFiles, token })
+      setVersion(next)
+      setUploadFiles([])
+      setOwnerStatus('Files uploaded.')
+    } catch (err) {
+      if (err instanceof Error) {
+        setOwnerError(err.message)
+      }
+    }
+  }
 
   if (error) return <div className="status error">{error}</div>
   if (!version) return <div className="status">Loading version...</div>
@@ -45,6 +83,35 @@ export default function VersionDetail() {
           <Link to={`/mods/${modId}`} className="pill">Back to mod</Link>
         </div>
       </section>
+
+      {canManage ? (
+        <section className="form">
+          <h3>Owner actions</h3>
+          <label>
+            Upload files to this version
+            <input
+              type="file"
+              multiple
+              onChange={(event) => setUploadFiles(Array.from(event.target.files ?? []))}
+            />
+          </label>
+          <div className="inline">
+            <button
+              className="button"
+              type="button"
+              onClick={handleUploadFiles}
+              disabled={uploadFiles.length === 0}
+            >
+              Upload files
+            </button>
+            <button className="button secondary" type="button" onClick={handleDelete}>
+              Delete version
+            </button>
+          </div>
+          {ownerError ? <div className="status error">{ownerError}</div> : null}
+          {ownerStatus ? <div className="status">{ownerStatus}</div> : null}
+        </section>
+      ) : null}
 
       <section>
         <h3>Release notes</h3>

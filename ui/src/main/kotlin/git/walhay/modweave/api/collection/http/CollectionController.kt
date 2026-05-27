@@ -82,7 +82,7 @@ class CollectionController(
 
   @DeleteMapping("/{collectionId}")
   fun deleteCollection(
-      collectionId: Long,
+      @PathVariable collectionId: Long,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
     val username =

@@ -21,7 +21,7 @@ function App() {
         <Route path="mods" element={<Browse />} />
         <Route path="mods/upload" element={<ModUpload />} />
         <Route path="mods/:modId" element={<ModDetail />} />
-        <Route path="mods/:modId/versions/:versionName" element={<VersionDetail />} />
+        <Route path="mods/:modId/versions/:versionId" element={<VersionDetail />} />
         <Route path="games" element={<BrowseGames />} />
         <Route path="files/:bucket/:fileId" element={<FileDetail />} />
         <Route path="admin/categories" element={<AdminCategoryUpload />} />

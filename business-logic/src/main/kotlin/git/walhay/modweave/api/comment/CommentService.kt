@@ -3,6 +3,7 @@ package git.walhay.modweave.api.comment
 import git.walhay.modweave.api.comment.command.CommentCreateCommand
 import git.walhay.modweave.api.comment.exception.CommentNotFoundException
 import git.walhay.modweave.api.comment.repository.CommentRepository
+import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.IUserService
 import git.walhay.modweave.api.user.UserId
 import jakarta.transaction.Transactional
@@ -26,6 +27,11 @@ class CommentService(
   override fun findCommentById(id: CommentId): Comment? {
     logger.debug { "Fetching comment by id: $id" }
     return commentRepository.findById(id) ?: throw CommentNotFoundException(id)
+  }
+
+  override fun findCommentsByModId(modId: ModId): List<Comment> {
+    logger.debug { "Fetching comments for mod: $modId" }
+    return commentRepository.findByModId(modId)
   }
 
   @CachePut("comments", key = "#result.id.value")

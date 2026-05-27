@@ -30,10 +30,11 @@ export type Category = {
 }
 
 export type Version = {
+  id?: string | number
   name: string
   changes?: string | null
   uploadDate: string
-  files: VersionFile[]
+  files?: VersionFile[]
 }
 
 export type VersionFile = {
@@ -45,6 +46,21 @@ export type VersionFile = {
 export type UserProfile = {
   name: string
   registerDate: string
+}
+
+export type Collection = {
+  id: number
+  name: string
+  description?: string | null
+  ownerId: string
+}
+
+export type Comment = {
+  id: number
+  content: string
+  publishDate: string
+  authorId: string
+  modId: string
 }
 
 export type TokenResponse = {
