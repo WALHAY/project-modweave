@@ -23,7 +23,7 @@ class CommentService(
 ) : ICommentService {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @Cacheable("comments", key = "#id.value")
+  @Cacheable("comments", key = "#id")
   override fun findCommentById(id: CommentId): Comment? {
     logger.debug { "Fetching comment by id: $id" }
     return commentRepository.findById(id) ?: throw CommentNotFoundException(id)
@@ -34,7 +34,7 @@ class CommentService(
     return commentRepository.findByModId(modId)
   }
 
-  @CachePut("comments", key = "#result.id.value")
+  @CachePut("comments", key = "#result.id")
   @PreAuthorize("isAuthenticated()")
   override fun createComment(
       userId: UserId,
@@ -51,7 +51,7 @@ class CommentService(
         .also { logger.info { "Comment created successfully: ${it.id}" } }
   }
 
-  @CacheEvict("comments", key = "#id.value")
+  @CacheEvict("comments", key = "#id")
   @PreAuthorize("@accessSecurity.isCommentOwnerOrAdmin(#userId, #id)")
   override fun deleteComment(
       userId: UserId,

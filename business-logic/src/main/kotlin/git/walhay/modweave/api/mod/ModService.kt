@@ -112,7 +112,7 @@ class ModService(
     }
   }
 
-  @CacheEvict("mods", key = "#modId.value")
+  @CacheEvict("mods", key = "#modId")
   @PreAuthorize("@accessSecurity.isModOwnerOrAdmin(#userId, #modId)")
   override fun deleteMod(
       userId: UserId,

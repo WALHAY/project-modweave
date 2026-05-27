@@ -73,6 +73,12 @@ export default function Browse() {
     <>
       <section className="section-title">
         <h2>Browse Mods</h2>
+      </section>
+
+      <section className="section-card">
+        <div className="section-header">
+          <strong>Filters</strong>
+        </div>
         <div className="filters">
           <input
             className="search-input"
@@ -95,39 +101,39 @@ export default function Browse() {
               )
             })}
           </select>
-          <div className="badge-list" role="list">
-           <button
-             type="button"
-             className={`badge selectable ${selectedCategories.size === 0 ? 'selected' : ''}`}
-             onClick={() => setSelectedCategories(new Set())}
-             aria-pressed={selectedCategories.size === 0}
-           >
-             All
-           </button>
-           {categories.map((category) => {
-             const name = normalizeId(category.name)
-             const selected = selectedCategories.has(name)
-             return (
-               <button
-                 key={name}
-                 type="button"
-                 className={`badge selectable ${selected ? 'selected' : ''}`}
-                 onClick={() => {
-                   setSelectedCategories((prev) => {
-                     const next = new Set(prev)
-                     if (next.has(name)) next.delete(name)
-                     else next.add(name)
-                     return next
-                   })
-                 }}
-                 aria-pressed={selected}
-                 role="listitem"
-               >
-                 {name}
-               </button>
-             )
-           })}
-          </div>
+        </div>
+        <div className="badge-list" role="list">
+          <button
+            type="button"
+            className={`badge selectable ${selectedCategories.size === 0 ? 'selected' : ''}`}
+            onClick={() => setSelectedCategories(new Set())}
+            aria-pressed={selectedCategories.size === 0}
+          >
+            All
+          </button>
+          {categories.map((category) => {
+            const name = normalizeId(category.name)
+            const selected = selectedCategories.has(name)
+            return (
+              <button
+                key={name}
+                type="button"
+                className={`badge selectable ${selected ? 'selected' : ''}`}
+                onClick={() => {
+                  setSelectedCategories((prev) => {
+                    const next = new Set(prev)
+                    if (next.has(name)) next.delete(name)
+                    else next.add(name)
+                    return next
+                  })
+                }}
+                aria-pressed={selected}
+                role="listitem"
+              >
+                {name}
+              </button>
+            )
+          })}
         </div>
       </section>
 

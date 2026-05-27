@@ -381,6 +381,91 @@ textarea {
   gap: 12px;
 }
 
+.section-card {
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px solid var(--border-500);
+  background: var(--bg-800);
+  box-shadow: var(--shadow-1);
+  display: grid;
+  gap: 14px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-card label {
+  font-size: 13px;
+  color: var(--text-300);
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.section-card input,
+.section-card textarea,
+.section-card select {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-500);
+  background: var(--bg-800);
+  width: 100%;
+}
+
+.section-card textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.content-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.comment-list {
+  display: grid;
+  gap: 12px;
+}
+
+.comment-card {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border-500);
+  background: var(--bg-800);
+  display: grid;
+  gap: 8px;
+}
+
+.comment-card p {
+  margin: 0;
+  color: var(--text-300);
+}
+
+.comment-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-300);
+  font-size: 13px;
+}
+
+.muted {
+  color: var(--text-300);
+  font-size: 13px;
+}
+
 .form {
   display: grid;
   gap: 14px;

@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { createModVersion, deleteMod, getMod, getModVersions } from '../api/client'
-import type { Mod, Version } from '../api/types'
+import {
+  createComment,
+  createModVersion,
+  deleteComment,
+  deleteMod,
+  getCommentsForMod,
+  getMod,
+  getModVersions,
+} from '../api/client'
+import type { Comment, Mod, Version } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { normalizeId } from '../utils/normalize'
 
@@ -14,6 +22,10 @@ export default function ModDetail() {
   const [error, setError] = useState<string | null>(null)
   const [ownerError, setOwnerError] = useState<string | null>(null)
   const [ownerStatus, setOwnerStatus] = useState<string | null>(null)
+  const [comments, setComments] = useState<Comment[]>([])
+  const [commentText, setCommentText] = useState('')
+  const [commentError, setCommentError] = useState<string | null>(null)
+  const [commentStatus, setCommentStatus] = useState<string | null>(null)
   const [newVersionName, setNewVersionName] = useState('')
   const [newVersionChanges, setNewVersionChanges] = useState('')
   const [newVersionFiles, setNewVersionFiles] = useState<File[]>([])
@@ -35,10 +47,12 @@ export default function ModDetail() {
     Promise.all([
       getMod(modId, controller.signal),
       getModVersions(modId, controller.signal),
+      getCommentsForMod(modId, controller.signal),
     ])
-      .then(([modResult, versionPage]) => {
+      .then(([modResult, versionPage, commentList]) => {
         setMod(modResult)
         setVersions(versionPage.content)
+        setComments(commentList)
       })
       .catch((err) => {
         if (err instanceof Error && err.name !== 'AbortError') {
@@ -91,6 +105,39 @@ export default function ModDetail() {
     }
   }
 
+  const refreshComments = async () => {
+    if (!modId) return
+    const commentList = await getCommentsForMod(modId)
+    setComments(commentList)
+  }
+
+  const handleCreateComment = async () => {
+    if (!modId || !token) return
+    setCommentError(null)
+    setCommentStatus(null)
+    try {
+      await createComment({ modId, content: commentText, token })
+      setCommentText('')
+      setCommentStatus('Comment posted.')
+      await refreshComments()
+    } catch (err) {
+      if (err instanceof Error) setCommentError(err.message)
+    }
+  }
+
+  const handleDeleteComment = async (commentId: number) => {
+    if (!token) return
+    setCommentError(null)
+    setCommentStatus(null)
+    try {
+      await deleteComment({ commentId, token })
+      setCommentStatus('Comment deleted.')
+      await refreshComments()
+    } catch (err) {
+      if (err instanceof Error) setCommentError(err.message)
+    }
+  }
+
   if (error) {
     return <div className="status error">{error}</div>
   }
@@ -121,7 +168,7 @@ export default function ModDetail() {
           )}
         </div>
         {canManage ? (
-          <div className="inline">
+          <div className="action-row">
             <button className="button secondary" type="button" onClick={handleDelete}>
               Delete mod
             </button>
@@ -132,8 +179,10 @@ export default function ModDetail() {
       </section>
 
       {canManage ? (
-        <section className="form">
-          <h2>New version</h2>
+        <section className="section-card">
+          <div className="section-header">
+            <h2>Publish new version</h2>
+          </div>
           <label>
             Version name
             <input
@@ -185,14 +234,72 @@ export default function ModDetail() {
                 className="list-item"
                 key={String(versionId)}
               >
-              <div>
-                <strong>{version.name}</strong>
-                <p>{version.changes || 'No release notes.'}</p>
-              </div>
-              <span className="pill">
-                {new Date(version.uploadDate).toLocaleDateString()}
-              </span>
+                <div>
+                  <strong>{version.name}</strong>
+                  <p>{version.changes || 'No release notes.'}</p>
+                </div>
+                <span className="pill">
+                  {new Date(version.uploadDate).toLocaleDateString()}
+                </span>
               </Link>
+            )
+          })
+        )}
+      </div>
+
+      <section className="section-title">
+        <h2>Comments</h2>
+      </section>
+
+      <section className="section-card">
+        <div className="section-header">
+          <h3>Share feedback</h3>
+          {!token ? <span className="pill">Login to comment</span> : null}
+        </div>
+        <label>
+          Comment
+          <textarea
+            value={commentText}
+            onChange={(event) => setCommentText(event.target.value)}
+            placeholder="Share your experience with this mod."
+          />
+        </label>
+        <button
+          className="button"
+          type="button"
+          onClick={handleCreateComment}
+          disabled={!token || commentText.trim().length === 0}
+        >
+          Post comment
+        </button>
+        {commentError ? <div className="status error">{commentError}</div> : null}
+        {commentStatus ? <div className="status">{commentStatus}</div> : null}
+      </section>
+
+      <div className="comment-list">
+        {comments.length === 0 ? (
+          <div className="empty">No comments yet. Be the first!</div>
+        ) : (
+          comments.map((comment) => {
+            const canDelete =
+              isAdmin || (username && comment.authorId.toLowerCase() === username.toLowerCase())
+            return (
+              <div className="comment-card" key={comment.id}>
+                <div className="comment-meta">
+                  <strong>@{comment.authorId}</strong>
+                  <span>{new Date(comment.publishDate).toLocaleString()}</span>
+                </div>
+                <p>{comment.content}</p>
+                {canDelete ? (
+                  <button
+                    className="button ghost"
+                    type="button"
+                    onClick={() => handleDeleteComment(comment.id)}
+                  >
+                    Delete
+                  </button>
+                ) : null}
+              </div>
             )
           })
         )}

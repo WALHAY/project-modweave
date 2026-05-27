@@ -10,6 +10,7 @@ export default function Layout() {
     { to: '/', label: 'Home' },
     { to: '/mods', label: 'Browse Mods' },
     { to: '/games', label: 'Browse Games' },
+    { to: '/collections', label: 'Collections' },
     ...(isAuthenticated ? [{ to: '/mods/upload', label: 'Upload Mod' }] : []),
   ]
 

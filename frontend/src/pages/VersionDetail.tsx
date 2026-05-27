@@ -85,8 +85,10 @@ export default function VersionDetail() {
       </section>
 
       {canManage ? (
-        <section className="form">
-          <h3>Owner actions</h3>
+        <section className="section-card">
+          <div className="section-header">
+            <h3>Owner actions</h3>
+          </div>
           <label>
             Upload files to this version
             <input
@@ -95,7 +97,7 @@ export default function VersionDetail() {
               onChange={(event) => setUploadFiles(Array.from(event.target.files ?? []))}
             />
           </label>
-          <div className="inline">
+          <div className="action-row">
             <button
               className="button"
               type="button"
@@ -113,8 +115,10 @@ export default function VersionDetail() {
         </section>
       ) : null}
 
-      <section>
-        <h3>Release notes</h3>
+      <section className="section-card">
+        <div className="section-header">
+          <h3>Release notes</h3>
+        </div>
         <p>{version.changes || 'No release notes.'}</p>
       </section>
 

@@ -332,6 +332,11 @@ export async function getComment(commentId: number, signal?: AbortSignal) {
   return apiFetch<Comment>(`/comments/${commentId}`, { signal })
 }
 
+export async function getCommentsForMod(modId: string, signal?: AbortSignal) {
+  const query = buildQuery({ modId })
+  return apiFetch<Comment[]>(`/comments?${query}`, { signal })
+}
+
 export async function createComment(params: {
   modId: string
   content: string
