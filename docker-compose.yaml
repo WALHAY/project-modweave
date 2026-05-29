@@ -2,6 +2,7 @@ volumes:
   postgres:
   minio:
   redis:
+  mongo:
 
 services:
   postgres:
@@ -42,6 +43,20 @@ services:
       - mynetwork
     volumes:
       - ./redis:/data
+
+  mongo:
+    image: mongo:6
+    container_name: modweave-mongo
+    environment:
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./mongo:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - mynetwork
 
 networks:
   mynetwork:
