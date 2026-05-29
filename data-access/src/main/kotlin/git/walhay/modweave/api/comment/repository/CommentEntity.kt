@@ -16,10 +16,18 @@ class CommentEntity(
     @Column("publish_date", nullable = false) val publishDate: LocalDateTime = LocalDateTime.now(),
     @Column("user_id", nullable = false) val authorId: String = "",
     @Column("mod_id", nullable = false) val modId: String = "",
+    @Column("parent_comment_id") val parentCommentId: Long? = null,
 ) : Serializable {
 
   fun toDomain(): Comment =
-      Comment(CommentId(id), content, publishDate, UserId(authorId), ModId(modId))
+      Comment(
+          id = CommentId(id),
+          content = content,
+          publishDate = publishDate,
+          authorId = UserId(authorId),
+          modId = ModId(modId),
+          parentCommentId = parentCommentId?.let(::CommentId),
+      )
 
   companion object {
     fun fromComment(comment: Comment): CommentEntity =
@@ -28,6 +36,7 @@ class CommentEntity(
             comment.content,
             comment.publishDate,
             comment.authorId.value,
-            comment.modId.value)
+          comment.modId.value,
+          comment.parentCommentId?.value)
   }
 }

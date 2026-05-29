@@ -9,6 +9,7 @@ data class CommentResponseDto(
     val publishDate: LocalDateTime,
     val authorId: String,
     val modId: String,
+    val parentCommentId: Long?,
 ) {
   companion object {
     fun fromComment(comment: Comment): CommentResponseDto =
@@ -18,6 +19,7 @@ data class CommentResponseDto(
             publishDate = comment.publishDate,
             authorId = comment.authorId.value,
             modId = comment.modId.value,
+            parentCommentId = comment.parentCommentId?.value,
         )
   }
 }

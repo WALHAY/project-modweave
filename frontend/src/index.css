@@ -459,6 +459,11 @@ textarea {
   gap: 12px;
 }
 
+.comment-thread {
+  display: grid;
+  gap: 12px;
+}
+
 .comment-card {
   padding: 16px;
   border-radius: 16px;
@@ -466,6 +471,14 @@ textarea {
   background: var(--bg-800);
   display: grid;
   gap: 8px;
+}
+
+.comment-replies {
+  display: grid;
+  gap: 12px;
+  margin-left: 24px;
+  padding-left: 16px;
+  border-left: 2px solid var(--border-500);
 }
 
 .comment-card p {
@@ -479,6 +492,28 @@ textarea {
   gap: 12px;
   color: var(--text-300);
   font-size: 13px;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reply-form {
+  display: grid;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.reply-form textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-500);
+  background: var(--bg-800);
 }
 
 .muted {

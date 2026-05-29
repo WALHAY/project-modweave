@@ -13,7 +13,7 @@ class JpaCommentRepository(
   override fun findById(id: CommentId): Comment? = repository.findByIdOrNull(id.value)?.toDomain()
 
   override fun findByModId(modId: ModId): List<Comment> =
-      repository.findByModId(modId.value).map { it.toDomain() }
+      repository.findByModIdOrderByPublishDateAscIdAsc(modId.value).map { it.toDomain() }
 
   override fun save(comment: Comment): Comment =
       repository.save(CommentEntity.fromComment(comment)).toDomain()

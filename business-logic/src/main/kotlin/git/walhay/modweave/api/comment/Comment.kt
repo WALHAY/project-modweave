@@ -11,4 +11,5 @@ data class Comment(
     val publishDate: LocalDateTime = LocalDateTime.now(),
     val authorId: UserId = UserId(),
     val modId: ModId = ModId(),
+    val parentCommentId: CommentId? = null,
 ) : Serializable

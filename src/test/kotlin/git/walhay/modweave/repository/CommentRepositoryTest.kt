@@ -55,6 +55,16 @@ class CommentRepositoryTest : PostgresTestTemplate() {
         Comment(content = "hello", authorId = author.username, modId = mod.id))
   }
 
+  private fun seedReply(parent: Comment): Comment {
+    return commentRepository.save(
+        parent.copy(
+            id = git.walhay.modweave.api.comment.CommentId(),
+            content = "reply",
+            parentCommentId = parent.id,
+        ),
+    )
+  }
+
   @Test
   fun `create comment`() {
     val created = seedComment()
@@ -90,5 +100,18 @@ class CommentRepositoryTest : PostgresTestTemplate() {
 
     val afterDelete = commentRepository.findById(created.id)
     assertNull(afterDelete)
+  }
+
+  @Test
+  fun `read threaded comments`() {
+    val parent = seedComment()
+    val reply = seedReply(parent)
+
+    val comments = commentRepository.findByModId(parent.modId)
+
+    assertEquals(2, comments.size)
+    assertEquals(parent.id, comments[0].id)
+    assertEquals(reply.id, comments[1].id)
+    assertEquals(parent.id, comments[1].parentCommentId)
   }
 }

@@ -47,14 +47,14 @@ class CommentController(
   fun createComment(
       @ModelAttribute @Valid dto: CommentCreateDto,
       @AuthenticationPrincipal user: UserDetails?,
-  ) {
+  ): CommentResponseDto {
     val authenticatedUser = requireUser(user)
     logger.info {
       "POST /comments - creating comment for mod: ${dto.modId} by user: ${authenticatedUser.username}"
     }
-    return service
-        .createComment(UserId(authenticatedUser.username), dto.toCommentCreateCommand())
-        .let { CommentResponseDto.fromComment(it) }
+    return service.createComment(UserId(authenticatedUser.username), dto.toCommentCreateCommand()).let {
+      CommentResponseDto.fromComment(it)
+    }
   }
 
   @DeleteMapping("/{id}")
