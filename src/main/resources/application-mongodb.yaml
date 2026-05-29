@@ -1,16 +1,40 @@
 spring:
-  profiles: mongodb
+  config:
+    activate:
+      on-profile: mongodb
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
+      - org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration
+      - org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration
   data:
     mongodb:
       uri: mongodb://localhost:27017/modweave
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-
 logging:
   level:
     root: INFO
+    git.walhay.modweave: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.hibernate: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+minio:
+  endpoint: http://localhost:9000
+  username: username
+  password: password
+  buckets:
+    mods: mods
+    images: images
 
 server:
   port: 8080
+
+security:
+  jwt:
+    issuer: modweave
+    secret: "ZmFrZS1zZWNyZXQtc2VjdXJlLWtleS1mb3ItanVzdC1kZXZlbG9wbWVudA=="
+    access-token-ttl: 15m
+    refresh-token-ttl: 30d

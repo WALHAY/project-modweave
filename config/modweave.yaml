@@ -1,14 +1,3 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/database?currentSchema=modweave
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:init.sql
-
 modweave:
   business:
     max-page-size: 100

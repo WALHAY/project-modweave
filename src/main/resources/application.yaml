@@ -1,21 +1,12 @@
 spring:
   application:
     name: modweave
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
   cache:
     type: redis
     host: localhost
     port: 6379
     redis:
       time-to-live: 3600000
-  datasource:
-    url: jdbc:postgresql://localhost:5432/production?currentSchema=modweave
-    username: username
-    password: password
-    driver-class-name: org.postgresql.Driver
 
 logging:
   level:

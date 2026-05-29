@@ -11,6 +11,9 @@ build/
 ## REDIS ##
 *.rdb
 
+## MONGO
+mongo/
+
 ## ENV ##
 .env
 

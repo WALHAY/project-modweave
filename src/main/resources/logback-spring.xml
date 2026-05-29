@@ -29,7 +29,7 @@
   </appender>
 
   <!-- Development Profile -->
-  <springProfile name="dev,default">
+  <springProfile name="dev,default,postgresql,mongodb">
     <root level="INFO">
       <appender-ref ref="CONSOLE"/>
       <appender-ref ref="FILE"/>

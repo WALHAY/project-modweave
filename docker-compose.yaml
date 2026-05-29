@@ -44,19 +44,22 @@ services:
     volumes:
       - ./redis:/data
 
-  mongo:
-    image: mongo:6
-    container_name: modweave-mongo
-    environment:
-      MONGO_INITDB_DATABASE: ${DB_NAME}
-      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - ./mongo:/data/db
+  mongodb:
+    image: mongo:8
+    container_name: mongodb
     ports:
       - "27017:27017"
-    networks:
-      - mynetwork
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH: false
+    depends_on:
+      - mongodb
 
 networks:
   mynetwork:

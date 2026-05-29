@@ -60,11 +60,14 @@ class JwtAuthenticationFilter(
               .getOrDefault(false)
 
       if (isValid) {
+        val jwtRoles = jwtService.extractRoles(token)
+        log.debug { "JWT roles extracted: $jwtRoles" }
+        log.debug { "UserDetails authorities: ${userDetails.authorities.map { it.authority }}" }
         val authorities =
-            jwtService
-                .extractRoles(token)
+            jwtRoles
                 .map { SimpleGrantedAuthority(it) }
                 .ifEmpty { userDetails.authorities }
+        log.debug { "Final authorities for $username: ${authorities.map { it.authority }}" }
         val authentication = UsernamePasswordAuthenticationToken(userDetails, null, authorities)
         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
         SecurityContextHolder.getContext().authentication = authentication
