@@ -51,9 +51,19 @@ export default function Login() {
           required
         />
         {error && <div className="status error">{error}</div>}
-        <button className="button" type="submit" disabled={loading}>
-          {loading ? 'Signing in...' : 'Sign in'}
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button className="button" type="submit" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign in'}
+          </button>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={() => navigate('/signup')}
+            disabled={loading}
+          >
+            Sign up
+          </button>
+        </div>
       </form>
     </section>
   )
