@@ -78,13 +78,22 @@ export default function Layout() {
                 Sign out
               </button>
             ) : (
-              <button
-                className="button secondary"
-                type="button"
-                onClick={() => navigate('/login')}
-              >
-                Sign in
-              </button>
+              <>
+                <button
+                  className="button"
+                  type="button"
+                  onClick={() => navigate('/signup')}
+                >
+                  Sign up
+                </button>
+                <button
+                  className="button secondary"
+                  type="button"
+                  onClick={() => navigate('/login')}
+                >
+                  Sign in
+                </button>
+              </>
             )}
           </div>
         </header>

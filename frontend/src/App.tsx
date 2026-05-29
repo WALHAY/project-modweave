@@ -11,6 +11,7 @@ import Collections from './pages/Collections'
 import CollectionDetail from './pages/CollectionDetail'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
+import Signup from './pages/Signup'
 import NotFound from './pages/NotFound'
 import AdminCategoryUpload from './pages/AdminCategoryUpload'
 import AdminGameUpload from './pages/AdminGameUpload'
@@ -31,6 +32,7 @@ function App() {
         <Route path="admin/categories" element={<AdminCategoryUpload />} />
         <Route path="admin/games" element={<AdminGameUpload />} />
         <Route path="users/:username" element={<Profile />} />
+        <Route path="signup" element={<Signup />} />
         <Route path="login" element={<Login />} />
       </Route>
       <Route path="*" element={<NotFound />} />
