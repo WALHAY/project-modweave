@@ -42,7 +42,15 @@ class JwtAuthenticationFilter(
             }
 
     if (SecurityContextHolder.getContext().authentication == null) {
-      val userDetails = userDetailsService.loadUserByUsername(username)
+      val userDetails = runCatching { userDetailsService.loadUserByUsername(username) }
+          .onFailure { log.debug { "Failed to load user details for $username: ${it.message}" } }
+          .getOrNull()
+
+      if (userDetails == null) {
+        filterChain.doFilter(request, response)
+        return
+      }
+
       val isValid =
           runCatching { jwtService.isAccessTokenValid(token, userDetails) }
               .onFailure { log.debug { "Invalid access token: ${it.message}" } }

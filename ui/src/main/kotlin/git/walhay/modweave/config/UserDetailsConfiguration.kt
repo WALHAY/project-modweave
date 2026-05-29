@@ -21,12 +21,17 @@ class UserDetailsConfiguration(
     logger.info { "Initializing UserDetailsService bean" }
     return UserDetailsService { username ->
       logger.debug { "Loading user details for username: $username" }
-      val user = userService.findUserByUsername(UserId(username))
+      try {
+        val user = userService.findUserByUsername(UserId(username))
 
-      User.withUsername(user.username.value)
-          .password(user.password)
-          .roles(if (user.isAdmin) "ADMIN" else "USER")
-          .build()
+        User.withUsername(user.username.value)
+            .password(user.password)
+            .roles(if (user.isAdmin) "ADMIN" else "USER")
+            .build()
+      } catch (e: git.walhay.modweave.api.user.exception.UserNotFoundException) {
+        logger.debug { "User not found in database: $username" }
+        throw org.springframework.security.core.userdetails.UsernameNotFoundException("User $username not found")
+      }
     }
   }
 }
