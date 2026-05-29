@@ -285,7 +285,7 @@ export default function ModDetail() {
         {versions.length === 0 ? (
           <div className="empty">No releases yet.</div>
         ) : (
-          versions.map((version) => {
+          versions.toReversed().map((version) => {
             const versionId = normalizeId((version as any).id) || version.name
             return (
               <Link

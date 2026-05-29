@@ -27,7 +27,7 @@ class CategoryService(
   }
 
   @CacheEvict(value = ["categories"], allEntries = true)
-  @PreAuthorize("@accessSecurity.isAdmin()")
+  @PreAuthorize("hasRole('ADMIN')")
   override fun uploadCategory(command: CategoryCreateCommand): Category {
     logger.info { "Creating new category: ${command.name}" }
     if (categoryRepository.existsByNameIgnoreCase(command.name)) {
@@ -45,7 +45,7 @@ class CategoryService(
   }
 
   @CacheEvict(value = ["categories"], allEntries = true)
-  @PreAuthorize("@accessSecurity.isAdmin()")
+  @PreAuthorize("hasRole('ADMIN')")
   override fun updateCategory(command: CategoryUpdateCommand): Category {
     logger.info { "Updating category: ${command.name}" }
     if (!categoryRepository.existsByNameIgnoreCase(command.name)) {
@@ -63,7 +63,7 @@ class CategoryService(
   }
 
   @CacheEvict(value = ["categories"], allEntries = true)
-  @PreAuthorize("@accessSecurity.isAdmin()")
+  @PreAuthorize("hasRole('ADMIN')")
   override fun deleteCategory(categoryId: CategoryId) {
     logger.info { "Deleting category: $categoryId" }
     if (!categoryRepository.existsByNameIgnoreCase(categoryId)) {

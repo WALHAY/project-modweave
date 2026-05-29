@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import {
   createCollection,
   getCollectionsByOwner,
-  searchCollectionsByName,
 } from '../api/client'
 import type { Collection } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import ContentCard from '../components/ContentCard'
 
 export default function Collections() {
   const { token, isAuthenticated } = useAuth()
@@ -15,8 +15,6 @@ export default function Collections() {
   const [error, setError] = useState<string | null>(null)
   const [createForm, setCreateForm] = useState({ name: '', description: '' })
   const [myCollections, setMyCollections] = useState<Collection[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<Collection[]>([])
   const [isCreateOpen, setIsCreateOpen] = useState(false)
 
   const requireAuth = () => {
@@ -34,21 +32,6 @@ export default function Collections() {
     try {
       const list = await getCollectionsByOwner(token)
       setMyCollections(list)
-    } catch (err) {
-      if (err instanceof Error) setError(err.message)
-    }
-  }
-
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      setSearchResults([])
-      return
-    }
-    setStatus(null)
-    setError(null)
-    try {
-      const results = await searchCollectionsByName(searchQuery.trim())
-      setSearchResults(results)
     } catch (err) {
       if (err instanceof Error) setError(err.message)
     }
@@ -97,6 +80,7 @@ export default function Collections() {
             </button>
           </div>
           {!isAuthenticated ? <div className="empty">Login to create collections.</div> : null}
+          {status ? <div className="status">{status}</div> : null}
       </section>
 
       <div className="content-grid">
@@ -108,24 +92,16 @@ export default function Collections() {
             myCollections.length === 0 ? (
               <div className="empty">No collections yet.</div>
             ) : (
-              <div className="collection-grid">
+              <div className="grid">
                 {myCollections.map((item) => (
-                  <button
+                  <ContentCard
                     key={item.id}
-                    className="collection-card"
-                    type="button"
-                    onClick={() => navigate(`/collections/${item.id}`)}
-                  >
-                    <div className="collection-cover">
-                      <span>{item.name.slice(0, 2).toUpperCase()}</span>
-                    </div>
-                    <div className="collection-body">
-                      <strong>{item.name}</strong>
-                      <span className="muted">
-                        {item.description || 'No description yet.'}
-                      </span>
-                    </div>
-                  </button>
+                    title={item.name}
+                    description={item.description || 'No description yet.'}
+                    href={`/collections/${item.id}`}
+                    ariaLabel={`Open ${item.name}`}
+                    media={<span>{item.name.slice(0, 2).toUpperCase()}</span>}
+                  />
                 ))}
               </div>
             )

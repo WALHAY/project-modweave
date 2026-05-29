@@ -7,6 +7,10 @@ import git.walhay.modweave.api.user.UserId
 interface ICollectionService {
   fun getCollectionById(id: CollectionId): Collection
 
+  fun listCollectionsByOwner(userId: UserId): List<Collection>
+
+  fun searchCollectionsByName(name: String): List<Collection>
+
   fun createCollection(
       userId: UserId,
       command: CollectionCreateCommand,

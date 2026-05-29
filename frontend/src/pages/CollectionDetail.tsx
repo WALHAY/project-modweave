@@ -9,7 +9,8 @@ import {
 } from '../api/client'
 import type { Collection, Mod } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
-import ModCard from '../components/ModCard'
+import ContentCard from '../components/ContentCard'
+import { normalizeId } from '../utils/normalize'
 
 export default function CollectionDetail() {
   const { collectionId } = useParams()
@@ -166,40 +167,70 @@ export default function CollectionDetail() {
         <div className="empty">No mods in this collection yet.</div>
       ) : (
         <div className="list">
-          {mods.map((mod, index) => (
-            <div className="collection-item" key={mod.id}>
-              <div className="collection-item-card">
-                <ModCard mod={mod} />
-              </div>
-              {canManage ? (
-                <div className="collection-item-actions">
-                  <button
-                    className="button ghost"
-                    type="button"
-                    onClick={() => handleMove(mod.id, index - 1)}
-                    disabled={index === 0}
-                  >
-                    Move up
-                  </button>
-                  <button
-                    className="button ghost"
-                    type="button"
-                    onClick={() => handleMove(mod.id, index + 1)}
-                    disabled={index === mods.length - 1}
-                  >
-                    Move down
-                  </button>
-                  <button
-                    className="button secondary"
-                    type="button"
-                    onClick={() => handleRemove(mod.id)}
-                  >
-                    Remove
-                  </button>
+          {mods.map((mod, index) => {
+            const modId = normalizeId(mod.id)
+            const gameId = normalizeId(mod.gameId)
+            const publisherId = normalizeId(mod.publisherId)
+            const categoriesList = Array.isArray(mod.categories)
+              ? mod.categories.map((category) => normalizeId(category)).filter(Boolean)
+              : []
+            return (
+              <div className="collection-item" key={mod.id}>
+                <div className="collection-item-card">
+                  <ContentCard
+                    title={mod.name}
+                    description={mod.description || 'No description provided yet.'}
+                    href={modId ? `/mods/${encodeURIComponent(modId)}` : undefined}
+                    media={
+                      mod.imagePath ? (
+                        <img src={`http://localhost:9000/images/${mod.imagePath}`} alt={mod.name} />
+                      ) : (
+                        <span>No preview</span>
+                      )
+                    }
+                    meta={
+                      <>
+                        {gameId ? <span className="pill">{gameId}</span> : null}
+                        {publisherId ? <span className="pill">{publisherId}</span> : null}
+                        {categoriesList.map((category) => (
+                          <span className="badge" key={category}>
+                            {category}
+                          </span>
+                        ))}
+                      </>
+                    }
+                  />
                 </div>
-              ) : null}
-            </div>
-          ))}
+                {canManage ? (
+                  <div className="collection-item-actions">
+                    <button
+                      className="button ghost"
+                      type="button"
+                      onClick={() => handleMove(mod.id, index - 1)}
+                      disabled={index === 0}
+                    >
+                      Move up
+                    </button>
+                    <button
+                      className="button ghost"
+                      type="button"
+                      onClick={() => handleMove(mod.id, index + 1)}
+                      disabled={index === mods.length - 1}
+                    >
+                      Move down
+                    </button>
+                    <button
+                      className="button secondary"
+                      type="button"
+                      onClick={() => handleRemove(mod.id)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            )
+          })}
         </div>
       )}
     </>

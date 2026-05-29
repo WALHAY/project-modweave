@@ -50,7 +50,7 @@ class AccessSecurity(
     return mod.publisherId == userId
   }
 
-  fun isCollectionOwnerOrAdmin(userId: UserId, collectionId: CollectionId) = isCollectionOwnerOrAdmin(userId, collectionId, currentAuth())
+  fun isCollectionOwnerOrAdmin(userId: String, collectionId: Long) = isCollectionOwnerOrAdmin(UserId(userId), CollectionId(collectionId), currentAuth())
 
   fun isCollectionOwnerOrAdmin(
       userId: UserId,

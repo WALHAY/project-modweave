@@ -51,7 +51,7 @@ class GameService(
   }
 
   @CachePut("games", key = "#result.id")
-  @PreAuthorize("@accessSecurity.isAdmin()")
+  @PreAuthorize("hasRole('ADMIN')")
   override fun uploadGame(command: GameCreateCommand): Game {
     logger.info { "Creating new game: ${command.id}" }
     if (gameRepository.existsByIdIgnoreCase(command.id)) {
@@ -77,7 +77,7 @@ class GameService(
   }
 
   @CacheEvict("games", key = "#gameId.value")
-  @PreAuthorize("@accessSecurity.isAdmin()")
+  @PreAuthorize("hasRole('ADMIN')")
   override fun deleteGame(gameId: GameId) {
     logger.info { "Deleting game: $gameId" }
     gameRepository.deleteById(gameId)

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { getGames } from '../api/client'
 import type { Game } from '../api/types'
+import ContentCard from '../components/ContentCard'
 import { normalizeId } from '../utils/normalize'
 
 export default function BrowseGames() {
@@ -44,49 +44,22 @@ export default function BrowseGames() {
           {games.map((game) => {
             const id = normalizeId(game.id)
             const label = normalizeId(game.name) || game.name
-			const image = "http://localhost:9000/images/" + game.name + "/logo.png"
-            if (!id) {
-              return (
-                <article className="card" key={label}>
-                  <div className="media">
-                    {game.imagePath ? (
-                      <img src={image} alt={game.name} />
-                    ) : (
-                      <span>No cover yet</span>
-                    )}
-                  </div>
-                  <div>
-                    <h3>{game.name}</h3>
-                    <p>{game.description || 'No description provided yet.'}</p>
-                  </div>
-                  <div className="meta">
-                    <span className="pill">{label || 'unknown'}</span>
-                  </div>
-                </article>
-              )
-            }
             return (
-              <Link
-                className="card card-link"
-                key={id}
-                to={`/mods?gameId=${encodeURIComponent(id)}`}
-                aria-label={`Browse mods for ${game.name}`}
-              >
-              <div className="media">
-                {game.imagePath ? (
-                  <img src={`http://localhost:9000/images/${game.imagePath}`} alt={game.name} />
-                ) : (
-                  <span>No cover yet</span>
-                )}
-              </div>
-              <div>
-                <h3>{game.name}</h3>
-                <p>{game.description || 'No description provided yet.'}</p>
-              </div>
-              <div className="meta">
-                <span className="pill">{id}</span>
-              </div>
-            </Link>
+              <ContentCard
+                key={id || label}
+                title={game.name}
+                description={game.description || 'No description provided yet.'}
+                href={id ? `/mods?gameId=${encodeURIComponent(id)}` : undefined}
+                ariaLabel={`Browse mods for ${game.name}`}
+                media={
+                  game.imagePath ? (
+                    <img src={`http://localhost:9000/images/${game.imagePath}`} alt={game.name} />
+                  ) : (
+                    <span>No cover yet</span>
+                  )
+                }
+                meta={<span className="pill">{id || label || 'unknown'}</span>}
+              />
             )
           })}
         </div>

@@ -29,6 +29,16 @@ class CollectionService(
     return collectionRepository.findById(id) ?: throw CollectionNotFoundException(id)
   }
 
+  override fun listCollectionsByOwner(userId: UserId): List<Collection> {
+    logger.debug { "Fetching collections for owner: $userId" }
+    return collectionRepository.findByOwner(userId)
+  }
+
+  override fun searchCollectionsByName(name: String): List<Collection> {
+    logger.debug { "Searching collections by name: $name" }
+    return collectionRepository.findByNameContainingIgnoreCase(name)
+  }
+
   @CachePut("collections", key = "#result.id")
   @PreAuthorize("isAuthenticated()")
   override fun createCollection(
@@ -66,7 +76,15 @@ class CollectionService(
     val collection = getCollectionById(collectionId)
 
     val mod = modService.findModById(modId)
-    collection.mods.addLast(mod)
+    collection.mods.removeIf { it.id == modId }
+    val targetIndex = index ?: collection.mods.size
+    val safeIndex =
+        when {
+          targetIndex < 0 -> 0
+          targetIndex > collection.mods.size -> collection.mods.size
+          else -> targetIndex
+        }
+    collection.mods.add(safeIndex, mod)
     val result = collectionRepository.save(collection)
     logger.info { "Mod added successfully to collection: $collectionId" }
     return result
@@ -79,5 +97,8 @@ class CollectionService(
       modId: ModId,
   ) {
     logger.info { "Deleting mod: $modId from collection: $collectionId for user: $userId" }
+    val collection = getCollectionById(collectionId)
+    collection.mods.removeIf { it.id == modId }
+    collectionRepository.save(collection)
   }
 }

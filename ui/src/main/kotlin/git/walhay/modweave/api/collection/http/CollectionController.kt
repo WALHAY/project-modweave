@@ -39,6 +39,29 @@ class CollectionController(
     }
   }
 
+  @GetMapping
+  fun getCollections(
+      @RequestParam(required = false) owner: Boolean?,
+      @RequestParam(required = false) name: String?,
+      @AuthenticationPrincipal user: UserDetails?,
+  ): List<CollectionResponseDto> {
+    return when {
+      owner == true -> {
+        val username =
+            user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+        logger.info { "GET /collections?owner=true for user: $username" }
+        collectionService.listCollectionsByOwner(UserId(username))
+            .map { CollectionResponseDto.fromCollection(it) }
+      }
+      !name.isNullOrBlank() -> {
+        logger.info { "GET /collections?name=$name" }
+        collectionService.searchCollectionsByName(name)
+            .map { CollectionResponseDto.fromCollection(it) }
+      }
+      else -> emptyList()
+    }
+  }
+
   @GetMapping("/{collectionId}/mods")
   fun getModsInCollection(
       @PathVariable collectionId: Long,
