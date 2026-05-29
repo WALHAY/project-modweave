@@ -12,9 +12,9 @@ import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
-import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 
 @Service
@@ -33,7 +33,9 @@ class CommentService(
 
   override fun findCommentsByModId(modId: ModId): List<Comment> {
     logger.debug { "Fetching comments for mod: $modId" }
-    return commentRepository.findByModId(modId).sortedWith(compareBy<Comment> { it.publishDate }.thenBy { it.id.value })
+    return commentRepository
+        .findByModId(modId)
+        .sortedWith(compareBy<Comment> { it.publishDate }.thenBy { it.id.value })
   }
 
   @CachePut("comments", key = "#result.id")
@@ -46,7 +48,8 @@ class CommentService(
     val user = userService.findUserByUsername(userId)
     val parentComment =
         command.parentCommentId?.let { parentCommentId ->
-          commentRepository.findById(parentCommentId) ?: throw CommentNotFoundException(parentCommentId)
+          commentRepository.findById(parentCommentId)
+              ?: throw CommentNotFoundException(parentCommentId)
         }
     if (parentComment != null && parentComment.modId != command.modId) {
       throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Reply must belong to the same mod")

@@ -11,12 +11,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider
-import org.springframework.security.core.userdetails.UserDetailsService
 
 @Configuration
 @EnableWebSecurity
@@ -39,18 +38,25 @@ class SecurityConfiguration(
   ): org.springframework.security.authentication.AuthenticationProvider {
     logger.info { "Initializing custom AuthenticationProvider bean" }
     return object : org.springframework.security.authentication.AuthenticationProvider {
-      override fun authenticate(authentication: org.springframework.security.core.Authentication): org.springframework.security.core.Authentication {
+      override fun authenticate(
+          authentication: org.springframework.security.core.Authentication
+      ): org.springframework.security.core.Authentication {
         val username = authentication.name ?: ""
         val password = authentication.credentials as? String ?: ""
         val userDetails = userDetailsService.loadUserByUsername(username)
         if (!passwordEncoder.matches(password, userDetails.password)) {
-          throw org.springframework.security.authentication.BadCredentialsException("Bad credentials")
+          throw org.springframework.security.authentication.BadCredentialsException(
+              "Bad credentials")
         }
-        return org.springframework.security.authentication.UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
+        return org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+            userDetails, null, userDetails.authorities)
       }
 
       override fun supports(authentication: Class<*>): Boolean {
-        return org.springframework.security.authentication.UsernamePasswordAuthenticationToken::class.java.isAssignableFrom(authentication)
+        return org.springframework.security.authentication
+                .UsernamePasswordAuthenticationToken::class
+            .java
+            .isAssignableFrom(authentication)
       }
     }
   }

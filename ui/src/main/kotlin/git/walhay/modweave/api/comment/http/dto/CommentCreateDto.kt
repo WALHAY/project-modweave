@@ -1,7 +1,7 @@
 package git.walhay.modweave.api.comment.http.dto
 
-import git.walhay.modweave.api.comment.command.CommentCreateCommand
 import git.walhay.modweave.api.comment.CommentId
+import git.walhay.modweave.api.comment.command.CommentCreateCommand
 import git.walhay.modweave.api.mod.ModId
 
 data class CommentCreateDto(

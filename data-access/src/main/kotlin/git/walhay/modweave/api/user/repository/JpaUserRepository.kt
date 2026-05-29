@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
 @Repository
+@org.springframework.context.annotation.Profile("postgres")
 class JpaUserRepository(
     private val repository: SpringDataUserRepository,
 ) : UserRepository {

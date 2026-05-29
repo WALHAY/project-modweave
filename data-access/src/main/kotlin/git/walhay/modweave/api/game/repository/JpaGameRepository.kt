@@ -8,6 +8,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
 @Repository
+@org.springframework.context.annotation.Profile("postgres")
 class JpaGameRepository(
     private val repository: SpringDataGameRepository,
 ) : GameRepository {

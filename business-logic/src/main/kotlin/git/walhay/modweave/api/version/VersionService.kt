@@ -34,15 +34,13 @@ class VersionService(
 
   @Cacheable("versions", key = "#versionId")
   override fun getModVersion(versionId: VersionId): Version =
-      versionRepository.findVersionById(versionId)
-          ?.let(::attachFiles)
+      versionRepository.findVersionById(versionId)?.let(::attachFiles)
           ?: throw VersionNotFoundException(versionId)
 
   override fun getModVersions(
       modId: ModId,
       pageable: Pageable,
-  ): Page<Version> =
-      versionRepository.findVersionsByModId(modId, pageable).map { attachFiles(it) }
+  ): Page<Version> = versionRepository.findVersionsByModId(modId, pageable).map { attachFiles(it) }
 
   @CachePut("versions", key = "#result.id")
   override fun createModVersion(

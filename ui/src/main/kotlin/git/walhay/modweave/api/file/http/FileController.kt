@@ -8,13 +8,13 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import mu.KLogger
 import mu.KotlinLogging
+import org.springframework.http.HttpStatus
+import org.springframework.util.StreamUtils
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-import org.springframework.http.HttpStatus
-import org.springframework.util.StreamUtils
 
 @RestController
 @RequestMapping("/files")
@@ -31,8 +31,9 @@ class FileController(
       response: HttpServletResponse,
   ) {
     logger.info { "GET /files/$bucket/$fileId/download" }
-    val file = fileRepository.findById(FileId(fileId))
-        ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "File not found")
+    val file =
+        fileRepository.findById(FileId(fileId))
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "File not found")
 
     response.contentType = "application/octet-stream"
     response.setHeader(

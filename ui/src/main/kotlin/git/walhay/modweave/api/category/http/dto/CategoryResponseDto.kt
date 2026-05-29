@@ -1,7 +1,6 @@
 package git.walhay.modweave.api.category.http.dto
 
 import git.walhay.modweave.api.category.Category
-import git.walhay.modweave.api.category.CategoryId
 
 data class CategoryResponseDto(
     val name: String,

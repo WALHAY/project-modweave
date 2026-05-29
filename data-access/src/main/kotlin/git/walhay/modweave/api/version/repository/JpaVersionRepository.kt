@@ -9,6 +9,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
 @Repository
+@org.springframework.context.annotation.Profile("postgres")
 class JpaVersionRepository(
     private val repository: SpringDataVersionRepository,
 ) : VersionRepository {

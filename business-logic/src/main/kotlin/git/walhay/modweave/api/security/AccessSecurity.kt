@@ -10,7 +10,6 @@ import git.walhay.modweave.api.user.UserId
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
-import java.util.UUID
 
 @Component("accessSecurity")
 class AccessSecurity(
@@ -30,10 +29,8 @@ class AccessSecurity(
   fun isSelfOrAdmin(userId: UserId, authentication: Authentication? = currentAuth()): Boolean =
       isAdmin(authentication) || isSelf(userId, authentication)
 
-  fun isModOwnerOrAdmin(
-      userId: String,
-      modId: String
-  ) = isModOwnerOrAdmin(UserId(userId), ModId(modId), currentAuth())
+  fun isModOwnerOrAdmin(userId: String, modId: String) =
+      isModOwnerOrAdmin(UserId(userId), ModId(modId), currentAuth())
 
   fun isModOwnerOrAdmin(
       userId: UserId,
@@ -50,7 +47,8 @@ class AccessSecurity(
     return mod.publisherId == userId
   }
 
-  fun isCollectionOwnerOrAdmin(userId: String, collectionId: Long) = isCollectionOwnerOrAdmin(UserId(userId), CollectionId(collectionId), currentAuth())
+  fun isCollectionOwnerOrAdmin(userId: String, collectionId: Long) =
+      isCollectionOwnerOrAdmin(UserId(userId), CollectionId(collectionId), currentAuth())
 
   fun isCollectionOwnerOrAdmin(
       userId: UserId,
@@ -67,7 +65,8 @@ class AccessSecurity(
     return collection.owner == userId
   }
 
-  fun isCommentOwnerOrAdmin(userId: String, commentId: Long) = isCommentOwnerOrAdmin(UserId(userId), CommentId(commentId), currentAuth())
+  fun isCommentOwnerOrAdmin(userId: String, commentId: Long) =
+      isCommentOwnerOrAdmin(UserId(userId), CommentId(commentId), currentAuth())
 
   fun isCommentOwnerOrAdmin(
       userId: UserId,

@@ -36,7 +36,7 @@ class CommentEntity(
             comment.content,
             comment.publishDate,
             comment.authorId.value,
-          comment.modId.value,
-          comment.parentCommentId?.value)
+            comment.modId.value,
+            comment.parentCommentId?.value)
   }
 }

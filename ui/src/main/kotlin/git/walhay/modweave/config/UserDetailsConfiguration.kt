@@ -30,7 +30,8 @@ class UserDetailsConfiguration(
             .build()
       } catch (e: git.walhay.modweave.api.user.exception.UserNotFoundException) {
         logger.debug { "User not found in database: $username" }
-        throw org.springframework.security.core.userdetails.UsernameNotFoundException("User $username not found")
+        throw org.springframework.security.core.userdetails.UsernameNotFoundException(
+            "User $username not found")
       }
     }
   }

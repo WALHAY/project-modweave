@@ -7,5 +7,6 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-validation'
 
   implementation 'io.minio:minio:8.6.0'
+  implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
   runtimeOnly 'org.postgresql:postgresql:42.7.3'
 }

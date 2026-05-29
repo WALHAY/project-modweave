@@ -6,6 +6,7 @@ import git.walhay.modweave.api.version.VersionId
 import org.springframework.stereotype.Repository
 
 @Repository
+@org.springframework.context.annotation.Profile("postgres")
 class JpaFileRepository(
     private val repository: SpringDataFileRepository,
 ) : FileRepository {

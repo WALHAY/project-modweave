@@ -54,7 +54,8 @@ class VersionController(
     logger.info { "POST /mods/$modId/versions/$versionId/files - uploading files" }
     val version = versionService.getModVersion(VersionId(UUID.fromString(versionId)))
     fileService.uploadVersionFiles(version, files)
-    return VersionResponseDto.fromVersion(versionService.getModVersion(VersionId(UUID.fromString(versionId))))
+    return VersionResponseDto.fromVersion(
+        versionService.getModVersion(VersionId(UUID.fromString(versionId))))
   }
 
   @DeleteMapping("/{versionId}")

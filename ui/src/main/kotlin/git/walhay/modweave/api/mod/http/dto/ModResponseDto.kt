@@ -1,9 +1,6 @@
 package git.walhay.modweave.api.mod.http.dto
 
-import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.mod.Mod
-import git.walhay.modweave.api.mod.ModId
-import git.walhay.modweave.api.user.UserId
 import java.time.LocalDateTime
 
 data class ModResponseDto(
@@ -26,7 +23,7 @@ data class ModResponseDto(
             creationDate = mod.creationDate,
             publisherId = mod.publisherId.value,
             gameId = mod.gameId.value,
-            categories = mod.categories.map{ it.value }.toList(),
+            categories = mod.categories.map { it.value }.toList(),
         )
   }
 }

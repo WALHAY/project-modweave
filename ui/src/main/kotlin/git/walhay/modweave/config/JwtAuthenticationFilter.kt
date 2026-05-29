@@ -42,9 +42,12 @@ class JwtAuthenticationFilter(
             }
 
     if (SecurityContextHolder.getContext().authentication == null) {
-      val userDetails = runCatching { userDetailsService.loadUserByUsername(username) }
-          .onFailure { log.debug { "Failed to load user details for $username: ${it.message}" } }
-          .getOrNull()
+      val userDetails =
+          runCatching { userDetailsService.loadUserByUsername(username) }
+              .onFailure {
+                log.debug { "Failed to load user details for $username: ${it.message}" }
+              }
+              .getOrNull()
 
       if (userDetails == null) {
         filterChain.doFilter(request, response)

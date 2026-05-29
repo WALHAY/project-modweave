@@ -40,7 +40,9 @@ class CommentController(
         modId?.trim()?.takeIf { it.isNotBlank() }
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "modId is required")
     logger.info { "GET /comments?modId=$resolvedModId" }
-    return service.findCommentsByModId(ModId(resolvedModId)).map { CommentResponseDto.fromComment(it) }
+    return service.findCommentsByModId(ModId(resolvedModId)).map {
+      CommentResponseDto.fromComment(it)
+    }
   }
 
   @PostMapping
@@ -52,9 +54,9 @@ class CommentController(
     logger.info {
       "POST /comments - creating comment for mod: ${dto.modId} by user: ${authenticatedUser.username}"
     }
-    return service.createComment(UserId(authenticatedUser.username), dto.toCommentCreateCommand()).let {
-      CommentResponseDto.fromComment(it)
-    }
+    return service
+        .createComment(UserId(authenticatedUser.username), dto.toCommentCreateCommand())
+        .let { CommentResponseDto.fromComment(it) }
   }
 
   @DeleteMapping("/{id}")

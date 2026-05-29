@@ -5,6 +5,7 @@ import git.walhay.modweave.api.category.CategoryId
 import org.springframework.stereotype.Repository
 
 @Repository
+@org.springframework.context.annotation.Profile("postgres")
 class JpaCategoryRepository(
     private val repository: SpringDataCategoryRepository,
 ) : CategoryRepository {

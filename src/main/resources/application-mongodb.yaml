@@ -1,0 +1,16 @@
+spring:
+  profiles: mongodb
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/modweave
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+
+logging:
+  level:
+    root: INFO
+
+server:
+  port: 8080

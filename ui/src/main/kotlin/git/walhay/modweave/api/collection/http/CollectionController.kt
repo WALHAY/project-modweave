@@ -50,13 +50,15 @@ class CollectionController(
         val username =
             user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
         logger.info { "GET /collections?owner=true for user: $username" }
-        collectionService.listCollectionsByOwner(UserId(username))
-            .map { CollectionResponseDto.fromCollection(it) }
+        collectionService.listCollectionsByOwner(UserId(username)).map {
+          CollectionResponseDto.fromCollection(it)
+        }
       }
       !name.isNullOrBlank() -> {
         logger.info { "GET /collections?name=$name" }
-        collectionService.searchCollectionsByName(name)
-            .map { CollectionResponseDto.fromCollection(it) }
+        collectionService.searchCollectionsByName(name).map {
+          CollectionResponseDto.fromCollection(it)
+        }
       }
       else -> emptyList()
     }
