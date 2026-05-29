@@ -350,11 +350,15 @@ export async function getCommentsForMod(modId: string, signal?: AbortSignal) {
 export async function createComment(params: {
   modId: string
   content: string
+  parentCommentId?: number | null
   token?: string | null
 }) {
   const body = new URLSearchParams()
   body.set('modId', params.modId)
   body.set('content', params.content)
+  if (params.parentCommentId !== undefined && params.parentCommentId !== null) {
+    body.set('parentCommentId', String(params.parentCommentId))
+  }
   return apiFetch<Comment>('/comments', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

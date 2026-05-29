@@ -25,12 +25,17 @@ class CommentShellCommands(
       @Option(longName = "user-id", required = false) userId: String?,
       @Option(longName = "mod-id") modId: String,
       @Option(longName = "content") content: String,
+      @Option(longName = "parent-comment-id", required = false) parentCommentId: Long?,
   ): Any =
       renderValue(
           CommentResponseDto.fromComment(
               commentService.createComment(
                   authSession.resolveUserId(userId),
-                  CommentCreateCommand(content, ModId(modId)),
+                  CommentCreateCommand(
+                      content = content,
+                      modId = ModId(modId),
+                      parentCommentId = parentCommentId?.let(::CommentId),
+                  ),
               ),
           ),
       )

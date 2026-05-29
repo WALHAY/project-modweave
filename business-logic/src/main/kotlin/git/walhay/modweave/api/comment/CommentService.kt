@@ -14,6 +14,8 @@ import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 
 @Service
 @Transactional
@@ -31,7 +33,7 @@ class CommentService(
 
   override fun findCommentsByModId(modId: ModId): List<Comment> {
     logger.debug { "Fetching comments for mod: $modId" }
-    return commentRepository.findByModId(modId)
+    return commentRepository.findByModId(modId).sortedWith(compareBy<Comment> { it.publishDate }.thenBy { it.id.value })
   }
 
   @CachePut("comments", key = "#result.id")
@@ -42,10 +44,22 @@ class CommentService(
   ): Comment {
     logger.info { "Creating new comment for mod: ${command.modId} by user: $userId" }
     val user = userService.findUserByUsername(userId)
+    val parentComment =
+        command.parentCommentId?.let { parentCommentId ->
+          commentRepository.findById(parentCommentId) ?: throw CommentNotFoundException(parentCommentId)
+        }
+    if (parentComment != null && parentComment.modId != command.modId) {
+      throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Reply must belong to the same mod")
+    }
 
     return command
-        .let { (content, modId) ->
-          Comment(content = content, modId = modId, authorId = user.username)
+        .let { (content, modId, parentCommentId) ->
+          Comment(
+              content = content,
+              modId = modId,
+              authorId = user.username,
+              parentCommentId = parentCommentId,
+          )
         }
         .let { commentRepository.save(it) }
         .also { logger.info { "Comment created successfully: ${it.id}" } }

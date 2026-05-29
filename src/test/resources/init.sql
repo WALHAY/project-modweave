@@ -67,7 +67,8 @@ id bigserial primary key,
 content text not null,
 publish_date timestamp default current_date not null,
 user_id varchar not null references modweave.users (username) on delete cascade,
-mod_id varchar not null references modweave.mods (id) on delete cascade
+mod_id varchar not null references modweave.mods (id) on delete cascade,
+parent_comment_id bigint references modweave.comments (id) on delete cascade
 ) ;
 
 create table modweave.collections (

@@ -15,6 +15,32 @@ import type { Collection, Comment, Mod, Version } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { normalizeId } from '../utils/normalize'
 
+type CommentNode = Comment & {
+  replies: CommentNode[]
+}
+
+function buildCommentTree(comments: Comment[]): CommentNode[] {
+  const nodes = new Map<number, CommentNode>()
+  const roots: CommentNode[] = []
+
+  comments.forEach((comment) => {
+    nodes.set(comment.id, { ...comment, replies: [] })
+  })
+
+  comments.forEach((comment) => {
+    const node = nodes.get(comment.id)
+    if (!node) return
+    const parentId = comment.parentCommentId
+    if (parentId != null && nodes.has(parentId)) {
+      nodes.get(parentId)!.replies.push(node)
+      return
+    }
+    roots.push(node)
+  })
+
+  return roots
+}
+
 export default function ModDetail() {
   const { modId } = useParams()
   const navigate = useNavigate()
@@ -28,6 +54,10 @@ export default function ModDetail() {
   const [commentText, setCommentText] = useState('')
   const [commentError, setCommentError] = useState<string | null>(null)
   const [commentStatus, setCommentStatus] = useState<string | null>(null)
+  const [replyToCommentId, setReplyToCommentId] = useState<number | null>(null)
+  const [replyText, setReplyText] = useState('')
+  const [replyError, setReplyError] = useState<string | null>(null)
+  const [replyStatus, setReplyStatus] = useState<string | null>(null)
   const [newVersionName, setNewVersionName] = useState('')
   const [newVersionChanges, setNewVersionChanges] = useState('')
   const [newVersionFiles, setNewVersionFiles] = useState<File[]>([])
@@ -43,6 +73,7 @@ export default function ModDetail() {
     return normalizeId(mod.publisherId).toLowerCase() === username.toLowerCase()
   }, [mod, username])
   const canManage = isAdmin || isOwner
+  const commentTree = useMemo(() => buildCommentTree(comments), [comments])
 
   useEffect(() => {
     if (!modId) {
@@ -137,6 +168,33 @@ export default function ModDetail() {
       await refreshComments()
     } catch (err) {
       if (err instanceof Error) setCommentError(err.message)
+    }
+  }
+
+  const handleStartReply = (commentId: number) => {
+    setReplyToCommentId((current) => (current === commentId ? null : commentId))
+    setReplyText('')
+    setReplyError(null)
+    setReplyStatus(null)
+  }
+
+  const handleCreateReply = async () => {
+    if (!modId || !token || replyToCommentId == null) return
+    setReplyError(null)
+    setReplyStatus(null)
+    try {
+      await createComment({
+        modId,
+        content: replyText,
+        parentCommentId: replyToCommentId,
+        token,
+      })
+      setReplyText('')
+      setReplyToCommentId(null)
+      setReplyStatus('Response posted.')
+      await refreshComments()
+    } catch (err) {
+      if (err instanceof Error) setReplyError(err.message)
     }
   }
 
@@ -339,30 +397,74 @@ export default function ModDetail() {
         {comments.length === 0 ? (
           <div className="empty">No comments yet. Be the first!</div>
         ) : (
-          comments.map((comment) => {
-            const canDelete =
-              isAdmin || (username && comment.authorId.toLowerCase() === username.toLowerCase())
-            return (
-              <div className="comment-card" key={comment.id}>
-                <div className="comment-meta">
-                  <strong>@{comment.authorId}</strong>
-                  <span>{new Date(comment.publishDate).toLocaleString()}</span>
-                </div>
-                <p>{comment.content}</p>
-                {canDelete ? (
-                  <button
-                    className="button ghost"
-                    type="button"
-                    onClick={() => handleDeleteComment(comment.id)}
-                  >
-                    Delete
-                  </button>
-                ) : null}
-              </div>
-            )
-          })
+          commentTree.map((comment) => renderCommentNode(comment))
         )}
       </div>
     </>
   )
+
+  function renderCommentNode(comment: CommentNode) {
+    const canDelete =
+      isAdmin || (username && comment.authorId.toLowerCase() === username.toLowerCase())
+    const isReplyTarget = replyToCommentId === comment.id
+
+    return (
+      <div className="comment-thread" key={comment.id}>
+        <div className="comment-card">
+          <div className="comment-meta">
+            <strong>@{comment.authorId}</strong>
+            <span>{new Date(comment.publishDate).toLocaleString()}</span>
+          </div>
+          <p>{comment.content}</p>
+          <div className="comment-actions">
+            {token ? (
+              <button className="button ghost" type="button" onClick={() => handleStartReply(comment.id)}>
+                {isReplyTarget ? 'Cancel response' : 'Add response'}
+              </button>
+            ) : null}
+            {canDelete ? (
+              <button
+                className="button ghost"
+                type="button"
+                onClick={() => handleDeleteComment(comment.id)}
+              >
+                Delete
+              </button>
+            ) : null}
+          </div>
+          {isReplyTarget ? (
+            <div className="reply-form">
+              <textarea
+                value={replyText}
+                onChange={(event) => setReplyText(event.target.value)}
+                placeholder={`Reply to @${comment.authorId}`}
+              />
+              <div className="action-row">
+                <button
+                  className="button"
+                  type="button"
+                  onClick={handleCreateReply}
+                  disabled={!replyText.trim()}
+                >
+                  Post response
+                </button>
+                <button
+                  className="button secondary"
+                  type="button"
+                  onClick={() => handleStartReply(comment.id)}
+                >
+                  Cancel
+                </button>
+              </div>
+              {replyError ? <div className="status error">{replyError}</div> : null}
+              {replyStatus ? <div className="status">{replyStatus}</div> : null}
+            </div>
+          ) : null}
+        </div>
+        {comment.replies.length > 0 ? (
+          <div className="comment-replies">{comment.replies.map((reply) => renderCommentNode(reply))}</div>
+        ) : null}
+      </div>
+    )
+  }
 }

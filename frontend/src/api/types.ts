@@ -61,6 +61,7 @@ export type Comment = {
   publishDate: string
   authorId: string
   modId: string
+  parentCommentId?: number | null
 }
 
 export type TokenResponse = {
