@@ -15,6 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.core.userdetails.UserDetailsService
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +30,29 @@ class SecurityConfiguration(
   fun passwordEncoder(): PasswordEncoder {
     logger.info { "Initializing BCryptPasswordEncoder bean" }
     return BCryptPasswordEncoder()
+  }
+
+  @Bean
+  fun customAuthenticationProvider(
+      userDetailsService: UserDetailsService,
+      passwordEncoder: PasswordEncoder,
+  ): org.springframework.security.authentication.AuthenticationProvider {
+    logger.info { "Initializing custom AuthenticationProvider bean" }
+    return object : org.springframework.security.authentication.AuthenticationProvider {
+      override fun authenticate(authentication: org.springframework.security.core.Authentication): org.springframework.security.core.Authentication {
+        val username = authentication.name ?: ""
+        val password = authentication.credentials as? String ?: ""
+        val userDetails = userDetailsService.loadUserByUsername(username)
+        if (!passwordEncoder.matches(password, userDetails.password)) {
+          throw org.springframework.security.authentication.BadCredentialsException("Bad credentials")
+        }
+        return org.springframework.security.authentication.UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
+      }
+
+      override fun supports(authentication: Class<*>): Boolean {
+        return org.springframework.security.authentication.UsernamePasswordAuthenticationToken::class.java.isAssignableFrom(authentication)
+      }
+    }
   }
 
   @Bean
