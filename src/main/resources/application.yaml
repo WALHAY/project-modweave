@@ -1,6 +1,8 @@
 spring:
   application:
     name: modweave
+  profiles:
+    active: postgres
   cache:
     type: redis
     host: localhost

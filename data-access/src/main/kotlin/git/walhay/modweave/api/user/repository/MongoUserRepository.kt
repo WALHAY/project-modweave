@@ -30,7 +30,7 @@ interface SpringDataMongoUserRepository : MongoRepository<UserDocument, String> 
 @Repository
 @Profile("mongodb")
 class MongoUserRepository(private val repository: SpringDataMongoUserRepository) :
-    git.walhay.modweave.api.user.repository.UserRepository {
+    UserRepository {
   private fun UserDocument.toDomain(): User =
       User(
           UserId(this.username),
