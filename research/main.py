@@ -18,16 +18,16 @@ DB_USER = "postgres"
 DB_PASSWORD = "postgres"
 DB_NAME = "postgres"
 CONTAINER_IMAGE = "postgres:16"
-ROW_COUNT = 1_000_000
+ROW_COUNT = 100_000
 
 INDEXES = {
     "btree": """
-        CREATE INDEX idx_btree_mod_id
-        ON modweave.comments(mod_id);
+        CREATE INDEX idx_btree_game_id
+        ON modweave.mods(game_id);
     """,
     "hash": """
-        CREATE INDEX idx_hash_mod_id
-        ON modweave.comments USING HASH(mod_id);
+        CREATE INDEX idx_hash_game_id
+        ON modweave.mods USING HASH(game_id);
     """,
     "gin": """
         CREATE INDEX idx_gin_description
@@ -42,24 +42,24 @@ INDEXES = {
         );
     """,
     "brin": """
-        CREATE INDEX idx_brin_upload_date
-        ON modweave.mod_versions USING BRIN(upload_date);
+        CREATE INDEX idx_brin_creation_date
+        ON modweave.mods USING BRIN(creation_date);
     """,
 }
 
 DROP_INDEXES = [
-    "DROP INDEX IF EXISTS modweave.idx_btree_mod_id;",
-    "DROP INDEX IF EXISTS modweave.idx_hash_mod_id;",
+    "DROP INDEX IF EXISTS modweave.idx_btree_game_id;",
+    "DROP INDEX IF EXISTS modweave.idx_hash_game_id;",
     "DROP INDEX IF EXISTS modweave.idx_gin_description;",
     "DROP INDEX IF EXISTS modweave.idx_gist_description;",
-    "DROP INDEX IF EXISTS modweave.idx_brin_upload_date;",
+    "DROP INDEX IF EXISTS modweave.idx_brin_creation_date;",
 ]
 
 QUERIES = {
     "equality_search": """
         SELECT *
-        FROM modweave.comments
-        WHERE mod_id = 'mod_100';
+        FROM modweave.mods
+        WHERE game_id = 'game_100';
     """,
     "fulltext_search": """
         SELECT *
@@ -69,8 +69,8 @@ QUERIES = {
     """,
     "range_search": """
         SELECT *
-        FROM modweave.mod_versions
-        WHERE upload_date BETWEEN
+        FROM modweave.mods
+        WHERE creation_date BETWEEN
         '2024-01-01' AND '2024-12-31';
     """,
 }
@@ -208,7 +208,7 @@ def seed_database():
                     'user_' || gs || '@example.com',
                     'password-' || gs,
                     (gs % 10 = 0)
-                FROM generate_series(1, {ROW_COUNT}) AS gs;
+                FROM generate_series(1, 1000) AS gs;
 
                 INSERT INTO modweave.games (id, name, description, image_path)
                 SELECT
@@ -216,81 +216,16 @@ def seed_database():
                     'Game ' || gs,
                     'Game description ' || gs,
                     '/images/games/' || gs || '.png'
-                FROM generate_series(1, {ROW_COUNT}) AS gs;
-
-                INSERT INTO modweave.categories (name, description)
-                SELECT
-                    'category_' || gs,
-                    'Category description ' || gs
-                FROM generate_series(1, {ROW_COUNT}) AS gs;
+                FROM generate_series(1, 100) AS gs;
 
                 INSERT INTO modweave.mods (id, name, description, image_path, game_id, publisher_id)
                 SELECT
                     'mod_' || gs,
                     'Mod ' || gs,
-                    'Mod description ' || gs,
+                    'Mod with graphics and textures description ' || gs,
                     '/images/mods/' || gs || '.png',
-                    'game_' || (((gs - 1) % {ROW_COUNT}) + 1),
-                    'user_' || (((gs - 1) % {ROW_COUNT}) + 1)
-                FROM generate_series(1, {ROW_COUNT}) AS gs;
-
-                INSERT INTO modweave.mod_versions (id, name, changes, status, mod_id)
-                SELECT
-                    (
-                        substr(md5(gs::text), 1, 8) || '-' ||
-                        substr(md5(gs::text), 9, 4) || '-' ||
-                        substr(md5(gs::text), 13, 4) || '-' ||
-                        substr(md5(gs::text), 17, 4) || '-' ||
-                        substr(md5(gs::text), 21, 12)
-                    )::uuid,
-                    'Version ' || gs,
-                    'Changes ' || gs,
-                    CASE
-                        WHEN gs % 3 = 0 THEN 'APPROVED'
-                        WHEN gs % 3 = 1 THEN 'PENDING'
-                        ELSE 'REJECTED'
-                    END::modweave.version_status,
-                    'mod_' || (((gs - 1) % {ROW_COUNT}) + 1)
-                FROM generate_series(1, {ROW_COUNT}) AS gs;
-                INSERT INTO modweave.mod_files (filename, file_path, downloads, mod_version_id)
-                SELECT
-                    'file_' || gs || '.zip',
-                    '/files/' || gs || '.zip',
-                    gs % 1000,
-                    (
-                        substr(md5(gs::text), 1, 8) || '-' ||
-                        substr(md5(gs::text), 9, 4) || '-' ||
-                        substr(md5(gs::text), 13, 4) || '-' ||
-                        substr(md5(gs::text), 17, 4) || '-' ||
-                        substr(md5(gs::text), 21, 12)
-                    )::uuid
-                FROM generate_series(1, {ROW_COUNT}) AS gs;
-
-                INSERT INTO modweave.comments (content, user_id, mod_id)
-                SELECT
-                    'Comment ' || gs,
-                    'user_' || (((gs - 1) % {ROW_COUNT}) + 1),
-                    'mod_' || (((gs - 1) % {ROW_COUNT}) + 1)
-                FROM generate_series(1, {ROW_COUNT}) AS gs;
-
-                INSERT INTO modweave.collections (name, description, owner)
-                SELECT
-                    'Collection ' || gs,
-                    'Collection description ' || gs,
-                    'user_' || (((gs - 1) % {ROW_COUNT}) + 1)
-                FROM generate_series(1, {ROW_COUNT}) AS gs;
-
-                INSERT INTO modweave.mods_categories (mod_id, category_name)
-                SELECT
-                    'mod_' || (((gs - 1) % {ROW_COUNT}) + 1),
-                    'category_' || (((gs - 1) % {ROW_COUNT}) + 1)
-                FROM generate_series(1, {ROW_COUNT}) AS gs;
-
-                INSERT INTO modweave.collections_mods (collection_id, order_index, mod_id)
-                SELECT
-                    gs,
-                    1,
-                    'mod_' || gs
+                    'game_' || (((gs - 1) % 100) + 1),
+                    'user_' || (((gs - 1) % 1000) + 1)
                 FROM generate_series(1, {ROW_COUNT}) AS gs;
                 """
             )
@@ -313,9 +248,10 @@ def clear_data():
         connection.close()
 
 
-def measure_query(cursor, query, repeats=10):
+def measure_query(cursor, query, repeats=5):
     times = []
-    for _ in range(repeats):
+    for i in range(repeats):
+        cursor.execute("DISCARD PLANS;")
         start = time.perf_counter_ns()
         cursor.execute(query)
         cursor.fetchall()
@@ -341,51 +277,38 @@ def drop_indexes(cursor):
 def prepare_insert_benchmark(cursor, index_type):
     table_name = f"modweave.bench_{index_type}"
     cursor.execute(f"DROP TABLE IF EXISTS {table_name};")
-    if index_type in ("btree", "hash", "no_index"):
-        cursor.execute(
-            f"""
-            CREATE UNLOGGED TABLE {table_name} (
-                content text NOT NULL,
-                user_id varchar NOT NULL,
-                mod_id varchar NOT NULL
-            );
-            """
+    
+    cursor.execute(
+        f"""
+        CREATE UNLOGGED TABLE {table_name} (
+            id varchar PRIMARY KEY,
+            name varchar NOT NULL,
+            description text,
+            image_path varchar NOT NULL,
+            game_id varchar NOT NULL,
+            publisher_id varchar NOT NULL
+        );
+        """
+    )
+    
+    if index_type == "no_index":
+        return table_name
+    elif index_type in ("btree", "hash"):
+        index_sql = (
+            f"CREATE INDEX bench_{index_type}_game_id ON {table_name} USING HASH (game_id);"
+            if index_type == "hash"
+            else f"CREATE INDEX bench_{index_type}_game_id ON {table_name} (game_id);"
         )
-        if index_type == "no_index":
-            index_sql = None
-        else:
-            index_sql = (
-                f"CREATE INDEX bench_{index_type}_mod_id ON {table_name} USING HASH (mod_id);"
-                if index_type == "hash"
-                else f"CREATE INDEX bench_{index_type}_mod_id ON {table_name} (mod_id);"
-            )
     elif index_type in ("gin", "gist"):
-        cursor.execute(
-            f"""
-            CREATE UNLOGGED TABLE {table_name} (
-                id varchar PRIMARY KEY,
-                description text
-            );
-            """
-        )
         index_sql = (
             f"CREATE INDEX bench_{index_type}_description ON {table_name} USING GIN (to_tsvector('english', description));"
             if index_type == "gin"
             else f"CREATE INDEX bench_{index_type}_description ON {table_name} USING GIST (to_tsvector('english', description));"
         )
-    else:
-        cursor.execute(
-            f"""
-            CREATE UNLOGGED TABLE {table_name} (
-                id uuid PRIMARY KEY,
-                upload_date timestamp NOT NULL
-            );
-            """
-        )
-        index_sql = f"CREATE INDEX bench_{index_type}_upload_date ON {table_name} USING BRIN (upload_date);"
-
-    if index_sql:
-        cursor.execute(index_sql)
+    else:  # brin
+        index_sql = f"CREATE INDEX bench_{index_type}_game_id ON {table_name} USING BRIN (game_id);"
+    
+    cursor.execute(index_sql)
     return table_name
 
 
@@ -393,40 +316,18 @@ def measure_insert_benchmark(conn, cursor, index_type, rows, batch_id):
     table_name = prepare_insert_benchmark(cursor, index_type)
     conn.commit()
 
-    if index_type in ("btree", "hash", "no_index"):
-        batch_sql = f"""
-            INSERT INTO {table_name} (content, user_id, mod_id)
-            SELECT
-                %s || '_' || gs,
-                'user_' || (mod(gs - 1, %s) + 1),
-                'mod_' || (mod(gs - 1, %s) + 1)
-            FROM generate_series(1, %s) AS gs;
-        """
-        batch_params = (batch_id, ROW_COUNT, ROW_COUNT, rows)
-    elif index_type in ("gin", "gist"):
-        batch_sql = f"""
-            INSERT INTO {table_name} (id, description)
-            SELECT
-                %s || '_' || gs,
-                'graphics texture pack ' || gs
-            FROM generate_series(1, %s) AS gs;
-        """
-        batch_params = (batch_id, rows)
-    else:
-        batch_sql = f"""
-            INSERT INTO {table_name} (id, upload_date)
-            SELECT
-                (
-                    substr(md5(gs::text), 1, 8) || '-' ||
-                    substr(md5(gs::text), 9, 4) || '-' ||
-                    substr(md5(gs::text), 13, 4) || '-' ||
-                    substr(md5(gs::text), 17, 4) || '-' ||
-                    substr(md5(gs::text), 21, 12)
-                )::uuid,
-                timestamp '2024-01-01' + (gs || ' days')::interval
-            FROM generate_series(1, %s) AS gs;
-        """
-        batch_params = (rows,)
+    batch_sql = f"""
+        INSERT INTO {table_name} (id, name, description, image_path, game_id, publisher_id)
+        SELECT
+            'mod_' || %s || '_' || gs,
+            'Mod ' || gs,
+            'Mod with graphics and textures description ' || gs,
+            '/images/mods/' || gs || '.png',
+            'game_' || (mod(gs - 1, 100) + 1),
+            'user_' || (mod(gs - 1, 1000) + 1)
+        FROM generate_series(1, %s) AS gs;
+    """
+    batch_params = (batch_id, rows)
 
     start = time.perf_counter_ns()
     cursor.execute(batch_sql, batch_params)
@@ -453,12 +354,13 @@ def run_research(insert_sizes):
         host="127.0.0.1",
         port=db_port,
     )
+    conn.autocommit = True
     cursor = conn.cursor()
 
     results = []
     print("Исследование без индексов")
     drop_indexes(cursor)
-    conn.commit()
+    cursor.execute("VACUUM ANALYZE modweave.mods;")
     for query_name, query in QUERIES.items():
         avg_time = measure_query(cursor, query)
         results.append(
@@ -490,10 +392,9 @@ def run_research(insert_sizes):
     for index_type, create_query in INDEXES.items():
         print(f"Исследование индекса: {index_type}")
         drop_indexes(cursor)
-        conn.commit()
 
         cursor.execute(create_query)
-        conn.commit()
+        cursor.execute("VACUUM ANALYZE modweave.mods;")
 
         index_name = f"modweave.{create_query.split()[2]}"
         try:
@@ -720,14 +621,14 @@ def parse_args():
     parser.add_argument(
         "--insert-step",
         type=int,
-        default=10_000,
-        help="Step size for insert benchmarks (rows). Default: 10000.",
+        default=5_000,
+        help="Step size for insert benchmarks (rows). Default: 5000.",
     )
     parser.add_argument(
         "--insert-max",
         type=int,
-        default=1_000_000,
-        help="Maximum rows for insert benchmarks. Default: 1000000.",
+        default=50_000,
+        help="Maximum rows for insert benchmarks. Default: 50000.",
     )
     parser.add_argument(
         "--replot-from-csv",
