@@ -1,5 +1,5 @@
 rootProject.name = 'modweave'
 
-include 'data-access'
-include 'business-logic'
-include 'ui'
+include ':layers:data-access'
+include ':layers:business-logic'
+include ':layers:ui'

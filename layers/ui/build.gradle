@@ -1,5 +1,5 @@
 dependencies {
-  implementation project(':business-logic')
+  implementation project(':layers:business-logic')
 
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-security'

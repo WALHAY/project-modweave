@@ -46,7 +46,6 @@ class SecurityConfiguration(
         authorize("/auth/**", permitAll)
         authorize(anyRequest, permitAll)
       }
-      csrf { disable() }
     }
     http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 

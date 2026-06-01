@@ -35,9 +35,9 @@ dependencyManagement {
 }
 
 dependencies {
-  implementation project(':business-logic')
-  implementation project(':data-access')
-  implementation project(':ui')
+  implementation project(':layers:business-logic')
+  implementation project(':layers:data-access')
+  implementation project(':layers:ui')
 
   implementation 'org.jetbrains.kotlin:kotlin-reflect'
   implementation 'io.github.microutils:kotlin-logging-jvm:3.0.5'
@@ -107,10 +107,4 @@ subprojects {
   tasks.named('test') {
     useJUnitPlatform()
   }
-}
-
-tasks.register('assembleComponents') {
-  group = 'build'
-  description = 'Build deployable component jars by modules'
-  dependsOn ':data-access:jar', ':business-logic:jar', ':ui:jar'
 }
