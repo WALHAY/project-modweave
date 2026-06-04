@@ -6,11 +6,12 @@ import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.user.UserId
 import jakarta.persistence.*
 import java.io.Serializable
+import java.util.UUID
 
 @Entity
 @Table(schema = "modweave", name = "collections")
 class CollectionEntity(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column("id") val id: Long,
+    @Id @Column("id") val id: UUID,
     @Column("name", nullable = false) val name: String,
     @Column("description") val description: String?,
     @Column("owner", nullable = false) val owner: UserId,
@@ -18,7 +19,7 @@ class CollectionEntity(
     @OrderBy("order_index")
     val mods: List<CollectionItemEntity> = emptyList(),
 ) : Serializable {
-  constructor() : this(0, "", null, UserId())
+  constructor() : this(UUID.randomUUID(), "", null, UserId())
 
   fun toDomain(): Collection =
       Collection(

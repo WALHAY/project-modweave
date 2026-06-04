@@ -11,7 +11,7 @@ import org.hibernate.annotations.NaturalId
 @Entity
 @Table(schema = "modweave", name = "mod_files")
 class FileEntity(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column(name = "id") val id: Long,
+    @Id @Column(name = "id") val id: UUID,
     @Column(name = "filename", nullable = false) val filename: String,
     @NaturalId @Column(name = "file_path", nullable = false) val filePath: String,
     @Column(name = "downloads") var downloads: Int = 0,
@@ -21,7 +21,7 @@ class FileEntity(
       filename: String,
       filePath: String,
       versionId: UUID,
-  ) : this(0, filename, filePath, 0, versionId)
+  ) : this(UUID.randomUUID(), filename, filePath, 0, versionId)
 
   constructor() : this("", "", UUID.randomUUID())
 

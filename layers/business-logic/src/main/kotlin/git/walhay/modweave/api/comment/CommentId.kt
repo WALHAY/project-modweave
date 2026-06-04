@@ -1,8 +1,10 @@
 package git.walhay.modweave.api.comment
 
+import java.util.UUID
+
 @JvmInline
 value class CommentId(
-    val value: Long = 0,
+    val value: UUID = UUID.randomUUID(),
 ) {
   override fun toString(): String = value.toString()
 }

@@ -6,6 +6,7 @@ import git.walhay.modweave.api.comment.http.dto.CommentCreateDto
 import git.walhay.modweave.api.comment.http.dto.CommentResponseDto
 import git.walhay.modweave.api.user.UserId
 import jakarta.validation.Valid
+import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus.UNAUTHORIZED
@@ -36,7 +37,7 @@ class CommentController(
 
   @DeleteMapping("/{id}")
   fun deleteComment(
-      @PathVariable id: Long,
+      @PathVariable id: UUID,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
     val authenticatedUser = requireUser(user)

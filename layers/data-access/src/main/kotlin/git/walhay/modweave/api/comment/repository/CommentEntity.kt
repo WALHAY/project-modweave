@@ -7,11 +7,12 @@ import git.walhay.modweave.api.user.UserId
 import jakarta.persistence.*
 import java.io.Serializable
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Entity
 @Table(schema = "modweave", name = "comments")
 class CommentEntity(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) @Column("id") val id: Long = 0,
+    @Id @Column("id") val id: UUID,
     @Column("content", nullable = false) val content: String = "",
     @Column("publish_date", nullable = false) val publishDate: LocalDateTime = LocalDateTime.now(),
     @Column("user_id", nullable = false) val authorId: String = "",

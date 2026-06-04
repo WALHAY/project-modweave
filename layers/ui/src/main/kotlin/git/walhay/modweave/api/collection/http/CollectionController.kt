@@ -10,6 +10,7 @@ import git.walhay.modweave.api.mod.http.dto.ModResponseDto
 import git.walhay.modweave.api.user.UserId
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
+import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
@@ -31,17 +32,17 @@ class CollectionController(
 
   @GetMapping("/{collectionId}")
   fun getCollection(
-      @PathVariable collectionId: CollectionId,
+      @PathVariable collectionId: UUID,
   ): CollectionResponseDto {
     logger.info { "GET /collections/$collectionId" }
-    return collectionService.getCollectionById(collectionId).let {
+    return collectionService.getCollectionById(CollectionId(collectionId)).let {
       CollectionResponseDto.fromCollection(it)
     }
   }
 
   @GetMapping("/{collectionId}/mods")
   fun getModsInCollection(
-      @PathVariable collectionId: Long,
+      @PathVariable collectionId: UUID,
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
       @SortDefault(sort = ["index"]) sort: Sort,
@@ -67,7 +68,7 @@ class CollectionController(
 
   @PutMapping("/{collectionId}")
   fun addModToCollection(
-      @PathVariable collectionId: Long,
+      @PathVariable collectionId: UUID,
       @RequestParam modId: String,
       @RequestParam(required = false) index: Int?,
       @AuthenticationPrincipal user: UserDetails?,
@@ -82,7 +83,7 @@ class CollectionController(
 
   @DeleteMapping("/{collectionId}")
   fun deleteCollection(
-      collectionId: Long,
+      collectionId: UUID,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
     val username =
@@ -93,7 +94,7 @@ class CollectionController(
 
   @DeleteMapping("/{collectionId}/mods/{modId}")
   fun deleteModFromCollection(
-      @PathVariable collectionId: Long,
+      @PathVariable collectionId: UUID,
       @PathVariable modId: String,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
