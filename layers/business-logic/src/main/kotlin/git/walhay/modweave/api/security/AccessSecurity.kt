@@ -26,8 +26,10 @@ class AccessSecurity(
   fun isSelf(userId: UserId, authentication: Authentication? = currentAuth()): Boolean =
       authentication?.name == userId.value
 
-  fun isSelfOrAdmin(userId: UserId, authentication: Authentication? = currentAuth()): Boolean =
+  fun isSelfOrAdmin(userId: UserId, authentication: Authentication?): Boolean =
       isAdmin(authentication) || isSelf(userId, authentication)
+
+	fun isSelfOrAdmin(userId: String) = isSelfOrAdmin(UserId(userId), currentAuth())
 
   fun isModOwnerOrAdmin(
       userId: UserId,
