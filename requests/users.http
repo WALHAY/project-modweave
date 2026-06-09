@@ -1,0 +1,32 @@
+@host=localhost:8080
+
+# Tokens
+@accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YWxoYXkiLCJpc3MiOiJtb2R3ZWF2ZSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MTAxMTgwMywiZXhwIjoxNzgxMDEyNzAzfQ.k_57JKAMxV4PGevGOyLqdWQyEgq0wPFs4nMuMFdGVjQ
+
+### Get single user by username
+GET {{host}}/api/v1/users/walhay
+
+### Get all users
+GET {{host}}/api/v1/users?page=0&size=5
+
+### Register New User
+POST {{host}}/api/v1/users
+Content-Type: application/x-www-form-urlencoded
+
+{
+	"name": "Hello",
+	"username": "Hello",
+	"email": "waffle@mail.hello",
+	"password": "password",
+}
+
+### Change user data
+
+PATCH {{host}}/api/v1/users
+Content-Type: application/x-www-form-urlencoded
+Authorization: Bearer {{accessToken}}
+
+{
+	"username": "WAFFLE",
+	"email": "email@mail.ru"
+}

@@ -1,0 +1,18 @@
+@host=localhost:8080
+
+# Tokens
+@accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YWxoYXkiLCJpc3MiOiJtb2R3ZWF2ZSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MTAxMjg0NSwiZXhwIjoxNzgxMDEzNzQ1fQ.8CNKG0tJzYf_oYLeV0MxbiR5gFVkYvcmnEWKeDlfYU8
+
+### Get games
+
+GET {{host}}/api/v1/games?page=0&size=5
+
+### Upload new game
+
+POST {{host}}/api/v1/games
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data
+
+name=Game
+description=My game desc
+image=@./image.png

@@ -1,0 +1,36 @@
+@host=localhost:8080
+
+# Tokens
+@accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YWxoYXkiLCJpc3MiOiJtb2R3ZWF2ZSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MTAxMTgwMywiZXhwIjoxNzgxMDEyNzAzfQ.k_57JKAMxV4PGevGOyLqdWQyEgq0wPFs4nMuMFdGVjQ
+
+### Get all categories
+
+GET {{host}}/api/v1/categories
+
+### Upload new category
+
+POST {{host}}/api/v1/categories
+Content-Type: application/x-www-form-urlencoded
+Authorization: Bearer {{accessToken}}
+
+{
+	"name": "New category",
+	"description": "No Description"
+}
+
+### Delete category
+
+DELETE {{host}}/api/v1/categories?category=New+category
+Authorization: Bearer {{accessToken}}
+
+### Update category
+
+PATCH {{host}}/api/v1/categories
+Content-Type: application/x-www-form-urlencoded
+Authorization: Bearer {{accessToken}}
+
+{
+	"name": "New category",
+	"description": "New new desc"
+}
+
