@@ -15,6 +15,6 @@ class GlobalExceptionHandler(
   @ExceptionHandler(AuthorizationDeniedException::class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   fun authorizationException(e: Exception) {
-    logger.info { "Authorization failed" } 
+    logger.info { "Authorization failed" }
   }
 }
