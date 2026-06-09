@@ -10,6 +10,7 @@ import git.walhay.modweave.api.user.UserId
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component("accessSecurity")
 class AccessSecurity(
@@ -18,20 +19,23 @@ class AccessSecurity(
     private val commentRepository: CommentRepository,
 ) {
 
-  fun isAdmin() = isAdmin(currentAuth())
 
-  fun isAdmin(authentication: Authentication? = currentAuth()): Boolean =
+  private fun isAdmin(authentication: Authentication? = currentAuth()): Boolean =
       authentication?.authorities?.any { it.authority == "ROLE_ADMIN" } == true
 
-  fun isSelf(userId: UserId, authentication: Authentication? = currentAuth()): Boolean =
+  fun isAdmin() = isAdmin(currentAuth())
+
+  private fun isSelf(userId: UserId, authentication: Authentication?): Boolean =
       authentication?.name == userId.value
 
-  fun isSelfOrAdmin(userId: UserId, authentication: Authentication?): Boolean =
+	fun isSelf(userId: String) = isSelf(UserId(userId), currentAuth())
+
+  private fun isSelfOrAdmin(userId: UserId, authentication: Authentication?): Boolean =
       isAdmin(authentication) || isSelf(userId, authentication)
 
 	fun isSelfOrAdmin(userId: String) = isSelfOrAdmin(UserId(userId), currentAuth())
 
-  fun isModOwnerOrAdmin(
+  private fun isModOwnerOrAdmin(
       userId: UserId,
       modId: ModId,
       authentication: Authentication? = currentAuth(),
@@ -46,10 +50,15 @@ class AccessSecurity(
     return mod.publisherId == userId
   }
 
-  fun isCollectionOwnerOrAdmin(
+  fun isModOwnerOrAdmin(
+      userId: String,
+      modId: String,
+  ) = isModOwnerOrAdmin(UserId(userId), ModId(modId), currentAuth())
+
+  private fun isCollectionOwnerOrAdmin(
       userId: UserId,
       collectionId: CollectionId,
-      authentication: Authentication? = currentAuth(),
+      authentication: Authentication?
   ): Boolean {
     if (isAdmin(authentication)) {
       return true
@@ -61,7 +70,12 @@ class AccessSecurity(
     return collection.owner == userId
   }
 
-  fun isCommentOwnerOrAdmin(
+  fun isCollectionOwnerOrAdmin(
+      userId: String,
+      collectionId: UUID
+  )= isCollectionOwnerOrAdmin(UserId(userId), CollectionId(collectionId), currentAuth())
+
+  private fun isCommentOwnerOrAdmin(
       userId: UserId,
       commentId: CommentId,
       authentication: Authentication? = currentAuth(),
@@ -75,6 +89,11 @@ class AccessSecurity(
     val comment = commentRepository.findById(commentId) ?: return false
     return comment.authorId == userId
   }
+
+  fun isCommentOwnerOrAdmin(
+      userId: String,
+      commentId: UUID,
+  ) = isCommentOwnerOrAdmin(UserId(userId), CommentId(commentId), currentAuth())
 
   private fun currentAuth(): Authentication? = SecurityContextHolder.getContext().authentication
 }

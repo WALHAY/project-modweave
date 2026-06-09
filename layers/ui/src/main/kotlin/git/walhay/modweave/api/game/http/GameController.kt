@@ -50,4 +50,11 @@ class GameController(
     logger.info { "POST /games - uploading game: ${dto.name}" }
     return gameService.uploadGame(dto.toGameCreateCommand()).let { GameResponseDto.fromGame(it) }
   }
+
+  @DeleteMapping
+  @ResponseStatus(HttpStatus.OK)
+  fun deletegame(@PathVariable gameId: GameId) {
+    logger.info { "DELETE /games - deleting game: ${gameId.value}" }
+    gameService.deleteGame(gameId)
+  }
 }

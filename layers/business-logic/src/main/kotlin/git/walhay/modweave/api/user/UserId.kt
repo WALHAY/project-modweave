@@ -6,5 +6,5 @@ import java.io.Serializable
 value class UserId(
     val value: String = "",
 ) : Serializable {
-  override fun toString(): String = value
+  override fun toString(): String = value.lowercase()
 }

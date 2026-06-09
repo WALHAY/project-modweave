@@ -12,12 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class GlobalExceptionHandler(
     private val logger: KLogger = KotlinLogging.logger {},
 ) {
-  @ExceptionHandler(Exception::class)
-  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  fun internalServerError(e: Exception) {
-    logger.error(e) { "Unhandled exception" }
-  }
-
   @ExceptionHandler(AuthorizationDeniedException::class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   fun authorizationException(e: Exception) {

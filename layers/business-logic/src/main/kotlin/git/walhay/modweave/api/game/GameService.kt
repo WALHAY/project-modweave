@@ -76,9 +76,9 @@ class GameService(
     return savedGame
   }
 
-  @CacheEvict("games", key = "#gameId.value")
+  @CacheEvict("games", key = "#gameId")
   @PreAuthorize("@accessSecurity.isAdmin()")
-  override fun deleteGame(gameId: GameId) {
+  override fun deleteGame(gameId: GameId): Unit {
     logger.info { "Deleting game: $gameId" }
     gameRepository.deleteById(gameId)
     logger.info { "Game deleted successfully: $gameId" }

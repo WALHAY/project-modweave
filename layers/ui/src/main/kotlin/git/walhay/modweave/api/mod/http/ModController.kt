@@ -84,7 +84,7 @@ class ModController(
   ) {
     val authenticatedUser = requireUser(user)
     logger.info { "DELETE /mods/$modId for user: ${authenticatedUser.username}" }
-    modService.deleteMod(UserId(authenticatedUser.username), modId)
+    modService.deleteMod(modId)
   }
 
   private fun requireUser(user: UserDetails?): UserDetails =

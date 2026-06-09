@@ -36,7 +36,6 @@ interface IModService {
   ): Mod
 
   fun deleteMod(
-      userId: UserId,
       modId: ModId,
   )
 }

@@ -83,13 +83,13 @@ class CollectionController(
 
   @DeleteMapping("/{collectionId}")
   fun deleteCollection(
-      collectionId: UUID,
+      @PathVariable collectionId: CollectionId,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
     val username =
         user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
     logger.info { "DELETE /collections/$collectionId for user: $username" }
-    collectionService.deleteCollection(UserId(username), CollectionId(collectionId))
+    collectionService.deleteCollection(UserId(username), collectionId)
   }
 
   @DeleteMapping("/{collectionId}/mods/{modId}")
