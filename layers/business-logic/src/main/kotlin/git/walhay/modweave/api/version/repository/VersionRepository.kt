@@ -3,6 +3,7 @@ package git.walhay.modweave.api.version.repository
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.Version
 import git.walhay.modweave.api.version.VersionId
+import git.walhay.modweave.api.version.VersionStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
@@ -12,6 +13,12 @@ interface VersionRepository {
   fun findVersionsByModId(
       modId: ModId,
       pageable: Pageable,
+  ): Page<Version>
+
+  fun findVersionsByModIdAndStatus(
+      modId: ModId,
+      status: VersionStatus,
+      pageable: Pageable
   ): Page<Version>
 
   fun save(version: Version): Version

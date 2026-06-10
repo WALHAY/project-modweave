@@ -3,6 +3,7 @@ package git.walhay.modweave.api.version.http
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.IVersionService
 import git.walhay.modweave.api.version.VersionId
+import git.walhay.modweave.api.version.VersionStatus
 import git.walhay.modweave.api.version.http.dto.VersionResponseDto
 import git.walhay.modweave.api.version.http.dto.VersionUploadDto
 import jakarta.validation.Valid
@@ -31,6 +32,21 @@ class VersionController(
     }
   }
 
+  @PatchMapping("/{versionName}")
+  fun changeVersionStatus(
+      @PathVariable modId: String,
+      @PathVariable versionName: String,
+      status: String,
+      @AuthenticationPrincipal user: UserDetails?,
+  ) {
+    var authUser = requireUser(user)
+    logger.info { "PATCH /mods/$modId/versions/$versionName" }
+    versionService.changeVersionStatus(
+        UserId(authUser.username),
+        VersionId(UUID.fromString(versionName)),
+        VersionStatus.valueOf(status.uppercase()))
+  }
+
   @DeleteMapping("/{versionName}")
   fun deleteVersion(
       @PathVariable modId: String,
@@ -39,4 +55,7 @@ class VersionController(
     logger.info { "DELETE /mods/$modId/versions/$versionName" }
     versionService.deleteModVersion(VersionId(UUID.fromString(versionName)))
   }
+
+  private fun requireUser(user: UserDetails?): UserDetails =
+      user ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
 }

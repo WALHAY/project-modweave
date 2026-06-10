@@ -5,6 +5,8 @@ import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.command.ModCreateCommand
+import git.walhay.modweave.api.security.AccessSecurity
+import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.command.VersionCreateCommand
 import git.walhay.modweave.api.version.exception.VersionExistsException
 import git.walhay.modweave.api.version.exception.VersionNotFoundException
@@ -19,6 +21,7 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 
 @Service
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Service
 class VersionService(
     private val versionRepository: VersionRepository,
     private val fileService: IFileService,
+    private val accessSecurity: AccessSecurity,
     private val logger: KLogger = KotlinLogging.logger {},
 ) : IVersionService {
   @Lazy @Autowired private lateinit var modService: IModService
@@ -35,9 +39,15 @@ class VersionService(
       versionRepository.findVersionById(versionId) ?: throw VersionNotFoundException(versionId)
 
   override fun getModVersions(
+      userId: UserId,
       modId: ModId,
       pageable: Pageable,
-  ): Page<Version> = versionRepository.findVersionsByModId(modId, pageable)
+  ): Page<Version> {
+    if (accessSecurity.isModOwnerOrAdmin(userId.value, modId.value)) {
+      return versionRepository.findVersionsByModId(modId, pageable)
+    }
+    return versionRepository.findVersionsByModIdAndStatus(modId, VersionStatus.APPROVED, pageable)
+  }
 
   @CachePut("versions", key = "#result.id")
   override fun createModVersion(
@@ -48,6 +58,20 @@ class VersionService(
     mod.versions.addLast(version)
 
     fileService.uploadVersionFiles(version, command.files)
+    return versionRepository.save(version)
+  }
+
+  @CacheEvict("versions", key = "#versionId")
+  @PreAuthorize("@accessSecurity.isAdmin(#userId)")
+  override fun changeVersionStatus(
+      userId: UserId,
+      versionId: VersionId,
+      status: VersionStatus
+  ): Version {
+    var version = getModVersion(versionId)
+
+    version.status = status
+
     return versionRepository.save(version)
   }
 

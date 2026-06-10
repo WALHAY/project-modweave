@@ -10,7 +10,7 @@ data class Version(
     val name: String,
     val changes: String? = null,
     val uploadDate: LocalDateTime,
-    val status: VersionStatus,
+    var status: VersionStatus,
     val modId: ModId,
     val files: MutableList<File> = mutableListOf(),
 ) : Serializable {

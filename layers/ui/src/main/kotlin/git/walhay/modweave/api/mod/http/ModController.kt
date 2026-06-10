@@ -55,11 +55,14 @@ class ModController(
       @RequestParam @Min(0) page: Int,
       @RequestParam @Min(1) size: Int,
       @SortDefault(sort = ["id"], direction = Sort.Direction.DESC) sort: Sort,
+      @AuthenticationPrincipal user: UserDetails?,
   ): Page<VersionResponseDto> {
+    val authenticatedUser = requireUser(user)
     logger.info { "GET /mods/$modId/versions - page: $page, size: $size" }
-    return versionService.getModVersions(ModId(modId), PageRequest.of(page, size, sort)).map {
-      VersionResponseDto.fromVersion(it)
-    }
+    return versionService
+        .getModVersions(
+            UserId(authenticatedUser.username), ModId(modId), PageRequest.of(page, size, sort))
+        .map { VersionResponseDto.fromVersion(it) }
   }
 
   @PostMapping
@@ -84,7 +87,7 @@ class ModController(
   ) {
     val authenticatedUser = requireUser(user)
     logger.info { "DELETE /mods/$modId for user: ${authenticatedUser.username}" }
-    modService.deleteMod(modId)
+    modService.deleteMod(UserId(authenticatedUser.username), modId)
   }
 
   private fun requireUser(user: UserDetails?): UserDetails =
