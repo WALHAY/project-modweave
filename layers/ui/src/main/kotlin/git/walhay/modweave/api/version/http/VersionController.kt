@@ -1,6 +1,7 @@
 package git.walhay.modweave.api.version.http
 
 import git.walhay.modweave.api.mod.ModId
+import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.IVersionService
 import git.walhay.modweave.api.version.VersionId
 import git.walhay.modweave.api.version.VersionStatus
@@ -11,7 +12,11 @@ import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.UNAUTHORIZED
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/mods/{modId}/versions")

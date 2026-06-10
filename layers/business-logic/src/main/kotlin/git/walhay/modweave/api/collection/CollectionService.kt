@@ -3,6 +3,7 @@ package git.walhay.modweave.api.collection
 import git.walhay.modweave.api.collection.command.CollectionCreateCommand
 import git.walhay.modweave.api.collection.exception.CollectionNotFoundException
 import git.walhay.modweave.api.collection.repository.CollectionRepository
+import git.walhay.modweave.api.common.paging.PageSizePolicy
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.UserId
@@ -12,6 +13,9 @@ import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 
@@ -19,6 +23,7 @@ import org.springframework.stereotype.Service
 @Transactional
 class CollectionService(
     private val collectionRepository: CollectionRepository,
+    private val pageSizePolicy: PageSizePolicy,
     private val modService: IModService,
 ) : ICollectionService {
   private val logger: KLogger = KotlinLogging.logger {}
@@ -80,4 +85,13 @@ class CollectionService(
   ) {
     logger.info { "Deleting mod: $modId from collection: $collectionId for user: $userId" }
   }
+
+  override fun findCollectionsOfUser(
+      id: UserId,
+      page: Int,
+      size: Int,
+      sort: Sort,
+  ): Page<Collection> =
+      collectionRepository.findAllByUser(
+          id, PageRequest.of(page, pageSizePolicy.normalize(size), sort))
 }

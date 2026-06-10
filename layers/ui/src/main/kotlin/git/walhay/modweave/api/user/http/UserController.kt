@@ -1,5 +1,7 @@
 package git.walhay.modweave.api.user.http
 
+import git.walhay.modweave.api.collection.ICollectionService
+import git.walhay.modweave.api.collection.http.dto.CollectionResponseDto
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.http.dto.ModResponseDto
 import git.walhay.modweave.api.user.IUserService
@@ -22,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException
 @RequestMapping("/users")
 class UserController(
     private val userService: IUserService,
+    private val collectionService: ICollectionService,
     private val modService: IModService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
@@ -57,6 +60,19 @@ class UserController(
     logger.info { "GET /users/$id/mods - page: $page, size: $size" }
     return modService.findModsOfUser(UserId(id), page, size, sort).map {
       ModResponseDto.fromMod(it)
+    }
+  }
+
+  @GetMapping("/{id}/collections")
+  fun getUserCollections(
+      @PathVariable id: String,
+      @RequestParam @Min(0) page: Int,
+      @RequestParam @Min(1) size: Int,
+      @SortDefault(sort = ["name"]) sort: Sort,
+  ): Page<CollectionResponseDto> {
+    logger.info { "GET /users/$id/collections - page: $page, size: $size" }
+    return collectionService.findCollectionsOfUser(UserId(id), page, size, sort).map {
+      CollectionResponseDto.fromCollection(it)
     }
   }
 
