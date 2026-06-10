@@ -56,7 +56,7 @@ for i in range(USERS_COUNT):
             f"Name {i}",
             f"user{i}@mail.com",
             fake.password(length=12),
-            random.choice([True, False])
+            False
         )
     )
 
