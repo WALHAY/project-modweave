@@ -1,0 +1,31 @@
+\appx{Приложение А}
+
+ К РПЗ работы прилагаются следующие материалы:
+ \begin{enumerate}
+ 	\item презентация к курсовой работе, состоящая из 17 слайдов.
+ 	\item USB флеш-накопитель с исходными кодами, электронными версиями РПЗ и презентации. Структура файлов на накопителе:
+ 	\dirtree{%
+ 		.1 .
+ 		.2 report.
+ 		.3 Презентация.pdf.
+ 		.3 РПЗ.pdf.
+ 		.2 code\DTcomment{исходный код проекта}.
+ 		.3 docker \ldots{} \DTcomment{файлы для развертывания контейнера}.
+ 		.3 sql \ldots{} \DTcomment{SQL скрипты}.
+ 		.3 gradle \ldots{} \DTcomment{дополнительные скрипты системы сборки}.
+ 		.3 layers\DTcomment{слои чистой архитектуры}.
+ 		.4 data-access \ldots{} \DTcomment{исходный код доступа к данным}.
+ 		.4 business-logic \ldots{} \DTcomment{исходный код бизнес логики}.
+ 		.4 ui \ldots{} \DTcomment{исходный код контроллеров}.
+ 		.3 src \ldots{} \DTcomment{исходный код точки входа в приложение}.
+ 		.3 gradle.build\DTcomment{главный скрипт системы сборки}.
+ 		.3 settings.gradle\DTcomment{конфигурационный файл сборки}.
+ 		}
+ \end{enumerate}
+ 
+ \appx{Приложение Б}
+ 
+ \lstinputlisting[caption={SQL-скрипт создания таблиц}, label={app:sql}]{code/init.sql}
+ 
+  \lstinputlisting[caption={SQL-скрипт создания  ролей}, label={app:index}]{code/roles.sql}
+

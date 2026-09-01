@@ -1,0 +1,355 @@
+\chapter{Конструкторская часть}
+
+\section{Диаграмма базы данных}
+
+На основе анализа предметной области была спроектирована реляционная схема базы данных. Разработанная структура обеспечивает хранение информации о пользователях, игровых проектах, модификациях, версиях и файлах, а также поддерживает систему категорий, комментариев и пользовательских коллекций. 
+
+Диаграмма базы данных представлена на рисунке~\ref{img:dbml}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{dbml}
+	\caption{Диаграмма базы данных}
+	\label{img:dbml}
+\end{figure}
+
+\section{Ролевая модель на уровне базы данных}
+
+Для разграничения прав доступа в системе выделены три роли. Матрица доступа к таблицам представлена в таблице~\ref{tab:roles}.
+В таблице были использованы следующие обозначения:
+\begin{itemize}
+	\item C (Create) --- создание;
+	\item R (Read) --- чтение;
+	\item U (Update) --- обновление;
+	\item D (Delete) --- удаление.
+\end{itemize}
+\renewcommand{\arraystretch}{1.1}
+
+\begin{table}[H]
+	\centering
+	\caption{Ролевая модель доступа к объектам БД}
+	\label{tab:roles}
+	\begin{tabularx}{\textwidth}{|X|X|X|X|}
+		\hline
+		\textbf{Таблица} & \textbf{Гость} & \textbf{Пользователь} & \textbf{Администратор} \\
+		\hline
+		users & R & RU & CRUD \\
+		\hline
+		games & R & R & CRUD \\
+		\hline
+		mods & R & CRUD & CRUD \\
+		\hline
+		mod\_versions & R & CRUD & CRUD \\
+		\hline
+		mod\_files & R & CRD & CRUD \\
+		\hline
+		categories & R & R & CRUD \\
+		\hline
+		mods\_categories & R & CRD & CRUD \\
+		\hline
+		comments & R & CRD & CRUD \\
+		\hline
+		collections & R & CRUD & CRUD \\
+		\hline
+		collections\_mods & R & CRUD & CRUD \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\section{Анализ функциональных зависимостей и проверка третьей нормальной формы}
+
+Для исключения избыточности и аномалий обновления проведена нормализация схемы. Ниже приведены описания атрибутов отношений, выделены потенциальные ключи и проведен анализ функциональных зависимостей (ФЗ) на соответствие условиям третьей нормальной формы (3НФ).
+
+\subsection*{Отношение users}
+
+\begin{table}[H]
+	\centering
+	\caption{Атрибуты отношения users}
+	\label{tab:users}
+	\begin{tabularx}{\textwidth}{|l|l|X|}
+		\hline
+		\textbf{Атрибут} & \textbf{Тип} & \textbf{Назначение} \\
+		\hline
+		username (PK) & Строка & Уникальный логин пользователя \\
+		\hline
+		name & Строка & Отображаемое имя \\
+		\hline
+		email & Строка & Электронная почта \\
+		\hline
+		password & Строка & Хэш пароля \\
+		\hline
+		register\_date & Дата и время & Дата регистрации \\
+		\hline
+		is\_admin & Логический & Признак администратора \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\textit{Потенциальные ключи:} $K_1 = \{username\}$, $K_2 = \{email\}$, $K_3 = \{name\}$. \\
+\textit{ФЗ:} $F = \left\{ \begin{array}{l}
+	username \rightarrow \{name, email, password, register\_date, is\_admin\}; \\
+	email \rightarrow \{username, name, password, register\_date, is\_admin\}; \\
+	name \rightarrow \{username, email, password, register\_date, is\_admin\}.
+\end{array} \right.$ \\
+\textit{Вывод:} все детерминанты ФЗ являются потенциальными ключами. Отношение в 3НФ.
+
+\subsection*{Отношение games}
+
+\begin{table}[H]
+	\centering
+	\caption{Атрибуты отношения games}
+	\label{tab:games}
+	\begin{tabularx}{\textwidth}{|l|X|X|}
+		\hline
+		\textbf{Атрибут} & \textbf{Тип} & \textbf{Назначение} \\
+		\hline
+		id (PK) & Строка & Идентификатор игры \\
+		\hline
+		name & Строка & Название игры \\
+		\hline
+		description & Текст & Описание проекта \\
+		\hline
+		image\_path & Строка & Путь к обложке \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\textit{Потенциальный ключ:} $K = \{id\}$. \\
+\textit{ФЗ:} $F = \left\{ id \rightarrow \{name, description, image\_path\} \right.$ \\
+\textit{Вывод:} неключевые атрибуты зависят только от ключа. Отношение в 3НФ.
+
+\subsection*{Отношение mods}
+
+\begin{table}[H]
+	\centering
+	\caption{Атрибуты отношения mods}
+	\label{tab:mods}
+	\begin{tabularx}{\textwidth}{|l|l|X|}
+		\hline
+		\textbf{Атрибут} & \textbf{Тип} & \textbf{Назначение} \\
+		\hline
+		id (PK) & Строка & Идентификатор модификации \\
+		\hline
+		name & Строка & Название модификации \\
+		\hline
+		description & Текст & Описание \\
+		\hline
+		image\_path & Строка & Путь к обложке \\
+		\hline
+		creation\_date & Дата и время & Дата добавления \\
+		\hline
+		game\_id (FK) & Строка & Ссылка на игру \\
+		\hline
+		publisher\_id (FK)& Строка & Ссылка на автора \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\textit{Потенциальный ключ:} $K = \{id\}$. \\
+\textit{ФЗ:} $F = \left\{ id \rightarrow \begin{array}{l}
+	\{name, description, image\_path, creation\_date, game\_id, \\
+	publisher\_id\}
+\end{array} \right.$ \\
+\textit{Вывод:} транзитивные зависимости не обнаружены. Отношение в 3НФ.
+
+\subsection*{Отношение mod\_versions}
+
+\begin{table}[H]
+	\centering
+	\caption{Атрибуты отношения mod\_versions}
+	\label{tab:mod_versions}
+	\begin{tabularx}{\textwidth}{|l|X|X|}
+		\hline
+		\textbf{Атрибут} & \textbf{Тип} & \textbf{Назначение} \\
+		\hline
+		id (PK) & Универсальный уникальный идентификатор & Идентификатор версии \\
+		\hline
+		name & Строка & Название версии \\
+		\hline
+		changes & Текст & Список изменений \\
+		\hline
+		upload\_date & Дата и время & Дата загрузки \\
+		\hline
+		status & Перечисление & Статус проверки \\
+		\hline
+		mod\_id (FK) & Строка & Ссылка на мод \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\textit{Потенциальные ключи:} $K_1 = \{id\}$, $K_2 = \{name, mod\_id\}$. \\
+\textit{ФЗ:} $F = \left\{ \begin{array}{l}
+	id \rightarrow \{name, changes, upload\_date, status, mod\_id\}; \\
+	\{name, mod\_id\} \rightarrow \{id, changes, upload\_date, status\}.
+\end{array} \right.$ \\
+\textit{Вывод:} детерминанты являются ключами. Отношение в 3НФ.
+
+\subsection*{Отношение mod\_files}
+
+\begin{table}[H]
+	\centering
+	\caption{Атрибуты отношения mod\_files}
+	\label{tab:mod_files}
+	\begin{tabularx}{\textwidth}{|l|X|l|}
+		\hline
+		\textbf{Атрибут} & \textbf{Тип} & \textbf{Назначение} \\
+		\hline
+		id (PK) & Универсальный уникальный идентификатор &  Идентификатор файла \\
+		\hline
+		filename & Строка & Имя файла \\
+		\hline
+		file\_path & Строка & Путь к файлу \\
+		\hline
+		downloads & Целое число число & Количество скачиваний \\
+		\hline
+		mod\_version\_id (FK)& Универсальный уникальный идентификатор & Ссылка на версию \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\textit{Потенциальный ключ:} $K = \{id\}$. \\
+\textit{ФЗ:} $F = \left\{ id \rightarrow \{filename, file\_path, downloads, mod\_version\_id\}. \right.$ \\
+\textit{Вывод:} поля зависят только от первичного ключа. Отношение в 3НФ.
+
+\subsection*{Отношение categories}
+
+\begin{table}[H]
+	\centering
+	\caption{Атрибуты отношения categories}
+	\label{tab:categories}
+	\begin{tabularx}{\textwidth}{|X|X|X|}
+		\hline
+		\textbf{Атрибут} & \textbf{Тип} & \textbf{Назначение} \\
+		\hline
+		name (PK) & Строка & Название категории \\
+		\hline
+		description & Текст & Описание категории \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\textit{Потенциальный ключ:} $K = \{name\}$. \\
+\textit{ФЗ:} $F = \left\{ name \rightarrow \{description\}. \right.$ \\
+\textit{Вывод:} отношение находится в 3НФ.
+
+\subsection*{Отношение mods\_categories}
+
+\begin{table}[H]
+	\centering
+	\caption{Атрибуты отношения mods\_categories}
+	\label{tab:mods_categories}
+	\begin{tabularx}{\textwidth}{|l|X|X|}
+		\hline
+		\textbf{Атрибут} & \textbf{Тип} & \textbf{Назначение} \\
+		\hline
+		mod\_id (PK, FK) & Строка & Идентификатор мода \\
+		\hline
+		category\_name (PK, FK)& Строка & Название категории \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\textit{Потенциальный ключ:} $K = \{mod\_id, category\_name\}$. \\
+\textit{ФЗ:} $F = \emptyset$. \\
+\textit{Вывод:} неключевые атрибуты отсутствуют. Отношение в 3НФ.
+
+\subsection*{Отношение comments}
+
+\begin{table}[H]
+	\centering
+	\caption{Атрибуты отношения comments}
+	\label{tab:comments}
+	\begin{tabularx}{\textwidth}{|l|X|X|}
+		\hline
+		\textbf{Атрибут} & \textbf{Тип} & \textbf{Назначение} \\
+		\hline
+		id (PK) & Универсальный уникальный идентификатор & Идентификатор комментария \\
+		\hline
+		content & Текст & Содержимое \\
+		\hline
+		publish\_date & Дата и время & Время отправки \\
+		\hline
+		user\_id (FK) & Строка & Автор \\
+		\hline
+		mod\_id (FK) & Строка & Модификация \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\textit{Потенциальный ключ:} $K = \{id\}$. \\
+\textit{ФЗ:} $F = \left\{ id \rightarrow \{content, publish\_date, user\_id, mod\_id\} \right.$ \\
+\textit{Вывод:} соблюдаются условия 3НФ.
+
+\subsection*{Отношение collections}
+
+\begin{table}[H]
+	\centering
+	\caption{Атрибуты отношения collections}
+	\label{tab:collections}
+	\begin{tabularx}{\textwidth}{|l|X|X|}
+		\hline
+		\textbf{Атрибут} & \textbf{Тип} & \textbf{Назначение} \\
+		\hline
+		id (PK) & Универсальный уникальный идентификатор & Идентификатор коллекции \\
+		\hline
+		name & Строка & Название \\
+		\hline
+		description & Текст & Описание подборки \\
+		\hline
+		owner (FK) & Строка & Владелец \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\textit{Потенциальные ключи:} $K_1 = \{id\}$, $K_2 = \{name, owner\}$. \\
+\textit{ФЗ:} $F = \left\{ \begin{array}{l}
+	id \rightarrow \{name, description, owner\}; \\
+	\{name, owner\} \rightarrow \{id, description\}.
+\end{array} \right.$ \\
+\textit{Вывод:} левые части всех ФЗ являются ключами. Отношение в 3НФ.
+
+\subsection*{Отношение collections\_mods}
+
+\begin{table}[H]
+	\centering
+	\caption{Атрибуты отношения collections\_mods}
+	\label{tab:collections_mods}
+	\begin{tabularx}{\textwidth}{|l|X|l|}
+		\hline
+		\textbf{Атрибут} & \textbf{Тип} & \textbf{Назначение} \\
+		\hline
+		collection\_id (PK, FK)& Универсальный уникальный идентификатор & Идентификатор коллекции \\
+		\hline
+		order\_index (PK) & Целое число число & Позиция в списке \\
+		\hline
+		mod\_id (FK) & Строка & Идентификатор мода \\
+		\hline
+	\end{tabularx}
+\end{table}
+
+\textit{Потенциальные ключи:} $K_1 = \{collection\_id, order\_index\}$, \\$K_2 = \{collection\_id, mod\_id\}$. \\
+\textit{ФЗ:} $F = \left\{ \begin{array}{l}
+	\{collection\_id, index\} \rightarrow \{mod\_id\}; \\
+	\{collection\_id, mod\_id\} \rightarrow \{order\_index\}.
+\end{array} \right.$ \\
+\textit{Вывод:} отношение находится в 3НФ.
+
+\section{Разработка алгоритма работы триггера}
+
+В системе пользователи загружают моды, которые состоят из версий и файлов. Версия мода может быть одобрена только в том случае, если к ней прикреплен хотя бы один файл.
+
+Чтобы не допустить ситуацию, когда версия получает статус <<одобрено>>, но файлов у нее нет, был создан триггер. Он проверяет наличие файлов при изменении статуса версии и не дает сохранить некорректные данные.
+
+Схема алгоритма работы триггера представлена на рисунке~\ref{img:trigger}.
+
+\begin{figure}[H]
+	\centering
+	\vspace{1em}
+	\includegraphics[width=0.7\textwidth]{trigger}
+	\caption{Схема алгоритма работы триггера}
+	\label{img:trigger}
+\end{figure}
+
+\section{Вывод}
+
+В ходе проектирования базы данных была разработана схема, состоящая из 10 взаимосвязанных таблиц. С применением матричного подхода спроектировано распределение прав доступа между тремя ролями системы. Проведенный анализ функциональных зависимостей доказал, что все отношения строго удовлетворяют требованиям третьей нормальной формы, что гарантирует целостность данных и защиту от аномалий модификации. Был спроектирован алгоритм работы триггера для реализации ограничения логики модерации.

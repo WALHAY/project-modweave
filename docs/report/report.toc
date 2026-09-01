@@ -1,0 +1,45 @@
+\babel@toc {russian}{}\relax 
+\contentsline {chapter}{ВВЕДЕНИЕ}{7}{}%
+\contentsline {chapter}{\numberline {1}Аналитическая часть}{8}{}%
+\contentsline {section}{\numberline {1.1}Сущности предметной области}{8}{}%
+\contentsline {section}{\numberline {1.2}Сравнение аналогичных решений}{8}{}%
+\contentsline {section}{\numberline {1.3}Требования, предъявляемые к разрабатываемому сервису}{9}{}%
+\contentsline {section}{\numberline {1.4}Диаграмма прецедентов}{10}{}%
+\contentsline {section}{\numberline {1.5}Диаграмма <<сущность--связь>>}{11}{}%
+\contentsline {section}{\numberline {1.6}Анализ моделей хранения данных}{11}{}%
+\contentsline {subsection}{\numberline {1.6.1}Дореляционные модели данных}{11}{}%
+\contentsline {subsubsection}{Иерархическая модель}{12}{}%
+\contentsline {subsubsection}{Сетевая модель}{12}{}%
+\contentsline {subsection}{\numberline {1.6.2}Реляционная модель данных}{12}{}%
+\contentsline {subsection}{\numberline {1.6.3}Постреляционные модели хранения данных}{13}{}%
+\contentsline {subsubsection}{Модель <<ключ-значение>>}{13}{}%
+\contentsline {subsubsection}{Документная модель}{13}{}%
+\contentsline {subsection}{\numberline {1.6.4}Сравнительный анализ моделей данных}{14}{}%
+\contentsline {subsection}{\numberline {1.6.5}Обоснование выбора модели}{14}{}%
+\contentsline {section}{\numberline {1.7}Вывод}{15}{}%
+\contentsline {chapter}{\numberline {2}Конструкторская часть}{16}{}%
+\contentsline {section}{\numberline {2.1}Диаграмма базы данных}{16}{}%
+\contentsline {section}{\numberline {2.2}Ролевая модель на уровне базы данных}{16}{}%
+\contentsline {section}{\numberline {2.3}Анализ функциональных зависимостей и проверка третьей нормальной формы}{17}{}%
+\contentsline {section}{\numberline {2.4}Разработка алгоритма работы триггера}{21}{}%
+\contentsline {section}{\numberline {2.5}Вывод}{22}{}%
+\contentsline {chapter}{\numberline {3}Технологическая часть}{23}{}%
+\contentsline {section}{\numberline {3.1}Выбор средств реализации}{23}{}%
+\contentsline {section}{\numberline {3.2}Реализация базы данных}{23}{}%
+\contentsline {section}{\numberline {3.3}Ограничения целостности}{24}{}%
+\contentsline {section}{\numberline {3.4}Реализация триггеров}{24}{}%
+\contentsline {section}{\numberline {3.5}Ролевая модель}{25}{}%
+\contentsline {section}{\numberline {3.6}Кэширование}{26}{}%
+\contentsline {section}{\numberline {3.7}Тестирование}{26}{}%
+\contentsline {section}{\numberline {3.8}Вывод}{27}{}%
+\contentsline {chapter}{\numberline {4}Исследовательская часть}{28}{}%
+\contentsline {section}{\numberline {4.1}Цель исследования}{28}{}%
+\contentsline {section}{\numberline {4.2}Описание исследования}{28}{}%
+\contentsline {section}{\numberline {4.3}Сравнение размеров индексов}{29}{}%
+\contentsline {section}{\numberline {4.4}Исследование скорости поиска по точному совпадению}{30}{}%
+\contentsline {section}{\numberline {4.5}Исследование диапазонного поиска}{31}{}%
+\contentsline {section}{\numberline {4.6}Вывод}{32}{}%
+\contentsline {chapter}{ЗАКЛЮЧЕНИЕ}{33}{}%
+\contentsline {chapter}{СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ}{34}{}%
+\contentsline {chapter}{Приложение А}{35}{}%
+\contentsline {chapter}{Приложение Б}{36}{}%

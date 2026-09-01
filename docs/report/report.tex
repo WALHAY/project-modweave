@@ -1,0 +1,31 @@
+\include{preambula}
+
+\begin{document}
+	\includepdf{title}
+		
+	\setcounter{page}{4}
+	
+	\include{referat}
+	
+	\vspace*{-3.61cm}
+	\def\contentsname{\begin{center}СОДЕРЖАНИЕ\end{center}}
+	\tableofcontents
+	
+	\include{intro}
+	\include{analytic_part}
+	\include{design_part}
+	\include{tech_part}
+	\include{experimental_part}
+	\include{conclusion}
+	
+	\def\bibname{СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ}
+	
+	\include{links}
+	
+	\appendix
+	
+	\renewcommand{\thechapter}{\Asbuk{chapter}}
+	\renewcommand{\thelstlisting}{\thechapter.\arabic{lstlisting}}
+		
+	\include{additions}
+\end{document}

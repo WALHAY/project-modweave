@@ -1,0 +1,112 @@
+Table users {
+  username "Строковый атрибут" [pk]
+  name "Строковый атрибут" [unique, not null]
+  email "Строковый атрибут" [unique, not null]
+  password "Строковый атрибут" [not null]
+  register_date "Дата и время" [not null]
+  is_admin "Логический признак"
+}
+
+Table games {
+  game_identifier Идентификатор [pk]
+  name "Строковый атрибут" [not null]
+  description "Строковый атрибут"
+  image_path "Строковый атрибут" [not null]
+}
+
+Table mods {
+  mod_identifier Идентификатор [pk]
+  name "Строковый атрибут" [not null]
+  description "Строковый атрибут"
+  image_path "Строковый атрибут" [not null]
+  creation_date "Дата и время" [not null]
+  game_identifier Идентификатор [not null]
+  publisher_username "Строковый атрибут" [not null]
+}
+
+Table mod_versions {
+  version_identifier Идентификатор [pk]
+  name "Строковый атрибут" [not null]
+  changes "Строковый атрибут"
+  upload_date "Дата и время" [not null]
+  status "Строковый атрибут" [not null]
+  mod_identifier Идентификатор [not null]
+
+  Indexes {
+    (name, mod_identifier) [unique]
+  }
+}
+
+Table mod_files {
+  file_identifier Идентификатор [pk]
+  filename "Строковый атрибут" [not null]
+  file_path "Строковый атрибут" [not null]
+  downloads Число
+  version_identifier Идентификатор [not null]
+}
+
+Table categories {
+  name "Строковый атрибут" [pk]
+  description "Строковый атрибут"
+}
+
+Table mods_categories {
+  mod_identifier Идентификатор [not null]
+  category_name "Строковый атрибут" [not null]
+
+  Indexes {
+    (mod_identifier, category_name) [pk]
+  }
+}
+
+Table comments {
+  comment_identifier Идентификатор [pk]
+  content "Строковый атрибут" [not null]
+  publish_date "Дата и время" [not null]
+  user_username "Строковый атрибут" [not null]
+  mod_identifier Идентификатор [not null]
+}
+
+Table collections {
+  collection_identifier Идентификатор [pk]
+  name "Строковый атрибут" [not null]
+  description "Строковый атрибут"
+  owner_username "Строковый атрибут" [not null]
+
+  Indexes {
+    (name, owner_username) [unique]
+  }
+}
+
+Table collections_mods {
+  collection_identifier Идентификатор [not null]
+  order_index Число [not null]
+  mod_identifier Идентификатор [not null]
+
+  Indexes {
+    (collection_identifier, order_index) [pk]
+    (collection_identifier, mod_identifier) [unique]
+  }
+}
+
+Ref: games.game_identifier < mods.game_identifier
+
+Ref: users.username < mods.publisher_username
+
+Ref: mods.mod_identifier < mod_versions.mod_identifier
+
+Ref: mod_versions.version_identifier < mod_files.version_identifier
+
+Ref: mods.mod_identifier < mods_categories.mod_identifier
+
+Ref: categories.name < mods_categories.category_name
+
+Ref: users.username < comments.user_username
+
+Ref: mods.mod_identifier < comments.mod_identifier
+
+Ref: users.username < collections.owner_username
+
+Ref: collections.collection_identifier < collections_mods.collection_identifier
+
+Ref: mods.mod_identifier < collections_mods.mod_identifier
