@@ -72,7 +72,7 @@ class CollectionRepositoryTest : PostgresTestTemplate() {
   fun `create collection`() {
     val created = seedCollection()
     assertNotNull(created)
-    assertTrue(created.id.value > 0)
+    assertTrue(created.id.value.toString().isNotBlank())
   }
 
   @Test

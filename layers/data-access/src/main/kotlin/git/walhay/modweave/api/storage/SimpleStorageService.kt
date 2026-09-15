@@ -1,6 +1,7 @@
 package git.walhay.modweave.api.storage
 
 import io.minio.*
+import java.io.InputStream
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -103,4 +104,9 @@ class SimpleStorageService(
   override fun removeImage(filename: String) {
     removeFileFromBucket(modsBucket, filename)
   }
+
+  override fun downloadVersionFile(filename: String): InputStream =
+      minioClient.getObject(
+          GetObjectArgs.builder().bucket(modsBucket).`object`(filename).build(),
+      )
 }

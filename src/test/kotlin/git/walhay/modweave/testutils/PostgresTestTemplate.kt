@@ -1,5 +1,6 @@
 package git.walhay.modweave.testutils
 
+import org.junit.jupiter.api.Tag
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.testcontainers.junit.jupiter.Container
@@ -8,6 +9,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 
 @DataJpaTest
 @Testcontainers
+@Tag("integration")
 class PostgresTestTemplate {
   companion object {
     @Container

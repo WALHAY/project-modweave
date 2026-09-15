@@ -75,7 +75,7 @@ class FileRepositoryTest : PostgresTestTemplate() {
   fun `create file`() {
     val created = seedFile()
     assertNotNull(created)
-    assertTrue(created.id.value > 0)
+    assertTrue(created.id.value.toString().isNotBlank())
   }
 
   @Test

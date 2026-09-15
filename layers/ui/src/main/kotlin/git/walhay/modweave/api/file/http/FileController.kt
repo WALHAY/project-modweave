@@ -6,6 +6,7 @@ import git.walhay.modweave.api.storage.ISimpleStorageService
 import jakarta.servlet.http.HttpServletResponse
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
@@ -27,7 +28,7 @@ class FileController(
   @GetMapping("/{bucket}/{fileId}/download")
   fun downloadFile(
       @PathVariable bucket: String,
-      @PathVariable fileId: Long,
+      @PathVariable fileId: UUID,
       response: HttpServletResponse,
   ) {
     logger.info { "GET /files/$bucket/$fileId/download" }

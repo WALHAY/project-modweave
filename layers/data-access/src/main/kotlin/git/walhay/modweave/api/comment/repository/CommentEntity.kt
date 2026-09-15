@@ -18,6 +18,7 @@ class CommentEntity(
     @Column("user_id", nullable = false) val authorId: String = "",
     @Column("mod_id", nullable = false) val modId: String = "",
 ) : Serializable {
+  constructor() : this(UUID.randomUUID())
 
   fun toDomain(): Comment =
       Comment(CommentId(id), content, publishDate, UserId(authorId), ModId(modId))
