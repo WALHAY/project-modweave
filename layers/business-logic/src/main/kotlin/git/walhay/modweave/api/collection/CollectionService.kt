@@ -84,6 +84,13 @@ class CollectionService(
       modId: ModId,
   ) {
     logger.info { "Deleting mod: $modId from collection: $collectionId for user: $userId" }
+    val collection = getCollectionById(collectionId)
+    val removed = collection.mods.removeIf { it.id == modId }
+    if (!removed) {
+      throw IllegalArgumentException("Mod $modId is not present in collection $collectionId")
+    }
+    collectionRepository.save(collection)
+    logger.info { "Mod deleted successfully from collection: $collectionId" }
   }
 
   override fun findCollectionsOfUser(

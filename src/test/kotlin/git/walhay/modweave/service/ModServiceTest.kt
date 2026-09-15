@@ -30,28 +30,56 @@ class ModServiceTest : ServiceTestSupport() {
       ModService(repository, users, categories, games, versions, storage, pagePolicy)
 
   @Test
-  fun `finds mod and throws when absent`() {
+  fun `finds existing mod`() {
     val mod = TestFixtures.mod()
     whenever(repository.findById(mod.id)).thenReturn(mod)
-    assertSame(mod, service.findModById(mod.id))
 
-    whenever(repository.findById(ModId("missing"))).thenReturn(null)
-    assertThrows(ModNotFoundException::class.java) { service.findModById(ModId("missing")) }
+    assertSame(mod, service.findModById(mod.id))
   }
 
   @Test
-  fun `delegates mod filters`() {
+  fun `throws when mod is absent`() {
+    val id = ModId("missing")
+    whenever(repository.findById(id)).thenReturn(null)
+
+    assertThrows(ModNotFoundException::class.java) { service.findModById(id) }
+  }
+
+  @Test
+  fun `finds mods without a name filter`() {
     val page = PageImpl(listOf(TestFixtures.mod()))
     whenever(repository.findAll(any<Pageable>())).thenReturn(page)
+
+    assertSame(page, service.findModsWithFilter(0, 10, null, sort))
+    verify(repository).findAll(any<Pageable>())
+  }
+
+  @Test
+  fun `finds mods by name`() {
+    val page = PageImpl(listOf(TestFixtures.mod()))
     whenever(repository.findAll(eq("sod"), any<Pageable>())).thenReturn(page)
+
+    assertSame(page, service.findModsWithFilter(0, 10, "sod", sort))
+    verify(repository).findAll(eq("sod"), any<Pageable>())
+  }
+
+  @Test
+  fun `finds mods of user`() {
+    val page = PageImpl(listOf(TestFixtures.mod()))
     whenever(repository.findAllByUser(any<UserId>(), any<Pageable>())).thenReturn(page)
+
+    assertSame(page, service.findModsOfUser(UserId("alice"), 0, 10, sort))
+    verify(repository).findAllByUser(any<UserId>(), any<Pageable>())
+  }
+
+  @Test
+  fun `finds mods in collection`() {
+    val page = PageImpl(listOf(TestFixtures.mod()))
     val collectionId = CollectionId(UUID.randomUUID())
     whenever(repository.findModsInCollection(any<CollectionId>(), any<Pageable>())).thenReturn(page)
 
-    assertSame(page, service.findModsWithFilter(0, 10, null, sort))
-    assertSame(page, service.findModsWithFilter(0, 10, "sod", sort))
-    assertSame(page, service.findModsOfUser(UserId("alice"), 0, 10, sort))
     assertSame(page, service.findModsInCollection(collectionId, 0, 10, sort))
+    verify(repository).findModsInCollection(any<CollectionId>(), any<Pageable>())
   }
 
   @Test
@@ -130,5 +158,13 @@ class ModServiceTest : ServiceTestSupport() {
     service.deleteMod(UserId("alice"), id)
 
     verify(repository).deleteById(id)
+  }
+
+  @Test
+  fun `propagates mod delete failure`() {
+    val id = ModId("sodium")
+    doThrow(IllegalStateException("database")).whenever(repository).deleteById(id)
+
+    assertThrows(IllegalStateException::class.java) { service.deleteMod(UserId("alice"), id) }
   }
 }

@@ -85,6 +85,17 @@ class UserServiceTest : ServiceTestSupport() {
   }
 
   @Test
+  fun `rejects password encoding failure`() {
+    val command = UserCreateCommand(UserId("alice"), "Alice", "plain", "alice@example.com")
+    whenever(repository.existsByUsername(command.username)).thenReturn(false)
+    whenever(repository.existsByEmail(command.email)).thenReturn(false)
+    whenever(encoder.encode(command.password)).thenReturn(null)
+
+    assertThrows(IllegalStateException::class.java) { service.createUser(command) }
+    verify(repository, never()).save(any())
+  }
+
+  @Test
   fun `updates user fields`() {
     val user = TestFixtures.user()
     whenever(repository.findByUsername(user.username)).thenReturn(user)
@@ -111,6 +122,17 @@ class UserServiceTest : ServiceTestSupport() {
 
     assertThrows(UserEmailExistsException::class.java) {
       service.updateUser(user.username, UserUpdateCommand(email = "used@example.com"))
+    }
+
+    @Test
+    fun `rejects update of missing user`() {
+      val id = UserId("missing")
+      whenever(repository.findByUsername(id)).thenReturn(null)
+
+      assertThrows(UserNotFoundException::class.java) {
+        service.updateUser(id, UserUpdateCommand(email = "new@example.com"))
+      }
+      verify(repository, never()).save(any())
     }
     verify(repository, never()).save(any())
   }

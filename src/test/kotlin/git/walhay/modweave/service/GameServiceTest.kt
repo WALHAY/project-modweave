@@ -34,15 +34,30 @@ class GameServiceTest : ServiceTestSupport() {
   }
 
   @Test
-  fun `filters games with and without name`() {
+  fun `filters games without name`() {
     val page = PageImpl(listOf(TestFixtures.game()))
     whenever(repository.findAll(any<PageRequest>())).thenReturn(page)
-    whenever(repository.findAll(eq("mine"), any<PageRequest>())).thenReturn(page)
 
     assertSame(page, service.findGamesWithFilter(0, 10, null, sort))
-    assertSame(page, service.findGamesWithFilter(0, 10, "mine", sort))
     verify(repository).findAll(PageRequest.of(0, 10, sort))
+  }
+
+  @Test
+  fun `filters games by name`() {
+    val page = PageImpl(listOf(TestFixtures.game()))
+    whenever(repository.findAll(eq("mine"), any<PageRequest>())).thenReturn(page)
+
+    assertSame(page, service.findGamesWithFilter(0, 10, "mine", sort))
     verify(repository).findAll("mine", PageRequest.of(0, 10, sort))
+  }
+
+  @Test
+  fun `propagates game filter repository failure`() {
+    whenever(repository.findAll(any<PageRequest>())).thenThrow(IllegalStateException("database"))
+
+    assertThrows(IllegalStateException::class.java) {
+      service.findGamesWithFilter(0, 10, null, sort)
+    }
   }
 
   @Test
@@ -67,6 +82,17 @@ class GameServiceTest : ServiceTestSupport() {
 
     assertThrows(GameExistsException::class.java) { service.uploadGame(command) }
     verify(storage, never()).uploadImage(any(), any())
+  }
+
+  @Test
+  fun `propagates image storage failure`() {
+    val image = TestFixtures.image()
+    val command = GameCreateCommand(GameId("minecraft"), "Minecraft", null, image)
+    whenever(repository.existsByIdIgnoreCase(command.id)).thenReturn(false)
+    whenever(repository.save(any())).thenAnswer { it.arguments[0] }
+    whenever(storage.uploadImage(any(), any())).thenThrow(IllegalStateException("storage"))
+
+    assertThrows(IllegalStateException::class.java) { service.uploadGame(command) }
   }
 
   @Test

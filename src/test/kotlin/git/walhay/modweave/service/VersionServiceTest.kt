@@ -32,13 +32,18 @@ class VersionServiceTest {
   }
 
   @Test
-  fun `gets version or throws`() {
+  fun `gets existing version`() {
     val version = TestFixtures.version()
     whenever(repository.findVersionById(version.id)).thenReturn(version)
     assertSame(version, service.getModVersion(version.id))
+  }
 
-    whenever(repository.findVersionById(version.id)).thenReturn(null)
-    assertThrows(VersionNotFoundException::class.java) { service.getModVersion(version.id) }
+  @Test
+  fun `throws when version is missing`() {
+    val id = TestFixtures.version().id
+    whenever(repository.findVersionById(id)).thenReturn(null)
+
+    assertThrows(VersionNotFoundException::class.java) { service.getModVersion(id) }
   }
 
   @Test
@@ -125,6 +130,17 @@ class VersionServiceTest {
   }
 
   @Test
+  fun `rejects changing status of missing version`() {
+    val id = TestFixtures.version().id
+    whenever(repository.findVersionById(id)).thenReturn(null)
+
+    assertThrows(VersionNotFoundException::class.java) {
+      service.changeVersionStatus(UserId("admin"), id, VersionStatus.APPROVED)
+    }
+    verify(repository, never()).save(any())
+  }
+
+  @Test
   fun `deletes version`() {
     val version = TestFixtures.version()
     whenever(repository.findVersionById(version.id)).thenReturn(version)
@@ -132,5 +148,14 @@ class VersionServiceTest {
     service.deleteModVersion(version.id)
 
     verify(repository).delete(version.id)
+  }
+
+  @Test
+  fun `rejects deleting missing version`() {
+    val id = TestFixtures.version().id
+    whenever(repository.findVersionById(id)).thenReturn(null)
+
+    assertThrows(VersionNotFoundException::class.java) { service.deleteModVersion(id) }
+    verify(repository, never()).delete(any())
   }
 }

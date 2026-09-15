@@ -20,13 +20,18 @@ class CollectionServiceTest : ServiceTestSupport() {
   private val service = CollectionService(repository, pagePolicy, mods)
 
   @Test
-  fun `gets collection or throws`() {
+  fun `gets existing collection`() {
     val collection = TestFixtures.collection()
     whenever(repository.findById(collection.id)).thenReturn(collection)
-    assertSame(collection, service.getCollectionById(collection.id))
 
+    assertSame(collection, service.getCollectionById(collection.id))
+  }
+
+  @Test
+  fun `throws when collection is missing`() {
     val missingId = CollectionId(UUID.randomUUID())
     whenever(repository.findById(missingId)).thenReturn(null)
+
     assertThrows(CollectionNotFoundException::class.java) { service.getCollectionById(missingId) }
   }
 
@@ -57,6 +62,30 @@ class CollectionServiceTest : ServiceTestSupport() {
   }
 
   @Test
+  fun `rejects adding mod to missing collection`() {
+    val collectionId = CollectionId(UUID.randomUUID())
+    whenever(repository.findById(collectionId)).thenReturn(null)
+
+    assertThrows(CollectionNotFoundException::class.java) {
+      service.addModToCollection(UserId("alice"), collectionId, ModId("missing"), null)
+    }
+    verify(mods, never()).findModById(any())
+  }
+
+  @Test
+  fun `propagates missing mod when adding to collection`() {
+    val collection = TestFixtures.collection()
+    val modId = ModId("missing")
+    whenever(repository.findById(collection.id)).thenReturn(collection)
+    whenever(mods.findModById(modId)).thenThrow(IllegalStateException("mod missing"))
+
+    assertThrows(IllegalStateException::class.java) {
+      service.addModToCollection(UserId("alice"), collection.id, modId, null)
+    }
+    verify(repository, never()).save(any())
+  }
+
+  @Test
   fun `finds collections of user`() {
     val page = PageImpl(listOf(TestFixtures.collection()))
     whenever(repository.findAllByUser(any<UserId>(), any<Pageable>())).thenReturn(page)
@@ -75,10 +104,36 @@ class CollectionServiceTest : ServiceTestSupport() {
   }
 
   @Test
-  fun `delete mod from collection is currently a no-op`() {
-    assertDoesNotThrow {
-      service.deleteModFromCollection(
-          UserId("alice"), CollectionId(UUID.randomUUID()), ModId("sodium"))
+  fun `propagates collection delete failure`() {
+    val id = CollectionId(UUID.randomUUID())
+    doThrow(IllegalStateException("database")).whenever(repository).deleteById(id)
+
+    assertThrows(IllegalStateException::class.java) {
+      service.deleteCollection(UserId("alice"), id)
     }
+  }
+
+  @Test
+  fun `deletes mod from collection`() {
+    val mod = TestFixtures.mod()
+    val collection = TestFixtures.collection().copy(mods = mutableListOf(mod))
+    whenever(repository.findById(collection.id)).thenReturn(collection)
+    whenever(repository.save(collection)).thenReturn(collection)
+
+    service.deleteModFromCollection(UserId("alice"), collection.id, mod.id)
+
+    assertTrue(collection.mods.isEmpty())
+    verify(repository).save(collection)
+  }
+
+  @Test
+  fun `rejects deleting mod absent from collection`() {
+    val collection = TestFixtures.collection()
+    whenever(repository.findById(collection.id)).thenReturn(collection)
+
+    assertThrows(IllegalArgumentException::class.java) {
+      service.deleteModFromCollection(UserId("alice"), collection.id, ModId("missing"))
+    }
+    verify(repository, never()).save(any())
   }
 }

@@ -45,4 +45,15 @@ class FileServiceTest {
     }
     verify(storage).removeVersionFile("remote-one")
   }
+
+  @Test
+  fun `does not save files when input is empty`() {
+    val storage = mock<ISimpleStorageService>()
+    val repository = mock<FileRepository>()
+    val service = FileService(storage, repository)
+
+    service.uploadVersionFiles(TestFixtures.version(), emptyList())
+
+    verifyNoInteractions(storage, repository)
+  }
 }

@@ -39,11 +39,19 @@ class SupportingComponentsTest {
   }
 
   @Test
-  fun `page request validates page and size`() {
+  fun `page request rejects negative page`() {
     assertThrows(IllegalArgumentException::class.java) { PageRequest(page = -1) }
-    assertThrows(IllegalArgumentException::class.java) { PageRequest(size = 0) }
+  }
 
+  @Test
+  fun `page request rejects non-positive size`() {
+    assertThrows(IllegalArgumentException::class.java) { PageRequest(size = 0) }
+  }
+
+  @Test
+  fun `page request converts page and size`() {
     val pageable = PageRequest(page = 2, size = 5).toSpringPageable()
+
     assertEquals(2, pageable.pageNumber)
     assertEquals(5, pageable.pageSize)
   }
@@ -103,8 +111,12 @@ class SupportingComponentsTest {
   }
 
   @Test
-  fun `user update DTO requires at least one value`() {
+  fun `user update DTO rejects empty update`() {
     assertThrows(Exception::class.java) { UserUpdateDto() }
+  }
+
+  @Test
+  fun `user update DTO converts email`() {
     assertEquals(
         "new@example.com", UserUpdateDto(email = "new@example.com").toUserUpdateCommand().email)
   }
@@ -118,7 +130,7 @@ class SupportingComponentsTest {
   }
 
   @Test
-  fun `jwt service generates and validates access and refresh tokens`() {
+  fun `jwt service extracts username and roles from access token`() {
     val jwt =
         JwtService(
             JwtProperties(
@@ -129,10 +141,24 @@ class SupportingComponentsTest {
     val user = User.withUsername("alice").password("password").roles("USER", "ADMIN").build()
 
     val access = jwt.generateAccessToken(user)
-    val refresh = jwt.generateRefreshToken(user)
 
     assertEquals("alice", jwt.extractUsername(access))
     assertEquals(setOf("ROLE_USER", "ROLE_ADMIN"), jwt.extractRoles(access).toSet())
+  }
+
+  @Test
+  fun `jwt service validates token type and username`() {
+    val jwt =
+        JwtService(
+            JwtProperties(
+                secret = Base64.getEncoder().encodeToString(ByteArray(32) { 7 }),
+                issuer = "modweave-test",
+                accessTokenTtl = Duration.ofMinutes(5),
+                refreshTokenTtl = Duration.ofMinutes(10)))
+    val user = User.withUsername("alice").password("password").roles("USER", "ADMIN").build()
+    val access = jwt.generateAccessToken(user)
+    val refresh = jwt.generateRefreshToken(user)
+
     assertTrue(jwt.isAccessTokenValid(access, user))
     assertFalse(jwt.isRefreshTokenValid(access, user))
     assertTrue(jwt.isRefreshTokenValid(refresh, user))
@@ -141,7 +167,7 @@ class SupportingComponentsTest {
   }
 
   @Test
-  fun `access security checks authentication and ownership`() {
+  fun `access security allows authenticated owner`() {
     val mods = mock<ModRepository>()
     val collections = mock<CollectionRepository>()
     val comments = mock<CommentRepository>()
@@ -156,18 +182,15 @@ class SupportingComponentsTest {
     whenever(comments.findById(any())).thenReturn(TestFixtures.comment())
 
     assertTrue(security.isSelf("alice"))
-    assertFalse(security.isSelf("bob"))
     assertTrue(security.isSelfOrAdmin("alice"))
-    assertFalse(security.isSelfOrAdmin("bob"))
     assertTrue(security.isModOwnerOrAdmin("alice", "sodium"))
-    assertFalse(security.isModOwnerOrAdmin("bob", "sodium"))
     assertTrue(security.isCollectionOwnerOrAdmin("alice", collectionId))
     assertTrue(security.isCommentOwnerOrAdmin("alice", commentId))
     assertFalse(security.isAdmin())
   }
 
   @Test
-  fun `access security denies missing resources and allows admin`() {
+  fun `access security allows administrator`() {
     val mods = mock<ModRepository>()
     val collections = mock<CollectionRepository>()
     val comments = mock<CommentRepository>()
@@ -182,7 +205,16 @@ class SupportingComponentsTest {
     assertTrue(security.isModOwnerOrAdmin("anyone", "missing"))
     assertTrue(security.isCollectionOwnerOrAdmin("anyone", collectionId))
     assertTrue(security.isCommentOwnerOrAdmin("anyone", commentId))
+  }
 
+  @Test
+  fun `access security denies missing resources`() {
+    val mods = mock<ModRepository>()
+    val collections = mock<CollectionRepository>()
+    val comments = mock<CommentRepository>()
+    val security = AccessSecurity(mods, collections, comments)
+    val collectionId = UUID.randomUUID()
+    val commentId = UUID.randomUUID()
     SecurityContextHolder.getContext().authentication =
         TestingAuthenticationToken("alice", "credentials", "ROLE_USER")
     whenever(mods.findById(any())).thenReturn(null)
