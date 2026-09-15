@@ -6,11 +6,13 @@ import git.walhay.modweave.api.comment.exception.CommentNotFoundException
 import git.walhay.modweave.api.comment.repository.CommentRepository
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.*
+import git.walhay.modweave.testutils.InteractionTest
 import git.walhay.modweave.testutils.TestFixtures
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 
+@InteractionTest
 class CommentServiceTest {
   @Test
   fun `finds existing comment`() {

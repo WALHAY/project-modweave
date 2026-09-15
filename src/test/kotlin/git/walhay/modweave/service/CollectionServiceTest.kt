@@ -6,6 +6,7 @@ import git.walhay.modweave.api.collection.exception.CollectionNotFoundException
 import git.walhay.modweave.api.collection.repository.CollectionRepository
 import git.walhay.modweave.api.mod.*
 import git.walhay.modweave.api.user.*
+import git.walhay.modweave.testutils.InteractionTest
 import git.walhay.modweave.testutils.TestFixtures
 import java.util.UUID
 import org.junit.jupiter.api.Assertions.*
@@ -14,6 +15,7 @@ import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 
+@InteractionTest
 class CollectionServiceTest : ServiceTestSupport() {
   private val repository = mock<CollectionRepository>()
   private val mods = mock<IModService>()

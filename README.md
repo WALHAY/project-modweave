@@ -60,20 +60,13 @@ Unit-тесты через отдельную задачу:
 | 12 | Анализ процессов | Раздел [Процессы и конфигурация](docs/lr1/README.md#процессы-и-конфигурация): одна JVM Gradle Test-задачи, `maxParallelForks` не настроен |
 | 13 | Успешное выполнение | Проверяется командами `./gradlew test` и `./gradlew offlineTest` |
 | 14 | Оценка покрытия строк и ветвлений | [jacocoTestReport](build.gradle), HTML/XML JaCoCo-отчёты |
-| 15 | Защита от регрессии и поддерживаемость | Раздельные test suites, общие fixtures, AAA, mock/stub-сценарии и случайный порядок |
-
-### Важное ограничение
-
-Repository/Testcontainers-тесты удалены из проекта, чтобы запуск не зависел от
-Docker. Поэтому классический вариант «без mock и stub» в текущей версии не
-представлен. Для лабораторной, где пункт 3 требует оба стиля, исходные
-классические тесты нужно вернуть или заменить локальными тестами реального
-адаптера без внешнего сервиса.
+| 15 | Защита от регрессии и поддерживаемость | Раздельные test suites, общие fixtures, AAA, mock/stub-сценарии, типовые аннотации и случайный порядок |
 
 ## Структура проекта
 
 - [business-logic](layers/business-logic/src/main/kotlin) — доменные модели и бизнес-сервисы;
 - [data-access](layers/data-access/src/main/kotlin) — слой доступа к данным и storage;
 - [ui](layers/ui/src/main/kotlin) — HTTP, DTO, security и конфигурация;
-- [unit tests](src/test/kotlin/git/walhay/modweave/service) — mock/stub-тесты;
+- [unit tests](src/test/kotlin/git/walhay/modweave/service) — mock/stub-тесты сервисов;
+- [repository unit tests](src/test/kotlin/git/walhay/modweave/repository) — unit-тесты repository-адаптеров с Mockito;
 - [лабораторная документация](docs/lr1/README.md).

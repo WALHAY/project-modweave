@@ -4,11 +4,13 @@ import git.walhay.modweave.api.category.*
 import git.walhay.modweave.api.category.command.*
 import git.walhay.modweave.api.category.exception.*
 import git.walhay.modweave.api.category.repository.CategoryRepository
+import git.walhay.modweave.testutils.BoundaryConditionTest
 import git.walhay.modweave.testutils.TestFixtures
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 
+@BoundaryConditionTest
 class CategoryServiceTest : ServiceTestSupport() {
   private val repository = mock<CategoryRepository>()
   private val service = CategoryService(repository)

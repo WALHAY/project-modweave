@@ -10,6 +10,7 @@ import git.walhay.modweave.api.version.*
 import git.walhay.modweave.api.version.exception.VersionExistsException
 import git.walhay.modweave.api.version.exception.VersionNotFoundException
 import git.walhay.modweave.api.version.repository.VersionRepository
+import git.walhay.modweave.testutils.CombinatorialTest
 import git.walhay.modweave.testutils.TestFixtures
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 
+@CombinatorialTest
 class VersionServiceTest {
   private val repository = mock<VersionRepository>()
   private val files = mock<IFileService>()

@@ -3,11 +3,13 @@ package git.walhay.modweave.service
 import git.walhay.modweave.api.file.FileService
 import git.walhay.modweave.api.file.repository.FileRepository
 import git.walhay.modweave.api.storage.ISimpleStorageService
+import git.walhay.modweave.testutils.DecisionTableTest
 import git.walhay.modweave.testutils.TestFixtures
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
 
+@DecisionTableTest
 class FileServiceTest {
   @Test
   fun `uploads and saves every version file`() {

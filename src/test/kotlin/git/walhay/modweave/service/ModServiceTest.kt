@@ -11,6 +11,7 @@ import git.walhay.modweave.api.mod.repository.ModRepository
 import git.walhay.modweave.api.storage.ISimpleStorageService
 import git.walhay.modweave.api.user.*
 import git.walhay.modweave.api.version.*
+import git.walhay.modweave.testutils.StateTransitionTest
 import git.walhay.modweave.testutils.TestFixtures
 import java.util.UUID
 import org.junit.jupiter.api.Assertions.*
@@ -19,6 +20,7 @@ import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 
+@StateTransitionTest
 class ModServiceTest : ServiceTestSupport() {
   private val repository = mock<ModRepository>()
   private val users = mock<IUserService>()

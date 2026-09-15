@@ -5,9 +5,11 @@ import git.walhay.modweave.api.category.CategoryId
 import git.walhay.modweave.api.category.CategoryService
 import git.walhay.modweave.api.category.command.CategoryCreateCommand
 import git.walhay.modweave.api.category.repository.CategoryRepository
+import git.walhay.modweave.testutils.InteractionTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
+@InteractionTest
 class StubStyleServiceTest {
   @Test
   fun `category service creates category using repository stub`() {

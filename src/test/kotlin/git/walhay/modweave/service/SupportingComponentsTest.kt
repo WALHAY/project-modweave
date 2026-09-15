@@ -18,6 +18,7 @@ import git.walhay.modweave.api.user.http.dto.UserUpdateDto
 import git.walhay.modweave.api.version.http.dto.VersionUploadDto
 import git.walhay.modweave.config.JwtProperties
 import git.walhay.modweave.config.JwtService
+import git.walhay.modweave.testutils.BoundaryConditionTest
 import git.walhay.modweave.testutils.TestFixtures
 import git.walhay.modweave.util.ImageExtensionValidator
 import git.walhay.modweave.util.spinalCase
@@ -32,6 +33,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.User
 
+@BoundaryConditionTest
 class SupportingComponentsTest {
   @AfterEach
   fun clearSecurityContext() {

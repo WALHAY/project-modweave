@@ -4,6 +4,7 @@ import git.walhay.modweave.api.user.*
 import git.walhay.modweave.api.user.command.*
 import git.walhay.modweave.api.user.exception.*
 import git.walhay.modweave.api.user.repository.UserRepository
+import git.walhay.modweave.testutils.BoundaryConditionTest
 import git.walhay.modweave.testutils.TestFixtures
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -12,6 +13,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.crypto.password.PasswordEncoder
 
+@BoundaryConditionTest
 class UserServiceTest : ServiceTestSupport() {
   private val repository = mock<UserRepository>()
   private val encoder = mock<PasswordEncoder>()

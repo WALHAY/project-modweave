@@ -5,6 +5,7 @@ import git.walhay.modweave.api.game.command.GameCreateCommand
 import git.walhay.modweave.api.game.exception.*
 import git.walhay.modweave.api.game.repository.GameRepository
 import git.walhay.modweave.api.storage.ISimpleStorageService
+import git.walhay.modweave.testutils.StateTransitionTest
 import git.walhay.modweave.testutils.TestFixtures
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -12,6 +13,7 @@ import org.mockito.kotlin.*
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 
+@StateTransitionTest
 class GameServiceTest : ServiceTestSupport() {
   private val repository = mock<GameRepository>()
   private val storage = mock<ISimpleStorageService>()
