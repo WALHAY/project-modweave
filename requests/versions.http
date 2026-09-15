@@ -1,0 +1,6 @@
+@host=localhost:8080
+
+@accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YWxoYXkiLCJpc3MiOiJtb2R3ZWF2ZSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MTAyMDgyMSwiZXhwIjoxNzgxMDIxNzIxfQ.P807uzMkkUjTIi7XxvGCWM91FhuZoLNQd8x_zTgA3KE
+
+### Get versions
+GET {{host}}/api/v1/mods/my-mod/versions?page=0&size=20
