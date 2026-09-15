@@ -2,20 +2,21 @@ package git.walhay.modweave.api.category.repository
 
 import git.walhay.modweave.api.category.Category
 import git.walhay.modweave.api.category.CategoryId
+import git.walhay.modweave.testutils.BoundaryConditionTest
+import git.walhay.modweave.testutils.StateTransitionTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
-@Tag("interaction")
 class JpaCategoryRepositoryTest {
   private val springData = mock<SpringDataCategoryRepository>()
   private val repository = JpaCategoryRepository(springData)
 
+  @StateTransitionTest
   @Test
   fun `saves category through spring data`() {
     val category = Category(CategoryId("gameplay"), "Description")
@@ -26,6 +27,7 @@ class JpaCategoryRepositoryTest {
     verify(springData).save(any<CategoryEntity>())
   }
 
+  @BoundaryConditionTest
   @Test
   fun `maps all categories`() {
     val category = Category(CategoryId("gameplay"), "Description")

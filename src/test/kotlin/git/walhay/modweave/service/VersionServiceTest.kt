@@ -10,7 +10,10 @@ import git.walhay.modweave.api.version.*
 import git.walhay.modweave.api.version.exception.VersionExistsException
 import git.walhay.modweave.api.version.exception.VersionNotFoundException
 import git.walhay.modweave.api.version.repository.VersionRepository
+import git.walhay.modweave.testutils.BoundaryConditionTest
 import git.walhay.modweave.testutils.CombinatorialTest
+import git.walhay.modweave.testutils.InteractionTest
+import git.walhay.modweave.testutils.StateTransitionTest
 import git.walhay.modweave.testutils.TestFixtures
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -33,6 +36,7 @@ class VersionServiceTest {
     field.set(service, modService)
   }
 
+  @BoundaryConditionTest
   @Test
   fun `gets existing version`() {
     val version = TestFixtures.version()
@@ -40,6 +44,7 @@ class VersionServiceTest {
     assertSame(version, service.getModVersion(version.id))
   }
 
+  @BoundaryConditionTest
   @Test
   fun `throws when version is missing`() {
     val id = TestFixtures.version().id
@@ -48,6 +53,7 @@ class VersionServiceTest {
     assertThrows(VersionNotFoundException::class.java) { service.getModVersion(id) }
   }
 
+  @CombinatorialTest
   @Test
   fun `returns all versions for owner`() {
     val page = PageImpl(listOf(TestFixtures.version()))
@@ -59,6 +65,7 @@ class VersionServiceTest {
     verify(repository).findVersionsByModId(ModId("sodium"), PageRequest.of(0, 10))
   }
 
+  @CombinatorialTest
   @Test
   fun `returns approved versions for another user`() {
     val page = PageImpl(listOf(TestFixtures.version()))
@@ -72,6 +79,7 @@ class VersionServiceTest {
             ModId("sodium"), VersionStatus.APPROVED, PageRequest.of(0, 10))
   }
 
+  @StateTransitionTest
   @Test
   fun `creates version from mod and uploads files`() {
     val mod = TestFixtures.mod()
@@ -93,6 +101,7 @@ class VersionServiceTest {
     verify(files).uploadVersionFiles(result, command.files)
   }
 
+  @BoundaryConditionTest
   @Test
   fun `creates version from id`() {
     val mod = TestFixtures.mod()
@@ -108,6 +117,7 @@ class VersionServiceTest {
     verify(files).uploadVersionFiles(result, command.files)
   }
 
+  @StateTransitionTest
   @Test
   fun `rejects duplicate version name`() {
     val mod = TestFixtures.mod(versions = mutableListOf(TestFixtures.version("1.0.0")))
@@ -119,6 +129,7 @@ class VersionServiceTest {
     verify(repository, never()).save(any())
   }
 
+  @BoundaryConditionTest
   @Test
   fun `changes version status`() {
     val version = TestFixtures.version()
@@ -131,6 +142,7 @@ class VersionServiceTest {
     verify(repository).save(version)
   }
 
+  @InteractionTest
   @Test
   fun `rejects changing status of missing version`() {
     val id = TestFixtures.version().id
@@ -142,6 +154,7 @@ class VersionServiceTest {
     verify(repository, never()).save(any())
   }
 
+  @BoundaryConditionTest
   @Test
   fun `deletes version`() {
     val version = TestFixtures.version()
@@ -152,6 +165,7 @@ class VersionServiceTest {
     verify(repository).delete(version.id)
   }
 
+  @BoundaryConditionTest
   @Test
   fun `rejects deleting missing version`() {
     val id = TestFixtures.version().id

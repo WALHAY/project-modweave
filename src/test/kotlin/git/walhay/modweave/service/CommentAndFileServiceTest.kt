@@ -6,6 +6,7 @@ import git.walhay.modweave.api.comment.exception.CommentNotFoundException
 import git.walhay.modweave.api.comment.repository.CommentRepository
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.*
+import git.walhay.modweave.testutils.BoundaryConditionTest
 import git.walhay.modweave.testutils.InteractionTest
 import git.walhay.modweave.testutils.TestFixtures
 import org.junit.jupiter.api.Assertions.*
@@ -14,6 +15,7 @@ import org.mockito.kotlin.*
 
 @InteractionTest
 class CommentServiceTest {
+  @InteractionTest
   @Test
   fun `finds existing comment`() {
     val repository = mock<CommentRepository>()
@@ -24,6 +26,7 @@ class CommentServiceTest {
     assertSame(comment, service.findCommentById(comment.id))
   }
 
+  @BoundaryConditionTest
   @Test
   fun `throws when comment is missing`() {
     val repository = mock<CommentRepository>()
@@ -35,6 +38,7 @@ class CommentServiceTest {
     assertThrows(CommentNotFoundException::class.java) { service.findCommentById(id) }
   }
 
+  @InteractionTest
   @Test
   fun `creates comment for existing user`() {
     val repository = mock<CommentRepository>()
@@ -52,6 +56,7 @@ class CommentServiceTest {
     verify(repository).save(any())
   }
 
+  @BoundaryConditionTest
   @Test
   fun `propagates missing author when creating comment`() {
     val repository = mock<CommentRepository>()
@@ -66,6 +71,7 @@ class CommentServiceTest {
     verify(repository, never()).save(any())
   }
 
+  @InteractionTest
   @Test
   fun `deletes comment`() {
     val repository = mock<CommentRepository>()
@@ -77,6 +83,7 @@ class CommentServiceTest {
     verify(repository).delete(id)
   }
 
+  @BoundaryConditionTest
   @Test
   fun `propagates comment delete failure`() {
     val repository = mock<CommentRepository>()
