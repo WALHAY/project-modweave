@@ -54,12 +54,7 @@ dependencies {
 
   testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
-  testImplementation 'org.springframework.boot:spring-boot-testcontainers'
   testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-  testImplementation platform('org.testcontainers:testcontainers-bom:2.0.4')
-  testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
-  testImplementation 'org.testcontainers:testcontainers-postgresql'
-  testImplementation 'org.testcontainers:testcontainers-jdbc'
   testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
   testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
@@ -91,6 +86,19 @@ tasks.register('offlineTest', Test) {
       'org.junit.jupiter.api.MethodOrderer$Random'
   systemProperty 'junit.jupiter.testclass.order.default',
       'org.junit.jupiter.api.ClassOrderer$Random'
+}
+
+tasks.register('randomTest', Test) {
+  description = 'Runs all tests in random class and method order.'
+  group = 'verification'
+  testClassesDirs = sourceSets.test.output.classesDirs
+  classpath = sourceSets.test.runtimeClasspath
+  useJUnitPlatform()
+  systemProperty 'junit.jupiter.testmethod.order.default',
+      'org.junit.jupiter.api.MethodOrderer$Random'
+  systemProperty 'junit.jupiter.testclass.order.default',
+      'org.junit.jupiter.api.ClassOrderer$Random'
+  finalizedBy tasks.named('jacocoTestReport')
 }
 
 jacoco {
