@@ -61,7 +61,6 @@ dependencies {
   testImplementation 'org.testcontainers:testcontainers-postgresql'
   testImplementation 'org.testcontainers:testcontainers-jdbc'
   testImplementation 'org.mockito.kotlin:mockito-kotlin:5.4.0'
-  testImplementation 'io.qameta.allure:allure-junit5:2.29.1'
   testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -73,7 +72,6 @@ kotlin {
 
 tasks.named('test') {
   useJUnitPlatform()
-  systemProperty 'allure.results.directory', layout.buildDirectory.dir('allure-results').get().asFile
   systemProperty 'junit.jupiter.testmethod.order.default',
       'org.junit.jupiter.api.MethodOrderer$Random'
   systemProperty 'junit.jupiter.testclass.order.default',
@@ -89,7 +87,6 @@ tasks.register('offlineTest', Test) {
   useJUnitPlatform {
     excludeTags 'integration'
   }
-  systemProperty 'allure.results.directory', layout.buildDirectory.dir('allure-results').get().asFile
   systemProperty 'junit.jupiter.testmethod.order.default',
       'org.junit.jupiter.api.MethodOrderer$Random'
   systemProperty 'junit.jupiter.testclass.order.default',
@@ -106,40 +103,6 @@ jacocoTestReport {
     xml.required = true
     html.required = true
     csv.required = false
-  }
-}
-
-tasks.register('allureReport') {
-  description = 'Generates a self-contained HTML report from Allure-compatible test results.'
-  group = 'verification'
-  dependsOn offlineTest
-  doLast {
-    def resultsDir = layout.buildDirectory.dir('allure-results').get().asFile
-    def reportDir = layout.buildDirectory.dir('reports/allure').get().asFile
-    reportDir.mkdirs()
-    def resultFiles = fileTree(resultsDir).matching { include '**/*-result.json' }.files
-    def results = resultFiles.collect { groovy.json.JsonSlurper.newInstance().parse(it) }
-    def passed = results.count { it.status == 'passed' }
-    def failed = results.count { it.status == 'failed' }
-    def skipped = results.count { it.status in ['skipped', 'broken'] }
-    def rows = results.collect { result ->
-      def name = (result.name ?: 'Unnamed test').toString()
-          .replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-      def status = (result.status ?: 'unknown').toString()
-          .replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-      "<tr><td>${name}</td><td>${status}</td></tr>"
-    }.join('\n')
-    file("${reportDir}/index.html").text = """<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Modweave test report</title>
-<style>body{font:16px sans-serif;margin:2rem}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:.4rem 1rem}</style>
-</head><body><h1>Modweave test report</h1>
-<p>Passed: ${passed}; failed: ${failed}; skipped/broken: ${skipped}</p>
-<table><thead><tr><th>Test</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
-</body></html>"""
-    copy {
-      from resultsDir
-      into "${reportDir}/allure-results"
-    }
   }
 }
 

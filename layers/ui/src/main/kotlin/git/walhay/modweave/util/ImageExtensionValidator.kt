@@ -11,5 +11,8 @@ class ImageExtensionValidator(
   override fun isValid(
       value: MultipartFile?,
       context: ConstraintValidatorContext?,
-  ): Boolean = FilenameUtils.getExtension(value?.originalFilename).lowercase() in allowedExtensions
+  ): Boolean =
+      value?.originalFilename?.let {
+        FilenameUtils.getExtension(it).lowercase() in allowedExtensions
+      } ?: false
 }
