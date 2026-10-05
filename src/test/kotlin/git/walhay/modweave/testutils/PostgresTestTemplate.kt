@@ -17,7 +17,9 @@ abstract class PostgresTestTemplate {
         withCopyFileToContainer(
             MountableFile.forClasspathResource("trigger.sql"),
             "/docker-entrypoint-initdb.d/02-trigger.sql")
-        withCopyFileToContainer(MountableFile.forClasspathResource("storage-cleanup.sql"), "/docker-entrypoint-initdb.d/03-storage-cleanup.sql")
+        withCopyFileToContainer(
+            MountableFile.forClasspathResource("storage-cleanup.sql"),
+            "/docker-entrypoint-initdb.d/03-storage-cleanup.sql")
         start()
       }
     }

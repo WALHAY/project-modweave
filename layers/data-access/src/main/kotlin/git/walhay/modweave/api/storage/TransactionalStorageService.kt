@@ -12,10 +12,12 @@ class TransactionalStorageService(
     private val operations: StorageOperationRepository,
 ) : ISimpleStorageService {
   @Transactional(propagation = Propagation.MANDATORY, rollbackFor = [Exception::class])
-  override fun uploadImage(filename: String, file: MultipartFile): String = upload(StorageBucket.IMAGES, filename, file)
+  override fun uploadImage(filename: String, file: MultipartFile): String =
+      upload(StorageBucket.IMAGES, filename, file)
 
   @Transactional(propagation = Propagation.MANDATORY, rollbackFor = [Exception::class])
-  override fun uploadVersionFile(filename: String, file: MultipartFile): String = upload(StorageBucket.MODS, filename, file)
+  override fun uploadVersionFile(filename: String, file: MultipartFile): String =
+      upload(StorageBucket.MODS, filename, file)
 
   private fun upload(bucket: StorageBucket, filename: String, file: MultipartFile): String {
     val intent = operations.registerUpload(bucket, filename)
@@ -28,10 +30,15 @@ class TransactionalStorageService(
   }
 
   @Transactional(propagation = Propagation.MANDATORY, rollbackFor = [Exception::class])
-  override fun removeVersionFile(filename: String) { operations.enqueueDeletion(StorageBucket.MODS, filename) }
+  override fun removeVersionFile(filename: String) {
+    operations.enqueueDeletion(StorageBucket.MODS, filename)
+  }
 
   @Transactional(propagation = Propagation.MANDATORY, rollbackFor = [Exception::class])
-  override fun removeImage(filename: String) { operations.enqueueDeletion(StorageBucket.IMAGES, filename) }
+  override fun removeImage(filename: String) {
+    operations.enqueueDeletion(StorageBucket.IMAGES, filename)
+  }
 
-  override fun downloadVersionFile(filename: String): InputStream = storage.downloadVersionFile(filename)
+  override fun downloadVersionFile(filename: String): InputStream =
+      storage.downloadVersionFile(filename)
 }

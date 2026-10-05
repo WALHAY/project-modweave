@@ -76,10 +76,27 @@ ModWeave - платформа игровых модификаций.
 ```sh
 docker compose -f docker/docker-compose.yaml up -d
 export JWT_SECRET="$(openssl rand -base64 32)"
-./gradlew bootRun
 ```
 
-API доступно на `http://localhost:8080/api/v1`. Секрет JWT обязателен; сохраняйте его между перезапусками, чтобы выпущенные токены продолжали работать. Параметры подключения задаются через `DB_URL`, `DB_USER`, `DB_PASSWORD`, `REDIS_HOST`, `REDIS_PORT`, `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`. Значения по умолчанию соответствуют локальному Compose. Максимальный размер файла — 100 МБ, multipart-запроса — 500 МБ (`spring.servlet.multipart`).
+API доступно на `http://localhost:8080/api/v1`. Секрет JWT обязателен; сохраняйте его между перезапусками, чтобы выпущенные токены продолжали работать. Параметры подключения задаются через `DB_URL`, `DB_USER`, `DB_PASSWORD`, `REDIS_HOST`, `REDIS_PORT`, `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` и `S3_REGION`. Значения по умолчанию соответствуют локальному Garage в Compose. Максимальный размер файла — 100 МБ, multipart-запроса — 500 МБ (`spring.servlet.multipart`).
+
+Для локального Garage сначала создайте кластер и S3-ключ после запуска Compose:
+
+```sh
+docker compose -f docker/docker-compose.yaml up -d postgres garage redis
+NODE_ID="$(docker compose -f docker/docker-compose.yaml exec -T garage /garage -c /etc/garage.toml node id -q)"
+docker compose -f docker/docker-compose.yaml exec garage /garage -c /etc/garage.toml layout assign "$NODE_ID" -z dc1 -c 1
+docker compose -f docker/docker-compose.yaml exec garage /garage -c /etc/garage.toml layout apply --version 1
+docker compose -f docker/docker-compose.yaml exec garage /garage -c /etc/garage.toml key new --name modweave
+```
+
+Grant the printed key read/write access with `garage key allow`, then export its access and secret keys as `S3_ACCESS_KEY` and `S3_SECRET_KEY` before starting the application. The application creates the `mods` and `images` buckets on startup. Garage does not implement the S3 bucket-policy API; access is controlled by the Garage key and the application endpoints.
+
+После настройки ключа запустите приложение:
+
+```sh
+./gradlew bootRun
+```
 
 Compose создаёт схему и триггер при первом запуске PostgreSQL с пустым томом. Источники схемы — `sql/init.sql` и `sql/trigger.sql`; Gradle включает их в ресурсы. Для существующей базы примените `sql/migrate-0.0.1.sql`, затем `sql/trigger.sql`. Уникальные индексы требуют отсутствия дубликатов логинов, email, категорий без учёта регистра и путей файлов. Миграция не удаляет дубликаты автоматически. Ранее настроенные каталоги данных Docker следует перенести в именованные тома перед переходом на обновлённый Compose.
 
@@ -101,4 +118,4 @@ Compose создаёт схему и триггер при первом запу
 
 Для отдельной временной PostgreSQL-базы можно заранее применить `sql/init.sql` и `sql/trigger.sql`, затем задать `MODWEAVE_TEST_DATABASE_URL`, `MODWEAVE_TEST_DATABASE_USER`, `MODWEAVE_TEST_DATABASE_PASSWORD`. Используйте только тестовую базу.
 
-Генератор демонстрационных данных: `python3 -m pip install -r seed/requirements.txt`, затем `python3 seed/main.py`. Он использует `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; пароль сгенерированных пользователей задаёт `SEED_PASSWORD` (по умолчанию `seed-password`). Пароли сохраняются как BCrypt. Ссылки на файлы в этих данных демонстрационные: генератор не загружает объекты в MinIO.
+Генератор демонстрационных данных: `python3 -m pip install -r seed/requirements.txt`, затем `python3 seed/main.py`. Он использует `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; пароль сгенерированных пользователей задаёт `SEED_PASSWORD` (по умолчанию `seed-password`). Пароли сохраняются как BCrypt. Ссылки на файлы в этих данных демонстрационные: генератор не загружает объекты в Garage.

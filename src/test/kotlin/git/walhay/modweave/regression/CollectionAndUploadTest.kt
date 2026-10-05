@@ -60,5 +60,4 @@ class CollectionAndUploadTest {
     }
     verifyNoInteractions(storage, repository)
   }
-
 }

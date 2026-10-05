@@ -49,6 +49,5 @@ class FileService(
       logger.debug { "File saved to repository: ${savedFile.id}" }
     }
     logger.info { "Successfully uploaded ${files.size} files for version: ${version.name}" }
-
   }
 }

@@ -1,8 +1,8 @@
 package git.walhay.modweave.regression
 
 import git.walhay.modweave.api.storage.S3ObjectStorage
-import io.minio.*
 import git.walhay.modweave.api.storage.StorageBucket
+import io.minio.*
 import java.io.ByteArrayInputStream
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -11,22 +11,19 @@ import org.springframework.mock.web.MockMultipartFile
 
 class StorageServiceTest {
   @Test
-  fun `existing file bucket becomes private while images remain public`() {
+  fun `bucket initialization checks both configured buckets`() {
     val client =
         mock(MinioClient::class.java) { invocation ->
           if (invocation.method.name == "bucketExists") true else null
         }
     S3ObjectStorage(client, "mods", "images").initBuckets()
-    val policies =
+    val buckets =
         mockingDetails(client)
             .invocations
-            .filter { it.method.name == "setBucketPolicy" }
-            .map { it.arguments[0] as SetBucketPolicyArgs }
-            .associate { it.bucket() to it.config() }
-    assertFalse(policies.containsKey("mods"))
-    val removed = mockingDetails(client).invocations.single { it.method.name == "deleteBucketPolicy" }.arguments[0] as DeleteBucketPolicyArgs
-    assertEquals("mods", removed.bucket())
-    assertTrue(policies["images"]!!.contains("s3:GetObject"))
+            .filter { it.method.name == "bucketExists" }
+            .map { (it.arguments[0] as BucketExistsArgs).bucket() }
+    assertEquals(listOf("mods", "images"), buckets)
+    assertTrue(mockingDetails(client).invocations.none { it.method.name.endsWith("BucketPolicy") })
   }
 
   @Test

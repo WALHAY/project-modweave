@@ -1,6 +1,7 @@
 volumes:
   postgres:
-  minio:
+  garage-meta:
+  garage-data:
   redis:
 
 services:
@@ -20,18 +21,20 @@ services:
     networks:
       - mynetwork
 
-  minio:
-    image: minio/minio:latest
-    container_name: modweave-s3
+  garage:
+    image: dxflrs/garage:v2.0.0
+    container_name: modweave-garage
     environment:
-      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-username}
-      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-password}
+      GARAGE_ALLOW_WORLD_READABLE_SECRETS: "true"
     volumes:
-      - minio:/data
+      - garage-meta:/var/lib/garage/meta
+      - garage-data:/var/lib/garage/data
+      - ./garage.toml:/etc/garage.toml:ro
     ports:
-      - "9000:9000"
-      - "9001:9001"
-    command: server /data --console-address ":9001"
+      - "3900:3900"
+      - "3901:3901"
+      - "3903:3903"
+    command: /garage -c /etc/garage.toml server
     networks:
       - mynetwork
 

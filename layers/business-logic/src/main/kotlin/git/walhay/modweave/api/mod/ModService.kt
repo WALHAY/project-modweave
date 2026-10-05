@@ -110,7 +110,6 @@ class ModService(
 
     versionService.createModVersion(mod, command)
     return modRepository.save(mod)
-
   }
 
   @CacheEvict(
@@ -122,7 +121,9 @@ class ModService(
   ) {
     val mod = findModById(modId)
     modRepository.deleteById(modId)
-    mod.versions.flatMap { it.files }.forEach { simpleStorageService.removeVersionFile(it.filePath) }
+    mod.versions
+        .flatMap { it.files }
+        .forEach { simpleStorageService.removeVersionFile(it.filePath) }
     simpleStorageService.removeImage(mod.imagePath)
   }
 }

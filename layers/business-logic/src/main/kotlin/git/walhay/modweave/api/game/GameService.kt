@@ -63,7 +63,6 @@ class GameService(
         "games/${command.id.value}/${UUID.randomUUID()}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}"
     val storedImage = simpleStorageService.uploadImage(imagePath, command.image)
     return gameRepository.save(Game(command.id, command.name, command.description, storedImage))
-
   }
 
   @CacheEvict(
@@ -74,7 +73,9 @@ class GameService(
     val game = findGameById(gameId)
     gameRepository.deleteById(gameId)
     game.mods.forEach { mod ->
-      mod.versions.flatMap { it.files }.forEach { simpleStorageService.removeVersionFile(it.filePath) }
+      mod.versions
+          .flatMap { it.files }
+          .forEach { simpleStorageService.removeVersionFile(it.filePath) }
       simpleStorageService.removeImage(mod.imagePath)
     }
     simpleStorageService.removeImage(game.imagePath)

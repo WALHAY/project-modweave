@@ -15,34 +15,39 @@ class StorageCleanupProcessor(
     private val properties: StorageCleanupProperties,
 ) {
   private val logger = KotlinLogging.logger {}
-  private val transaction = TransactionTemplate(transactionManager).apply {
-    propagationBehavior = TransactionDefinition.PROPAGATION_REQUIRES_NEW
-  }
+  private val transaction =
+      TransactionTemplate(transactionManager).apply {
+        propagationBehavior = TransactionDefinition.PROPAGATION_REQUIRES_NEW
+      }
 
   @Scheduled(fixedDelayString = "\${storage.cleanup.poll-interval-ms:1000}")
-  fun scheduledCleanup() { if (properties.enabled) runBatch() }
+  fun scheduledCleanup() {
+    if (properties.enabled) runBatch()
+  }
 
   fun runBatch() {
     repeat(properties.batchSize) {
-      val found = try {
-        transaction.execute {
-          val task = operations.nextTask() ?: return@execute false
-          // Also protects an upload if a previous COMMIT result was uncertain.
-          if (!operations.isReferenced(task.bucket, task.key)) {
-            try { storage.remove(task.bucket, task.key) }
-            catch (e: Exception) {
-              operations.retryLater(task, e)
-              logger.warn(e) { "Storage cleanup ${task.id} will be retried" }
-              return@execute true
+      val found =
+          try {
+            transaction.execute {
+              val task = operations.nextTask() ?: return@execute false
+              // Also protects an upload if a previous COMMIT result was uncertain.
+              if (!operations.isReferenced(task.bucket, task.key)) {
+                try {
+                  storage.remove(task.bucket, task.key)
+                } catch (e: Exception) {
+                  operations.retryLater(task, e)
+                  logger.warn(e) { "Storage cleanup ${task.id} will be retried" }
+                  return@execute true
+                }
+              }
+              operations.completeUpload(task.id)
+              true
             }
+          } catch (e: Exception) {
+            logger.warn(e) { "Storage cleanup database unavailable; tasks remain pending" }
+            return
           }
-          operations.completeUpload(task.id)
-          true
-        } ?: false
-      } catch (e: Exception) {
-        logger.warn(e) { "Storage cleanup database unavailable; tasks remain pending" }
-        return
-      }
       if (!found) return
     }
   }

@@ -5,8 +5,8 @@ build/
 !**/src/test/**/build/
 *.log
 
-## MINIO ##
-/minio
+## GARAGE ##
+/garage
 
 ## REDIS ##
 *.rdb
