@@ -7,7 +7,11 @@ import git.walhay.modweave.api.comment.repository.CommentRepository
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.repository.ModRepository
 import git.walhay.modweave.api.user.UserId
+import git.walhay.modweave.api.version.VersionId
+import git.walhay.modweave.api.version.VersionStatus
+import git.walhay.modweave.api.version.repository.VersionRepository
 import java.util.UUID
+import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
@@ -17,12 +21,23 @@ class AccessSecurity(
     private val modRepository: ModRepository,
     private val collectionRepository: CollectionRepository,
     private val commentRepository: CommentRepository,
+    private val versionRepository: VersionRepository,
 ) {
 
   private fun isAdmin(authentication: Authentication? = currentAuth()): Boolean =
       authentication?.authorities?.any { it.authority == "ROLE_ADMIN" } == true
 
   fun isAdmin() = isAdmin(currentAuth())
+
+  fun canManageMod(modId: String): Boolean {
+    val auth = currentAuth() ?: return false
+    return isModOwnerOrAdmin(auth.name, modId)
+  }
+
+  fun canReadVersion(versionId: UUID): Boolean {
+    val version = versionRepository.findVersionById(VersionId(versionId)) ?: return true
+    return version.status == VersionStatus.APPROVED || canManageMod(version.modId.value)
+  }
 
   private fun isSelf(userId: UserId, authentication: Authentication?): Boolean =
       authentication?.name == userId.value
@@ -92,5 +107,8 @@ class AccessSecurity(
       commentId: UUID,
   ) = isCommentOwnerOrAdmin(UserId(userId), CommentId(commentId), currentAuth())
 
-  private fun currentAuth(): Authentication? = SecurityContextHolder.getContext().authentication
+  private fun currentAuth(): Authentication? =
+      SecurityContextHolder.getContext().authentication?.takeIf {
+        it.isAuthenticated && it !is AnonymousAuthenticationToken
+      }
 }

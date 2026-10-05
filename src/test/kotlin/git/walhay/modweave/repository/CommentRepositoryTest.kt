@@ -59,7 +59,7 @@ class CommentRepositoryTest : PostgresTestTemplate() {
   fun `create comment`() {
     val created = seedComment()
     assertNotNull(created)
-    assertTrue(created.id.value > 0)
+    assertNotEquals(java.util.UUID(0, 0), created.id.value)
   }
 
   @Test

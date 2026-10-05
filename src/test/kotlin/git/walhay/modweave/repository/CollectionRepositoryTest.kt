@@ -72,7 +72,7 @@ class CollectionRepositoryTest : PostgresTestTemplate() {
   fun `create collection`() {
     val created = seedCollection()
     assertNotNull(created)
-    assertTrue(created.id.value > 0)
+    assertNotEquals(java.util.UUID(0, 0), created.id.value)
   }
 
   @Test
@@ -105,5 +105,46 @@ class CollectionRepositoryTest : PostgresTestTemplate() {
 
     val after = collectionRepository.findById(created.id)
     assertNull(after)
+  }
+
+  @Autowired lateinit var entityManager: jakarta.persistence.EntityManager
+
+  @Test
+  fun `reordering and removing collection items survives reload`() {
+    val collection = seedCollection()
+    val original = collection.mods.single()
+    val second = modRepository.save(original.copy(id = ModId("mod2"), name = "Mod 2"))
+    collection.mods.add(0, second)
+    collectionRepository.save(collection)
+    entityManager.flush()
+    entityManager.clear()
+    assertEquals(
+        listOf(second.id, original.id),
+        collectionRepository.findById(collection.id)!!.mods.map { it.id })
+    val ordered =
+        modRepository.findModsInCollection(
+            collection.id,
+            org.springframework.data.domain.PageRequest.of(
+                0, 10, org.springframework.data.domain.Sort.by("index")))
+    assertEquals(listOf(second.id, original.id), ordered.content.map { it.id })
+    collection.mods.removeAt(1)
+    collectionRepository.save(collection)
+    entityManager.flush()
+    entityManager.clear()
+    assertEquals(
+        listOf(second.id), collectionRepository.findById(collection.id)!!.mods.map { it.id })
+    assertNotNull(modRepository.findById(original.id))
+  }
+
+  @Test
+  fun `one mod may belong to multiple collections`() {
+    val first = seedCollection()
+    val second =
+        collectionRepository.save(
+            Collection("Other", null, first.owner, first.mods.toMutableList()))
+    entityManager.flush()
+    entityManager.clear()
+    assertEquals(
+        first.mods.single().id, collectionRepository.findById(second.id)!!.mods.single().id)
   }
 }

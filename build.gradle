@@ -1,7 +1,7 @@
 plugins {
   id 'org.jetbrains.kotlin.jvm' version '2.3.0' apply false
   id 'com.ncorti.ktfmt.gradle' version '0.25.0' apply false
-  id 'org.jetbrains.kotlin.plugin.spring' version '2.2.21' apply false
+  id 'org.jetbrains.kotlin.plugin.spring' version '2.3.0' apply false
   id 'org.springframework.boot' version '4.0.5' apply false
   id 'io.spring.dependency-management' version '1.1.7' apply false
 }
@@ -52,7 +52,11 @@ dependencies {
   runtimeOnly 'org.postgresql:postgresql:42.7.3'
 
   testImplementation 'org.jetbrains.kotlin:kotlin-test-junit5'
+  testImplementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+  testImplementation 'io.minio:minio:8.6.0'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+  testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
   testImplementation 'org.springframework.boot:spring-boot-testcontainers'
   testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
   testImplementation platform('org.testcontainers:testcontainers-bom:2.0.4')
@@ -107,4 +111,9 @@ subprojects {
   tasks.named('test') {
     useJUnitPlatform()
   }
+}
+
+// One schema source for the application, Docker and repository tests.
+tasks.named('processResources') {
+  from('sql') { include 'init.sql', 'trigger.sql', 'storage-cleanup.sql' }
 }

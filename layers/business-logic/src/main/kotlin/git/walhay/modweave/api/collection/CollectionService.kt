@@ -11,7 +11,6 @@ import jakarta.transaction.Transactional
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -28,14 +27,14 @@ class CollectionService(
 ) : ICollectionService {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @Cacheable("collections", key = "#id")
+  @Cacheable("collections", key = "#p0")
   override fun getCollectionById(id: CollectionId): Collection {
     logger.debug { "Fetching collection by id: $id" }
     return collectionRepository.findById(id) ?: throw CollectionNotFoundException(id)
   }
 
-  @CachePut("collections", key = "#result.id")
-  @PreAuthorize("isAuthenticated()")
+  @CacheEvict("collections", allEntries = true)
+  @PreAuthorize("@accessSecurity.isSelf(#p0)")
   override fun createCollection(
       userId: UserId,
       command: CollectionCreateCommand,
@@ -47,8 +46,8 @@ class CollectionService(
         .also { logger.info { "Collection created successfully: ${it.id}" } }
   }
 
-  @CacheEvict("collections", key = "#collectionId")
-  @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#userId, #collectionId)")
+  @CacheEvict("collections", key = "#p1")
+  @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#p0, #p1)")
   override fun deleteCollection(
       userId: UserId,
       collectionId: CollectionId,
@@ -58,7 +57,8 @@ class CollectionService(
     logger.info { "Collection deleted successfully: $collectionId" }
   }
 
-  @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#userId, #collectionId)")
+  @CacheEvict("collections", key = "#p1")
+  @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#p0, #p1)")
   override fun addModToCollection(
       userId: UserId,
       collectionId: CollectionId,
@@ -70,20 +70,27 @@ class CollectionService(
     }
     val collection = getCollectionById(collectionId)
 
+    require(collection.mods.none { it.id == modId }) { "Mod already belongs to the collection" }
+    val insertionIndex = index ?: collection.mods.size
+    require(insertionIndex in 0..collection.mods.size) { "Collection index is out of bounds" }
     val mod = modService.findModById(modId)
-    collection.mods.addLast(mod)
+    collection.mods.add(insertionIndex, mod)
     val result = collectionRepository.save(collection)
     logger.info { "Mod added successfully to collection: $collectionId" }
     return result
   }
 
-  @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#userId, #collectionId)")
+  @CacheEvict("collections", key = "#p1")
+  @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#p0, #p1)")
   override fun deleteModFromCollection(
       userId: UserId,
       collectionId: CollectionId,
       modId: ModId,
   ) {
     logger.info { "Deleting mod: $modId from collection: $collectionId for user: $userId" }
+    val collection = getCollectionById(collectionId)
+    collection.mods.removeAll { it.id == modId }
+    collectionRepository.save(collection)
   }
 
   override fun findCollectionsOfUser(

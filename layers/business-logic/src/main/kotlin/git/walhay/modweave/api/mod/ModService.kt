@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.mod
 
+import git.walhay.modweave.api.category.exception.CategoryNotFoundException
 import git.walhay.modweave.api.category.repository.CategoryRepository
 import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.common.paging.PageSizePolicy
@@ -12,11 +13,11 @@ import git.walhay.modweave.api.storage.ISimpleStorageService
 import git.walhay.modweave.api.user.IUserService
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.IVersionService
+import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
 import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -26,7 +27,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Exception::class])
 class ModService(
     private val modRepository: ModRepository,
     private val userService: IUserService,
@@ -37,7 +38,7 @@ class ModService(
     private val pageSizePolicy: PageSizePolicy,
     private val logger: KLogger = KotlinLogging.logger {},
 ) : IModService {
-  @Cacheable("mods", key = "#modId")
+  @Cacheable("mods", key = "#p0")
   override fun findModById(modId: ModId): Mod =
       modRepository.findById(modId) ?: throw ModNotFoundException(modId)
 
@@ -71,8 +72,8 @@ class ModService(
       modRepository.findModsInCollection(
           id, PageRequest.of(page, pageSizePolicy.normalize(size), sort))
 
-  @CachePut("mods", key = "#result.id")
-  @PreAuthorize("isAuthenticated()")
+  @CacheEvict(value = ["mods", "games", "users"], allEntries = true)
+  @PreAuthorize("@accessSecurity.isSelf(#p0)")
   override fun uploadMod(
       userId: UserId,
       command: ModCreateCommand,
@@ -84,40 +85,44 @@ class ModService(
     val user = userService.findUserByUsername(userId)
     val game = gamerService.findGameById(command.gameId)
     val categories = categoryRepository.findAllByNameIn(command.categories)
+    command.categories
+        .firstOrNull { requested -> categories.none { it.name == requested } }
+        ?.let { throw CategoryNotFoundException(it) }
 
     val imagePath =
-        "${command.name}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}"
+        "mods/${command.id.value}/${UUID.randomUUID()}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}"
 
-    try {
-      val mod =
-          command
-              .let { (id, name, description, image) ->
-                Mod(
-                    id,
-                    name,
-                    description,
-                    simpleStorageService.uploadImage(imagePath, image),
-                    user.username,
-                    game.id,
-                    categories.map { it.name }.toSet(),
-                )
-              }
-              .let { modRepository.save(it) }
+    val storedImage = simpleStorageService.uploadImage(imagePath, command.image)
+    val mod =
+        command
+            .let { (id, name, description, image) ->
+              Mod(
+                  id,
+                  name,
+                  description,
+                  storedImage,
+                  user.username,
+                  game.id,
+                  categories.map { it.name }.toSet(),
+              )
+            }
+            .let { modRepository.save(it) }
 
-      versionService.createModVersion(mod, command)
-      return modRepository.save(mod)
-    } catch (e: Exception) {
-      simpleStorageService.removeImage(imagePath)
-      throw e
-    }
+    versionService.createModVersion(mod, command)
+    return modRepository.save(mod)
+
   }
 
-  @CacheEvict("mods", key = "#modId")
-  @PreAuthorize("@accessSecurity.isModOwnerOrAdmin(#userId, #modId)")
+  @CacheEvict(
+      value = ["mods", "versions", "games", "collections", "users", "comments"], allEntries = true)
+  @PreAuthorize("@accessSecurity.isModOwnerOrAdmin(#p0, #p1)")
   override fun deleteMod(
       userId: UserId,
       modId: ModId,
   ) {
+    val mod = findModById(modId)
     modRepository.deleteById(modId)
+    mod.versions.flatMap { it.files }.forEach { simpleStorageService.removeVersionFile(it.filePath) }
+    simpleStorageService.removeImage(mod.imagePath)
   }
 }

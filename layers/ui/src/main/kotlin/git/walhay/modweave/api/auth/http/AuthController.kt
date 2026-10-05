@@ -4,12 +4,14 @@ import git.walhay.modweave.api.auth.http.dto.AuthRequestDto
 import git.walhay.modweave.api.auth.http.dto.RefreshTokenRequestDto
 import git.walhay.modweave.api.auth.http.dto.TokenResponseDto
 import git.walhay.modweave.config.JwtService
+import io.jsonwebtoken.JwtException
 import jakarta.validation.Valid
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
@@ -46,11 +48,21 @@ class AuthController(
       @Valid @ModelAttribute dto: RefreshTokenRequestDto,
   ): TokenResponseDto {
     logger.info { "POST /auth/refresh - refreshing token" }
-    val username = jwtService.extractUsername(dto.refreshToken)
-    val userDetails = userDetailsService.loadUserByUsername(username)
-    if (!jwtService.isRefreshTokenValid(dto.refreshToken, userDetails)) {
-      throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token")
-    }
+    val userDetails =
+        try {
+          val username = jwtService.extractUsername(dto.refreshToken)
+          userDetailsService.loadUserByUsername(username).also {
+            if (!jwtService.isRefreshTokenValid(dto.refreshToken, it)) {
+              throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token")
+            }
+          }
+        } catch (e: JwtException) {
+          throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token", e)
+        } catch (e: IllegalArgumentException) {
+          throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token", e)
+        } catch (e: AuthenticationException) {
+          throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token", e)
+        }
     val accessToken = jwtService.generateAccessToken(userDetails)
     val refreshToken = jwtService.generateRefreshToken(userDetails)
     return TokenResponseDto(accessToken, refreshToken)

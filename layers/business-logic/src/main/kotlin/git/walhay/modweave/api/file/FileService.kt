@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
 @Service
-@Transactional
+@Transactional(rollbackOn = [Exception::class])
 class FileService(
     private val simpleStorageService: ISimpleStorageService,
     private val fileRepository: FileRepository,
@@ -22,26 +22,33 @@ class FileService(
       files: List<MultipartFile>,
   ) {
     logger.info { "Uploading ${files.size} files for version: ${version.name}" }
-    val uploadedFiles = mutableListOf<String>()
-    try {
-      for (file in files) {
-        val filename = "${version.modId}/${version.name}/${file.originalFilename}"
-        logger.debug { "Uploading file: ${file.originalFilename}" }
-        uploadedFiles.add(simpleStorageService.uploadVersionFile(filename, file))
+    require(files.isNotEmpty()) { "Version must contain at least one file" }
+    val filenames =
+        files.map { file ->
+          val name = file.originalFilename
+          require(!file.isEmpty && !name.isNullOrBlank()) {
+            "Uploaded file must have a name and content"
+          }
+          require(
+              name != "." &&
+                  name != ".." &&
+                  name.none { it == '/' || it == '\\' || it.isISOControl() }) {
+                "Invalid filename"
+              }
+          name
+        }
+    for ((index, file) in files.withIndex()) {
+      val id = FileId()
+      val filename = "${version.modId.value}/${version.id.value}/${id.value}/${filenames[index]}"
+      logger.debug { "Uploading file: ${file.originalFilename}" }
+      simpleStorageService.uploadVersionFile(filename, file)
 
-        val savedFile = fileRepository.save(File(file.originalFilename!!, filename, version.id))
-        version.files.addFirst(savedFile)
-        logger.debug { "File saved to repository: ${savedFile.id}" }
-      }
-      logger.info {
-        "Successfully uploaded ${uploadedFiles.size} files for version: ${version.name}"
-      }
-    } catch (e: Exception) {
-      logger.warn { "File upload failed, rolling back uploaded files: ${e.message}" }
-      for (filename in uploadedFiles) {
-        simpleStorageService.removeVersionFile(filename)
-      }
-      throw e
+      val savedFile =
+          fileRepository.save(File(id, filenames[index], filename, versionId = version.id))
+      version.files.addLast(savedFile)
+      logger.debug { "File saved to repository: ${savedFile.id}" }
     }
+    logger.info { "Successfully uploaded ${files.size} files for version: ${version.name}" }
+
   }
 }

@@ -1,18 +1,29 @@
-@host=localhost:8080
+@host=http://localhost:8080
+@accessToken=replace-with-admin-access-token
 
-# Tokens
-@accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YWxoYXkiLCJpc3MiOiJtb2R3ZWF2ZSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MTAxMjg0NSwiZXhwIjoxNzgxMDEzNzQ1fQ.8CNKG0tJzYf_oYLeV0MxbiR5gFVkYvcmnEWKeDlfYU8
-
-### Get games
-
+### List games
 GET {{host}}/api/v1/games?page=0&size=5
 
-### Upload new game
-
+### Create game
 POST {{host}}/api/v1/games
 Authorization: Bearer {{accessToken}}
-Content-Type: multipart/form-data
+Content-Type: multipart/form-data; boundary=ModweaveBoundary
 
-name=Game
-description=My game desc
-image=@./image.png
+--ModweaveBoundary
+Content-Disposition: form-data; name="name"
+
+Example Game
+--ModweaveBoundary
+Content-Disposition: form-data; name="description"
+
+Example game description
+--ModweaveBoundary
+Content-Disposition: form-data; name="image"; filename="image.png"
+Content-Type: image/png
+
+< ./image.png
+--ModweaveBoundary--
+
+### Delete game
+DELETE {{host}}/api/v1/games/example-game
+Authorization: Bearer {{accessToken}}

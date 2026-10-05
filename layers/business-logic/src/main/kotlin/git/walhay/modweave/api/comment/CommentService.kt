@@ -9,7 +9,6 @@ import jakarta.transaction.Transactional
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
@@ -22,14 +21,14 @@ class CommentService(
 ) : ICommentService {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @Cacheable("comments", key = "#id.value")
+  @Cacheable("comments", key = "#p0")
   override fun findCommentById(id: CommentId): Comment? {
     logger.debug { "Fetching comment by id: $id" }
     return commentRepository.findById(id) ?: throw CommentNotFoundException(id)
   }
 
-  @CachePut("comments", key = "#result.id.value")
-  @PreAuthorize("isAuthenticated()")
+  @CacheEvict("comments", allEntries = true)
+  @PreAuthorize("@accessSecurity.isSelf(#p0)")
   override fun createComment(
       userId: UserId,
       command: CommentCreateCommand,
@@ -45,8 +44,8 @@ class CommentService(
         .also { logger.info { "Comment created successfully: ${it.id}" } }
   }
 
-  @CacheEvict("comments", key = "#id.value")
-  @PreAuthorize("@accessSecurity.isCommentOwnerOrAdmin(#userId, #id)")
+  @CacheEvict("comments", key = "#p1")
+  @PreAuthorize("@accessSecurity.isCommentOwnerOrAdmin(#p0, #p1)")
   override fun deleteComment(
       userId: UserId,
       id: CommentId,

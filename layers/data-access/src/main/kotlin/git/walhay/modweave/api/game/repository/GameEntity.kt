@@ -13,7 +13,8 @@ class GameEntity(
     @Column(name = "name", nullable = false) val name: String,
     @Column(name = "description", columnDefinition = "text") val description: String? = null,
     @Column(name = "image_path", nullable = false) val imagePath: String,
-    @OneToMany(mappedBy = "gameId", fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id", insertable = false, updatable = false)
     val mods: MutableList<ModEntity> = mutableListOf(),
 ) {
   constructor() : this("", "", null, "")

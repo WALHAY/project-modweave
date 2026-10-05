@@ -36,10 +36,10 @@ class GameController(
 
   @GetMapping("/{gameId}")
   fun getGame(
-      @PathVariable gameId: GameId,
+      @PathVariable gameId: String,
   ): GameResponseDto {
     logger.info { "GET /games/$gameId" }
-    return gameService.findGameById(gameId).let { GameResponseDto.fromGame(it) }
+    return gameService.findGameById(GameId(gameId)).let { GameResponseDto.fromGame(it) }
   }
 
   @PostMapping
@@ -51,10 +51,10 @@ class GameController(
     return gameService.uploadGame(dto.toGameCreateCommand()).let { GameResponseDto.fromGame(it) }
   }
 
-  @DeleteMapping
+  @DeleteMapping("/{gameId}")
   @ResponseStatus(HttpStatus.OK)
-  fun deletegame(@PathVariable gameId: GameId) {
-    logger.info { "DELETE /games - deleting game: ${gameId.value}" }
-    gameService.deleteGame(gameId)
+  fun deleteGame(@PathVariable gameId: String) {
+    logger.info { "DELETE /games - deleting game: $gameId" }
+    gameService.deleteGame(GameId(gameId))
   }
 }

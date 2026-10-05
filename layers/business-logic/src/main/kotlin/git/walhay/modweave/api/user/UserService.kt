@@ -10,7 +10,6 @@ import git.walhay.modweave.api.user.repository.UserRepository
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -29,7 +28,7 @@ class UserService(
 ) : IUserService {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @Cacheable("users", key = "#userId")
+  @Cacheable("users", key = "#p0")
   override fun findUserByUsername(userId: UserId): User {
     logger.debug { "Fetching user by username: $userId" }
     return userRepository.findByUsername(userId) ?: throw UserNotFoundException(userId)
@@ -51,7 +50,7 @@ class UserService(
     return userRepository.findAll(name, pageRequest)
   }
 
-  @CachePut("users", key = "#result.username")
+  @CacheEvict("users", allEntries = true)
   override fun createUser(command: UserCreateCommand): User {
     logger.info { "Creating new user: ${command.username}" }
     if (userRepository.existsByUsername(command.username)) {
@@ -77,8 +76,8 @@ class UserService(
     return user
   }
 
-  @CacheEvict("users", key = "#userId")
-  @PreAuthorize("@accessSecurity.isSelfOrAdmin(#userId)")
+  @CacheEvict("users", allEntries = true)
+  @PreAuthorize("@accessSecurity.isSelfOrAdmin(#p0)")
   override fun updateUser(
       userId: UserId,
       command: UserUpdateCommand,

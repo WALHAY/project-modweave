@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "modweave",
+      "credentials": [{"accessKey": "username", "secretKey": "password"}],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

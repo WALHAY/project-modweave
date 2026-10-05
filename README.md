@@ -68,3 +68,37 @@ ModWeave - платформа игровых модификаций.
 ## BPMN
 
 ![BPMN](./docs/bpmn.svg)
+
+## Запуск
+
+Нужны JDK 25 и Docker Compose. Из корня проекта:
+
+```sh
+docker compose -f docker/docker-compose.yaml up -d
+export JWT_SECRET="$(openssl rand -base64 32)"
+./gradlew bootRun
+```
+
+API доступно на `http://localhost:8080/api/v1`. Секрет JWT обязателен; сохраняйте его между перезапусками, чтобы выпущенные токены продолжали работать. Параметры подключения задаются через `DB_URL`, `DB_USER`, `DB_PASSWORD`, `REDIS_HOST`, `REDIS_PORT`, `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`. Значения по умолчанию соответствуют локальному Compose. Максимальный размер файла — 100 МБ, multipart-запроса — 500 МБ (`spring.servlet.multipart`).
+
+Compose создаёт схему и триггер при первом запуске PostgreSQL с пустым томом. Источники схемы — `sql/init.sql` и `sql/trigger.sql`; Gradle включает их в ресурсы. Для существующей базы примените `sql/migrate-0.0.1.sql`, затем `sql/trigger.sql`. Уникальные индексы требуют отсутствия дубликатов логинов, email, категорий без учёта регистра и путей файлов. Миграция не удаляет дубликаты автоматически. Ранее настроенные каталоги данных Docker следует перенести в именованные тома перед переходом на обновлённый Compose.
+
+Регистрация и вход принимают `application/x-www-form-urlencoded`; загрузки — `multipart/form-data`. Примеры находятся в `requests/`. Для обновления отображаемого имени используется поле `name`. Ответы версий содержат UUID версии и файлов; скачивание: `GET /api/v1/files/{fileId}/download`. Гостям доступны одобренные версии, автору и администратору — также версии на проверке и отклонённые. Изменять статус может только администратор. Бакет файлов приватный, изображения публичны.
+
+Новый пользователь получает обычные права. Для локальной проверки модерации зарегистрируйте пользователя и назначьте ему `is_admin = true` в `modweave.users`, затем перезапустите приложение с очищенным кэшем `users` и войдите заново. `sql/roles.sql` — отдельный пример ролей PostgreSQL; права API проверяет Spring Security.
+
+## Проверки
+
+```sh
+./gradlew test ktfmtCheck
+```
+
+Тесты репозиториев запускают изолированный PostgreSQL 16 через Testcontainers. При отсутствии Docker можно выполнить проверки сервисов, JWT, HTTP и метаданных Hibernate:
+
+```sh
+./gradlew test --tests 'git.walhay.modweave.regression.*' ktfmtCheck
+```
+
+Для отдельной временной PostgreSQL-базы можно заранее применить `sql/init.sql` и `sql/trigger.sql`, затем задать `MODWEAVE_TEST_DATABASE_URL`, `MODWEAVE_TEST_DATABASE_USER`, `MODWEAVE_TEST_DATABASE_PASSWORD`. Используйте только тестовую базу.
+
+Генератор демонстрационных данных: `python3 -m pip install -r seed/requirements.txt`, затем `python3 seed/main.py`. Он использует `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; пароль сгенерированных пользователей задаёт `SEED_PASSWORD` (по умолчанию `seed-password`). Пароли сохраняются как BCrypt. Ссылки на файлы в этих данных демонстрационные: генератор не загружает объекты в MinIO.

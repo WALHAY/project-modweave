@@ -2,7 +2,6 @@ package git.walhay.modweave.api.category.repository
 
 import git.walhay.modweave.api.category.Category
 import git.walhay.modweave.api.category.CategoryId
-import git.walhay.modweave.api.mod.repository.ModEntity
 import jakarta.persistence.*
 import java.io.Serializable
 
@@ -11,14 +10,6 @@ import java.io.Serializable
 class CategoryEntity(
     @Id @Column(name = "name", nullable = false) var name: String,
     @Column(name = "description", columnDefinition = "text") var description: String? = null,
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        schema = "modweave",
-        name = "mods_categories",
-        joinColumns = [JoinColumn("category_name")],
-        inverseJoinColumns = [JoinColumn(name = "mod_id")],
-    )
-    val mods: Set<ModEntity> = emptySet(),
 ) : Serializable {
   constructor() : this("")
 
@@ -33,6 +24,6 @@ class CategoryEntity(
 
   companion object {
     fun fromCategory(category: Category): CategoryEntity =
-        CategoryEntity(category.name.value, category.description, emptySet())
+        CategoryEntity(category.name.value, category.description)
   }
 }

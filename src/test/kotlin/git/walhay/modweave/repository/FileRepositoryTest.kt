@@ -75,7 +75,7 @@ class FileRepositoryTest : PostgresTestTemplate() {
   fun `create file`() {
     val created = seedFile()
     assertNotNull(created)
-    assertTrue(created.id.value > 0)
+    assertNotEquals(java.util.UUID(0, 0), created.id.value)
   }
 
   @Test
@@ -114,5 +114,17 @@ class FileRepositoryTest : PostgresTestTemplate() {
 
     val after = fileRepository.findById(created.id)
     assertNull(after)
+  }
+
+  @Autowired lateinit var entityManager: jakarta.persistence.EntityManager
+
+  @Test
+  fun `downloads are incremented in the database`() {
+    val file = seedFile()
+    entityManager.flush()
+    fileRepository.incrementDownloads(file.id)
+    fileRepository.incrementDownloads(file.id)
+    entityManager.clear()
+    assertEquals(2, fileRepository.findById(file.id)!!.downloads)
   }
 }

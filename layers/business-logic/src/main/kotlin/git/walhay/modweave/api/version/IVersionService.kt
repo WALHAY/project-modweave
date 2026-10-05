@@ -12,7 +12,7 @@ interface IVersionService {
   fun getModVersion(versionId: VersionId): Version
 
   fun getModVersions(
-      userId: UserId,
+      userId: UserId?,
       modId: ModId,
       pageable: Pageable,
   ): Page<Version>
@@ -27,7 +27,12 @@ interface IVersionService {
       command: VersionCreateCommand,
   ): Version
 
-  fun changeVersionStatus(userId: UserId, versionId: VersionId, status: VersionStatus): Version
+  fun changeVersionStatus(
+      userId: UserId,
+      modId: ModId,
+      versionId: VersionId,
+      status: VersionStatus
+  ): Version
 
-  fun deleteModVersion(versionId: VersionId)
+  fun deleteModVersion(modId: ModId, versionId: VersionId)
 }

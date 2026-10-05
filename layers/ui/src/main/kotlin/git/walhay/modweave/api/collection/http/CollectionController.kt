@@ -70,7 +70,7 @@ class CollectionController(
   fun addModToCollection(
       @PathVariable collectionId: UUID,
       @RequestParam modId: String,
-      @RequestParam(required = false) index: Int?,
+      @RequestParam(required = false) @Min(0) index: Int?,
       @AuthenticationPrincipal user: UserDetails?,
   ): CollectionResponseDto {
     val username =
@@ -83,13 +83,13 @@ class CollectionController(
 
   @DeleteMapping("/{collectionId}")
   fun deleteCollection(
-      @PathVariable collectionId: CollectionId,
+      @PathVariable collectionId: UUID,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
     val username =
         user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
     logger.info { "DELETE /collections/$collectionId for user: $username" }
-    collectionService.deleteCollection(UserId(username), collectionId)
+    collectionService.deleteCollection(UserId(username), CollectionId(collectionId))
   }
 
   @DeleteMapping("/{collectionId}/mods/{modId}")

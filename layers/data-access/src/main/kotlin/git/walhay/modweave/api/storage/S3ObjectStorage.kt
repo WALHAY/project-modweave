@@ -1,6 +1,7 @@
 package git.walhay.modweave.api.storage
 
 import io.minio.*
+import java.io.InputStream
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -10,12 +11,12 @@ import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
 @Service
-class SimpleStorageService(
+class S3ObjectStorage(
     private val minioClient: MinioClient,
-    @param:Value($$"${minio.buckets.mods}") private val modsBucket: String,
-    @param:Value($$"${minio.buckets.images}") private val imagesBucket: String,
+    @param:Value($$"${storage.s3.buckets.mods}") private val modsBucket: String,
+    @param:Value($$"${storage.s3.buckets.images}") private val imagesBucket: String,
     private val logger: KLogger = KotlinLogging.logger {},
-) : ISimpleStorageService {
+) : ObjectStorageClient {
   @EventListener(ApplicationReadyEvent::class)
   fun initBuckets() {
     checkBucketExistence(modsBucket)
@@ -30,25 +31,19 @@ class SimpleStorageService(
           MakeBucketArgs.builder().bucket(bucket).objectLock(false).build(),
       )
 
-      val policy: String =
-          """
-          {
-            "Version": "2012-10-17",
-            "Statement": [{
-              "Effect": "Allow",
-              "Principal": "*",
-              "Action": ["s3:GetObject"],
-              "Resource": ["arn:aws:s3:::%s/*"]
-            }]
-          }
-          """
-              .trimIndent()
-              .format(bucket)
-
-      minioClient.setBucketPolicy(
-          SetBucketPolicyArgs.builder().bucket(bucket).config(policy).build(),
-      )
       logger.info("Creating bucket $bucket")
+    }
+
+    if (bucket == modsBucket) {
+      minioClient.deleteBucketPolicy(DeleteBucketPolicyArgs.builder().bucket(bucket).build())
+    } else {
+      val policy = """
+          {"Version":"2012-10-17","Statement":[{
+            "Effect":"Allow","Principal":"*","Action":["s3:GetObject"],
+            "Resource":["arn:aws:s3:::$bucket/*"]
+          }]}
+          """.trimIndent()
+      minioClient.setBucketPolicy(SetBucketPolicyArgs.builder().bucket(bucket).config(policy).build())
     }
   }
 
@@ -60,14 +55,16 @@ class SimpleStorageService(
     logger.info(
         "Uploading file=${file.originalFilename} into bucket=$bucket with filename=$filename")
     try {
-      minioClient.putObject(
-          PutObjectArgs.builder()
-              .bucket(bucket)
-              .`object`(filename)
-              .stream(file.inputStream, file.size, -1)
-              .contentType(file.contentType)
-              .build(),
-      )
+      file.inputStream.use { input ->
+        minioClient.putObject(
+            PutObjectArgs.builder()
+                .bucket(bucket)
+                .`object`(filename)
+                .stream(input, file.size, -1)
+                .contentType(file.contentType ?: "application/octet-stream")
+                .build(),
+        )
+      }
 
       return filename
     } catch (e: Exception) {
@@ -86,21 +83,18 @@ class SimpleStorageService(
     )
   }
 
-  override fun uploadImage(
-      filename: String,
-      file: MultipartFile,
-  ): String = putFileIntoBucket(imagesBucket, filename, file)
+  override fun upload(bucket: StorageBucket, filename: String, file: MultipartFile): String =
+      putFileIntoBucket(bucketName(bucket), filename, file)
 
-  override fun uploadVersionFile(
-      filename: String,
-      file: MultipartFile,
-  ): String = putFileIntoBucket(modsBucket, filename, file)
-
-  override fun removeVersionFile(filename: String) {
-    removeFileFromBucket(modsBucket, filename)
+  override fun remove(bucket: StorageBucket, filename: String) {
+    removeFileFromBucket(bucketName(bucket), filename)
   }
 
-  override fun removeImage(filename: String) {
-    removeFileFromBucket(modsBucket, filename)
+  override fun downloadVersionFile(filename: String): InputStream =
+      minioClient.getObject(GetObjectArgs.builder().bucket(modsBucket).`object`(filename).build())
+
+  private fun bucketName(bucket: StorageBucket): String = when (bucket) {
+    StorageBucket.MODS -> modsBucket
+    StorageBucket.IMAGES -> imagesBucket
   }
 }

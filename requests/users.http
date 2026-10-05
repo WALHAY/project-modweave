@@ -1,32 +1,21 @@
-@host=localhost:8080
+@host=http://localhost:8080
+@accessToken=replace-with-access-token
 
-# Tokens
-@accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YWxoYXkiLCJpc3MiOiJtb2R3ZWF2ZSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MTAxMTgwMywiZXhwIjoxNzgxMDEyNzAzfQ.k_57JKAMxV4PGevGOyLqdWQyEgq0wPFs4nMuMFdGVjQ
+### Get user
+GET {{host}}/api/v1/users/example
 
-### Get single user by username
-GET {{host}}/api/v1/users/walhay
-
-### Get all users
+### List users
 GET {{host}}/api/v1/users?page=0&size=5
 
-### Register New User
+### Register
 POST {{host}}/api/v1/users
 Content-Type: application/x-www-form-urlencoded
 
-{
-	"name": "Hello",
-	"username": "Hello",
-	"email": "waffle@mail.hello",
-	"password": "password",
-}
+username=example&name=Example&email=example@example.com&password=example-password
 
-### Change user data
-
+### Update display name
 PATCH {{host}}/api/v1/users
 Content-Type: application/x-www-form-urlencoded
 Authorization: Bearer {{accessToken}}
 
-{
-	"username": "WAFFLE",
-	"email": "email@mail.ru"
-}
+name=New+name&email=new@example.com

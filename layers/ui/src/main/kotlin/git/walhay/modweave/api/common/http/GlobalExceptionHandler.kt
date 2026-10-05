@@ -1,20 +1,34 @@
 package git.walhay.modweave.api.common.http
 
-import mu.KLogger
-import mu.KotlinLogging
+import git.walhay.modweave.api.collection.exception.CollectionNotFoundException
+import git.walhay.modweave.api.comment.exception.CommentNotFoundException
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
-import org.springframework.security.authorization.AuthorizationDeniedException
+import org.springframework.http.ProblemDetail
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
-class GlobalExceptionHandler(
-    private val logger: KLogger = KotlinLogging.logger {},
-) {
-  @ExceptionHandler(AuthorizationDeniedException::class)
-  @ResponseStatus(HttpStatus.UNAUTHORIZED)
-  fun authorizationException(e: Exception) {
-    logger.info { "Authorization failed" }
-  }
+class GlobalExceptionHandler {
+  @ExceptionHandler(AccessDeniedException::class)
+  fun accessDenied(): ProblemDetail =
+      ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Access denied")
+
+  @ExceptionHandler(AuthenticationException::class)
+  fun authenticationFailed(): ProblemDetail =
+      ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials")
+
+  @ExceptionHandler(IllegalArgumentException::class)
+  fun invalidArgument(e: IllegalArgumentException): ProblemDetail =
+      ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.message ?: "Invalid request")
+
+  @ExceptionHandler(CollectionNotFoundException::class, CommentNotFoundException::class)
+  fun notFound(): ProblemDetail =
+      ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Resource not found")
+
+  @ExceptionHandler(DataIntegrityViolationException::class)
+  fun conflict(): ProblemDetail =
+      ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "Request conflicts with existing data")
 }

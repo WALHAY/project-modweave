@@ -13,4 +13,13 @@ data class JwtProperties(
     @field:NotBlank val issuer: String,
     @field:NotNull val accessTokenTtl: Duration,
     @field:NotNull val refreshTokenTtl: Duration,
-)
+) {
+  init {
+    require(!accessTokenTtl.isNegative && !accessTokenTtl.isZero) {
+      "Access token TTL must be positive"
+    }
+    require(!refreshTokenTtl.isNegative && !refreshTokenTtl.isZero) {
+      "Refresh token TTL must be positive"
+    }
+  }
+}

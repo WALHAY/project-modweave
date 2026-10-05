@@ -1,6 +1,18 @@
-@host=localhost:8080
+@host=http://localhost:8080
+@accessToken=replace-with-access-token
+@versionId=00000000-0000-0000-0000-000000000000
+@fileId=00000000-0000-0000-0000-000000000000
 
-@accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YWxoYXkiLCJpc3MiOiJtb2R3ZWF2ZSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MTAyMDgyMSwiZXhwIjoxNzgxMDIxNzIxfQ.P807uzMkkUjTIi7XxvGCWM91FhuZoLNQd8x_zTgA3KE
+### Public approved versions; with owner/admin token also shows pending and rejected
+GET {{host}}/api/v1/mods/example-mod/versions?page=0&size=20
 
-### Get versions
-GET {{host}}/api/v1/mods/my-mod/versions?page=0&size=20
+### Moderate version (admin token required)
+PATCH {{host}}/api/v1/mods/example-mod/versions/{{versionId}}?status=APPROVED
+Authorization: Bearer {{accessToken}}
+
+### Download approved file
+GET {{host}}/api/v1/files/{{fileId}}/download
+
+### Delete version (owner or admin token required)
+DELETE {{host}}/api/v1/mods/example-mod/versions/{{versionId}}
+Authorization: Bearer {{accessToken}}

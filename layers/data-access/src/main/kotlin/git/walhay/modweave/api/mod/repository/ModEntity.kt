@@ -28,12 +28,8 @@ class ModEntity(
     )
     @Column(name = "category_name")
     val categories: Set<String> = emptySet(),
-    @OneToMany(
-        mappedBy = "modId",
-        fetch = FetchType.LAZY,
-        orphanRemoval = true,
-        cascade = [CascadeType.ALL],
-    )
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mod_id", insertable = false, updatable = false)
     val versions: MutableList<VersionEntity> = mutableListOf(),
 ) : Serializable {
   constructor() : this("", "", null, "", LocalDateTime.now(), "", "")

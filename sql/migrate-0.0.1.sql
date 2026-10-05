@@ -1,0 +1,25 @@
+-- Apply once to an existing ModWeave schema; this preserves application data.
+begin;
+alter table modweave.users drop constraint if exists users_name_key;
+update modweave.users set is_admin = false where is_admin is null;
+alter table modweave.users alter column is_admin set default false;
+alter table modweave.users alter column is_admin set not null;
+update modweave.mod_files set downloads = 0 where downloads is null;
+alter table modweave.mod_files alter column downloads set default 0;
+alter table modweave.mod_files alter column downloads set not null;
+update modweave.mod_versions set status = 'PENDING' where status is null;
+alter table modweave.mod_versions alter column status set not null;
+create unique index if not exists users_username_ignore_case on modweave.users (lower(username));
+create unique index if not exists users_email_ignore_case on modweave.users (lower(email));
+create unique index if not exists categories_name_ignore_case on modweave.categories (lower(name));
+create unique index if not exists files_path_unique on modweave.mod_files (file_path);
+create index if not exists mods_game_idx on modweave.mods (game_id);
+create index if not exists mods_publisher_idx on modweave.mods (publisher_id);
+create index if not exists versions_mod_status_idx on modweave.mod_versions (mod_id, status);
+create index if not exists files_version_idx on modweave.mod_files (mod_version_id);
+create index if not exists mods_categories_category_idx on modweave.mods_categories (category_name);
+create index if not exists comments_mod_idx on modweave.comments (mod_id);
+create index if not exists comments_user_idx on modweave.comments (user_id);
+create index if not exists collections_owner_idx on modweave.collections (owner);
+create index if not exists collections_mods_mod_idx on modweave.collections_mods (mod_id);
+commit;

@@ -27,5 +27,11 @@ class JpaUserRepository(
   ): Page<User> = repository.findAllByNameContainingIgnoreCase(name, pageable).map { it.toDomain() }
 
   override fun save(user: User): User =
-      repository.save<UserEntity>(UserEntity.fromUser(user)).toDomain()
+      repository
+          .save<UserEntity>(
+              UserEntity.fromUser(
+                  user.copy(
+                      username = UserId(user.username.value.trim().lowercase()),
+                      email = user.email.trim().lowercase())))
+          .toDomain()
 }

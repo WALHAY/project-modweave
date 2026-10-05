@@ -13,5 +13,7 @@ interface FileRepository {
 
   fun findAllByVersionId(versionId: VersionId): List<File>
 
+  fun incrementDownloads(id: FileId)
+
   fun deleteById(id: FileId)
 }
