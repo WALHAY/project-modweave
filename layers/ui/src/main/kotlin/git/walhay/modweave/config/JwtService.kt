@@ -61,9 +61,20 @@ class JwtService(
   ): Boolean {
     val claims = parseClaims(token)
     val type = claims["type"] as? String ?: return false
-    return claims.subject == user.username && type == expectedType
+    return claims.subject == user.username &&
+        type == expectedType &&
+        claims.expiration != null &&
+        user.isEnabled &&
+        user.isAccountNonLocked &&
+        user.isAccountNonExpired &&
+        user.isCredentialsNonExpired
   }
 
   private fun parseClaims(token: String): Claims =
-      Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
+      Jwts.parser()
+          .verifyWith(key)
+          .requireIssuer(properties.issuer)
+          .build()
+          .parseSignedClaims(token)
+          .payload
 }

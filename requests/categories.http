@@ -1,36 +1,23 @@
-@host=localhost:8080
+@host=http://localhost:8080
+@accessToken=replace-with-admin-access-token
 
-# Tokens
-@accessToken=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ3YWxoYXkiLCJpc3MiOiJtb2R3ZWF2ZSIsInJvbGVzIjpbIlJPTEVfQURNSU4iXSwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc4MTAxMTgwMywiZXhwIjoxNzgxMDEyNzAzfQ.k_57JKAMxV4PGevGOyLqdWQyEgq0wPFs4nMuMFdGVjQ
-
-### Get all categories
-
+### List categories
 GET {{host}}/api/v1/categories
 
-### Upload new category
-
+### Create category
 POST {{host}}/api/v1/categories
 Content-Type: application/x-www-form-urlencoded
 Authorization: Bearer {{accessToken}}
 
-{
-	"name": "New category",
-	"description": "No Description"
-}
-
-### Delete category
-
-DELETE {{host}}/api/v1/categories?category=New+category
-Authorization: Bearer {{accessToken}}
+name=Gameplay&description=Gameplay+changes
 
 ### Update category
-
 PATCH {{host}}/api/v1/categories
 Content-Type: application/x-www-form-urlencoded
 Authorization: Bearer {{accessToken}}
 
-{
-	"name": "New category",
-	"description": "New new desc"
-}
+name=Gameplay&description=Updated+description
 
+### Delete category
+DELETE {{host}}/api/v1/categories?category=Gameplay
+Authorization: Bearer {{accessToken}}

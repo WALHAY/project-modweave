@@ -26,12 +26,8 @@ class VersionEntity(
     @ColumnTransformer(write = "?::modweave.version_status")
     val status: VersionStatus,
     @Column(name = "mod_id", nullable = false) val modId: String,
-    @OneToMany(
-        mappedBy = "versionId",
-        fetch = FetchType.LAZY,
-        cascade = [CascadeType.ALL],
-        orphanRemoval = true,
-    )
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mod_version_id", insertable = false, updatable = false)
     val files: MutableList<FileEntity> = mutableListOf(),
 ) : Serializable {
   constructor(

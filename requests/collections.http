@@ -1,0 +1,28 @@
+@host=http://localhost:8080
+@accessToken=replace-with-access-token
+@collectionId=00000000-0000-0000-0000-000000000000
+
+### Get collection
+GET {{host}}/api/v1/collections/{{collectionId}}
+
+### List collection mods
+GET {{host}}/api/v1/collections/{{collectionId}}/mods?page=0&size=20
+
+### Create collection
+POST {{host}}/api/v1/collections
+Authorization: Bearer {{accessToken}}
+Content-Type: application/x-www-form-urlencoded
+
+name=My+collection&description=Mods+to+play+next
+
+### Add a mod to a collection
+PUT {{host}}/api/v1/collections/{{collectionId}}?modId=example-mod&index=0
+Authorization: Bearer {{accessToken}}
+
+### Remove a mod from a collection
+DELETE {{host}}/api/v1/collections/{{collectionId}}/mods/example-mod
+Authorization: Bearer {{accessToken}}
+
+### Delete collection
+DELETE {{host}}/api/v1/collections/{{collectionId}}
+Authorization: Bearer {{accessToken}}

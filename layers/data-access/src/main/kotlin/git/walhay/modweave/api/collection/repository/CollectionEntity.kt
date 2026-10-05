@@ -14,19 +14,20 @@ class CollectionEntity(
     @Id @Column("id") val id: UUID,
     @Column("name", nullable = false) val name: String,
     @Column("description") val description: String?,
-    @Column("owner", nullable = false) val owner: UserId,
-    @OneToMany(mappedBy = "collectionId", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @OrderBy("order_index")
+    @Column("owner", nullable = false) val owner: String,
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "collection_id", insertable = false, updatable = false)
+    @OrderBy("index")
     val mods: List<CollectionItemEntity> = emptyList(),
 ) : Serializable {
-  constructor() : this(UUID.randomUUID(), "", null, UserId())
+  constructor() : this(UUID.randomUUID(), "", null, "")
 
   fun toDomain(): Collection =
       Collection(
           CollectionId(id),
           name,
           description,
-          owner,
+          UserId(owner),
           mods.sortedBy { it.index }.map { it.mod.toDomain() }.toMutableList(),
       )
 
@@ -37,9 +38,9 @@ class CollectionEntity(
               id.value,
               name,
               description,
-              owner,
+              owner.value,
               mods.mapIndexed { index, mod ->
-                CollectionItemEntity(index, id, ModEntity.fromMod(mod))
+                CollectionItemEntity(index, id.value, ModEntity.fromMod(mod))
               },
           )
         }

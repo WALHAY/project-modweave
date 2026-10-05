@@ -10,5 +10,7 @@ fun String.spinalCase(): String {
     }
   }
 
-  return stringBuilder.toString()
+  return stringBuilder.toString().trim('-').also {
+    require(it.isNotEmpty()) { "Name must contain letters or digits" }
+  }
 }

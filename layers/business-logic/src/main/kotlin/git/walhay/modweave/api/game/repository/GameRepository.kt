@@ -1,8 +1,8 @@
 package git.walhay.modweave.api.game.repository
 
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.game.Game
 import git.walhay.modweave.api.game.GameId
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface GameRepository {

@@ -1,8 +1,9 @@
 package git.walhay.modweave.api.user.repository
 
+import git.walhay.modweave.api.common.paging.Page
+import git.walhay.modweave.api.common.paging.toDomainPage
 import git.walhay.modweave.api.user.User
 import git.walhay.modweave.api.user.UserId
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 
@@ -19,13 +20,20 @@ class JpaUserRepository(
       repository.findByUsernameIgnoreCase(userId.value)?.toDomain()
 
   override fun findAll(pageable: Pageable): Page<User> =
-      repository.findAll(pageable).map { it.toDomain() }
+      repository.findAll(pageable).toDomainPage { it.toDomain() }
 
   override fun findAll(
       name: String,
       pageable: Pageable,
-  ): Page<User> = repository.findAllByNameContainingIgnoreCase(name, pageable).map { it.toDomain() }
+  ): Page<User> =
+      repository.findAllByNameContainingIgnoreCase(name, pageable).toDomainPage { it.toDomain() }
 
   override fun save(user: User): User =
-      repository.save<UserEntity>(UserEntity.fromUser(user)).toDomain()
+      repository
+          .save<UserEntity>(
+              UserEntity.fromUser(
+                  user.copy(
+                      username = UserId(user.username.value.trim().lowercase()),
+                      email = user.email.trim().lowercase())))
+          .toDomain()
 }

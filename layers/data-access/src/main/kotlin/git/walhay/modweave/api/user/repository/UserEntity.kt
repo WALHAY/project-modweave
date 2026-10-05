@@ -12,14 +12,15 @@ import org.hibernate.annotations.NaturalId
 @Table(schema = "modweave", name = "users")
 class UserEntity(
     @Id @Column(name = "username", nullable = false, length = 50) var username: String,
-    @Column(name = "name", unique = true, nullable = false, length = 100) var name: String,
+    @Column(name = "name", nullable = false, length = 100) var name: String,
     @NaturalId(mutable = true)
     @Column(name = "email", unique = true, nullable = false, length = 320)
     var email: String,
     @Column(name = "password", nullable = false, length = 255) var password: String,
     @Column(name = "register_date", nullable = false) val registerDate: LocalDateTime,
     @Column(name = "is_admin", nullable = false) val isAdmin: Boolean = false,
-    @OneToMany(mappedBy = "publisherId", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "publisher_id", insertable = false, updatable = false)
     val mods: MutableSet<ModEntity> = mutableSetOf(),
 ) : Serializable {
   constructor() : this("", "", "", "")

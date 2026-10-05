@@ -2,6 +2,7 @@ package git.walhay.modweave.api.user.http
 
 import git.walhay.modweave.api.collection.ICollectionService
 import git.walhay.modweave.api.collection.http.dto.CollectionResponseDto
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.http.dto.ModResponseDto
 import git.walhay.modweave.api.user.IUserService
@@ -11,7 +12,6 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import mu.KLogger
 import mu.KotlinLogging
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus.UNAUTHORIZED
@@ -89,11 +89,13 @@ class UserController(
       @ModelAttribute @Valid dto: UserUpdateDto,
       @AuthenticationPrincipal user: UserDetails?,
   ): UserResponseDto {
-    val username =
-        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    val username = requireUsername(user)
     logger.info { "PATCH /users - updating user: $username" }
     return userService.updateUser(UserId(username), dto.toUserUpdateCommand()).let {
       UserResponseDto.fromUser(it)
     }
   }
+
+  private fun requireUsername(user: UserDetails?): String =
+      user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
 }

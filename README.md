@@ -68,3 +68,45 @@ ModWeave - платформа игровых модификаций.
 ## BPMN
 
 ![BPMN](./docs/bpmn.svg)
+
+## Запуск
+
+Нужны JDK 25 и Docker Compose. Из корня проекта:
+
+```sh
+docker compose -f docker/docker-compose.yaml up -d
+export JWT_SECRET="$(openssl rand -base64 32)"
+```
+
+API доступно на `http://localhost:8080/api/v1`. Секрет JWT обязателен; сохраняйте его между перезапусками, чтобы выпущенные токены продолжали работать. Параметры подключения задаются через `DB_URL`, `DB_USER`, `DB_PASSWORD`, `REDIS_HOST`, `REDIS_PORT`, `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` и `S3_REGION`. Значения по умолчанию соответствуют локальному SeaweedFS в Compose. Максимальный размер файла — 100 МБ, multipart-запроса — 500 МБ (`spring.servlet.multipart`).
+
+Локальный SeaweedFS запускается вместе с Compose и использует S3 endpoint `http://localhost:8333`. Учетные данные по умолчанию: `username` / `password`; они задаются в `docker/seaweedfs-s3.json`. Приложение автоматически создает бакеты `mods` и `images`, оставляя бакет файлов приватным и делая изображения общедоступными.
+
+```sh
+docker compose -f docker/docker-compose.yaml up -d
+./gradlew bootRun
+```
+
+Compose создаёт схему и таблицу outbox для очистки хранилища только при первом запуске PostgreSQL с пустым томом. Источники схемы — `sql/init.sql` и `sql/storage-cleanup.sql`; Gradle включает эти файлы в ресурсы. Уникальные индексы требуют отсутствия дубликатов логинов, email, категорий без учёта регистра и путей файлов. Ранее настроенные каталоги данных Docker следует перенести в именованные тома перед переходом на обновлённый Compose.
+
+Регистрация и вход принимают `application/x-www-form-urlencoded`; загрузки — `multipart/form-data`. Примеры находятся в `requests/`. Для обновления отображаемого имени используется поле `name`. Ответы версий содержат UUID версии и файлов; скачивание: `GET /api/v1/files/{fileId}/download`. Гостям доступны одобренные версии, автору и администратору — также версии на проверке и отклонённые. Изменять статус может только администратор. Бакет файлов приватный, изображения публичны.
+Администратор просматривает версии, ожидающие проверки, через `GET /api/v1/mods/{modId}/versions?page=0&size=20`: авторизованный владелец мода или администратор видит версии со всеми статусами. Решение принимается через `PATCH /api/v1/mods/{modId}/versions/{versionId}?status=APPROVED` или `REJECTED`.
+Полная OpenAPI 3.1 спецификация находится в [`docs/openapi.yaml`](docs/openapi.yaml); готовые HTTP-примеры находятся в `requests/`.
+
+Новый пользователь получает обычные права. Для локальной проверки модерации зарегистрируйте пользователя и назначьте ему `is_admin = true` в `modweave.users`, затем перезапустите приложение с очищенным кэшем `users` и войдите заново. `sql/roles.sql` — отдельный пример ролей PostgreSQL; права API проверяет Spring Security.
+
+## Проверки
+
+```sh
+./gradlew test ktfmtCheck
+```
+
+Тесты репозиториев запускают изолированный PostgreSQL 16 через Testcontainers. При отсутствии Docker можно выполнить проверки сервисов, JWT, HTTP и метаданных Hibernate:
+
+```sh
+./gradlew test --tests 'git.walhay.modweave.regression.*' ktfmtCheck
+```
+
+Для отдельной временной PostgreSQL-базы можно заранее применить `sql/init.sql` и `sql/storage-cleanup.sql`, затем задать `MODWEAVE_TEST_DATABASE_URL`, `MODWEAVE_TEST_DATABASE_USER`, `MODWEAVE_TEST_DATABASE_PASSWORD`. Используйте только тестовую базу.
+
+Генератор демонстрационных данных: `python3 -m pip install -r seed/requirements.txt`, затем `python3 seed/main.py`. Он использует `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; пароль сгенерированных пользователей задаёт `SEED_PASSWORD` (по умолчанию `seed-password`). Пароли сохраняются как BCrypt. Ссылки на файлы в этих данных демонстрационные: генератор не загружает объекты в SeaweedFS.

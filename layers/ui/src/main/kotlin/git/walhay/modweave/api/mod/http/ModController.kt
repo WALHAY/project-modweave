@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.mod.http
 
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.http.dto.ModResponseDto
@@ -11,7 +12,6 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import mu.KLogger
 import mu.KotlinLogging
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
@@ -32,16 +32,16 @@ class ModController(
 
   @GetMapping("/{modId}")
   fun getMod(
-      @PathVariable modId: ModId,
+      @PathVariable modId: String,
   ): ModResponseDto {
     logger.info { "GET /mods/$modId" }
-    return modService.findModById(modId).let { ModResponseDto.fromMod(it) }
+    return modService.findModById(ModId(modId)).let { ModResponseDto.fromMod(it) }
   }
 
   @GetMapping
   fun getMods(
-      @RequestParam page: Int,
-      @RequestParam size: Int,
+      @RequestParam @Min(0) page: Int,
+      @RequestParam @Min(1) size: Int,
       @RequestParam(required = false) name: String?,
       @SortDefault(sort = ["name"]) sort: Sort,
   ): Page<ModResponseDto> {
@@ -57,11 +57,10 @@ class ModController(
       @SortDefault(sort = ["id"], direction = Sort.Direction.DESC) sort: Sort,
       @AuthenticationPrincipal user: UserDetails?,
   ): Page<VersionResponseDto> {
-    val authenticatedUser = requireUser(user)
     logger.info { "GET /mods/$modId/versions - page: $page, size: $size" }
     return versionService
         .getModVersions(
-            UserId(authenticatedUser.username), ModId(modId), PageRequest.of(page, size, sort))
+            user?.username?.let { UserId(it) }, ModId(modId), PageRequest.of(page, size, sort))
         .map { VersionResponseDto.fromVersion(it) }
   }
 
@@ -82,12 +81,12 @@ class ModController(
 
   @DeleteMapping("/{modId}")
   fun deleteMod(
-      @PathVariable modId: ModId,
+      @PathVariable modId: String,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
     val authenticatedUser = requireUser(user)
     logger.info { "DELETE /mods/$modId for user: ${authenticatedUser.username}" }
-    modService.deleteMod(UserId(authenticatedUser.username), modId)
+    modService.deleteMod(UserId(authenticatedUser.username), ModId(modId))
   }
 
   private fun requireUser(user: UserDetails?): UserDetails =

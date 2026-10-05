@@ -26,7 +26,7 @@ class CategoryService(
     return categoryRepository.findAll()
   }
 
-  @CacheEvict(value = ["categories"], allEntries = true)
+  @CacheEvict(value = ["categories", "mods", "games", "users", "collections"], allEntries = true)
   @PreAuthorize("@accessSecurity.isAdmin()")
   override fun uploadCategory(command: CategoryCreateCommand): Category {
     logger.info { "Creating new category: ${command.name}" }
@@ -44,25 +44,29 @@ class CategoryService(
     return category
   }
 
-  @CacheEvict(value = ["categories"], allEntries = true)
+  @CacheEvict(value = ["categories", "mods", "games", "users", "collections"], allEntries = true)
   @PreAuthorize("@accessSecurity.isAdmin()")
   override fun updateCategory(command: CategoryUpdateCommand): Category {
     logger.info { "Updating category: ${command.name}" }
-    if (!categoryRepository.existsByNameIgnoreCase(command.name)) {
+    val existing =
+        categoryRepository.findAll().firstOrNull {
+          it.name.value.equals(command.name.value.trim(), ignoreCase = true)
+        }
+    if (existing == null) {
       logger.warn { "Category update failed - category not found: ${command.name}" }
       throw CategoryNotFoundException(command.name)
     }
 
     val category =
         command
-            .let { (name, description) -> Category(name, description) }
+            .let { (name, description) -> Category(existing.name, description) }
             .let { categoryRepository.save(it) }
 
     logger.info { "Category updated successfully: ${category.name}" }
     return category
   }
 
-  @CacheEvict(value = ["categories"], allEntries = true)
+  @CacheEvict(value = ["categories", "mods", "games", "users", "collections"], allEntries = true)
   @PreAuthorize("@accessSecurity.isAdmin()")
   override fun deleteCategory(categoryId: CategoryId) {
     logger.info { "Deleting category: $categoryId" }

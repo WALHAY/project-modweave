@@ -6,9 +6,9 @@ import jakarta.servlet.http.HttpServletResponse
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
@@ -42,19 +42,21 @@ class JwtAuthenticationFilter(
             }
 
     if (SecurityContextHolder.getContext().authentication == null) {
-      val userDetails = userDetailsService.loadUserByUsername(username)
+      val userDetails =
+          try {
+            userDetailsService.loadUserByUsername(username)
+          } catch (_: UsernameNotFoundException) {
+            filterChain.doFilter(request, response)
+            return
+          }
       val isValid =
           runCatching { jwtService.isAccessTokenValid(token, userDetails) }
               .onFailure { log.debug { "Invalid access token: ${it.message}" } }
               .getOrDefault(false)
 
       if (isValid) {
-        val authorities =
-            jwtService
-                .extractRoles(token)
-                .map { SimpleGrantedAuthority(it) }
-                .ifEmpty { userDetails.authorities }
-        val authentication = UsernamePasswordAuthenticationToken(userDetails, null, authorities)
+        val authentication =
+            UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
         SecurityContextHolder.getContext().authentication = authentication
       }

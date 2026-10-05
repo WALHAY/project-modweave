@@ -1,18 +1,18 @@
 package git.walhay.modweave.api.game
 
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.common.paging.PageSizePolicy
 import git.walhay.modweave.api.game.command.GameCreateCommand
 import git.walhay.modweave.api.game.exception.GameExistsException
 import git.walhay.modweave.api.game.exception.GameNotFoundException
 import git.walhay.modweave.api.game.repository.GameRepository
 import git.walhay.modweave.api.storage.ISimpleStorageService
+import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
 import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional
+@Transactional(rollbackFor = [Exception::class])
 class GameService(
     private val gameRepository: GameRepository,
     private val simpleStorageService: ISimpleStorageService,
@@ -28,7 +28,7 @@ class GameService(
 ) : IGameService {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @Cacheable("games", key = "#gameId")
+  @Cacheable("games", key = "#p0")
   override fun findGameById(gameId: GameId): Game {
     logger.debug { "Fetching game by id: $gameId" }
     return gameRepository.findById(gameId) ?: throw GameNotFoundException(gameId)
@@ -50,7 +50,7 @@ class GameService(
     return gameRepository.findAll(name, pageRequest)
   }
 
-  @CachePut("games", key = "#result.id")
+  @CacheEvict(value = ["mods", "games", "users"], allEntries = true)
   @PreAuthorize("@accessSecurity.isAdmin()")
   override fun uploadGame(command: GameCreateCommand): Game {
     logger.info { "Creating new game: ${command.id}" }
@@ -59,28 +59,26 @@ class GameService(
       throw GameExistsException(command.id)
     }
 
-    val game =
-        command
-            .let { (id, name, description) -> Game(id, name, description) }
-            .let { gameRepository.save(it) }
-
-    logger.debug { "Uploading game image for: ${game.name}" }
-    game.imagePath =
-        simpleStorageService.uploadImage(
-            "${game.name}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}",
-            command.image,
-        )
-
-    val savedGame = gameRepository.save(game)
-    logger.info { "Game created successfully: ${savedGame.id}" }
-    return savedGame
+    val imagePath =
+        "games/${command.id.value}/${UUID.randomUUID()}/logo.${FilenameUtils.getExtension(command.image.originalFilename)}"
+    val storedImage = simpleStorageService.uploadImage(imagePath, command.image)
+    return gameRepository.save(Game(command.id, command.name, command.description, storedImage))
   }
 
-  @CacheEvict("games", key = "#gameId")
+  @CacheEvict(
+      value = ["mods", "versions", "games", "collections", "users", "comments"], allEntries = true)
   @PreAuthorize("@accessSecurity.isAdmin()")
   override fun deleteGame(gameId: GameId): Unit {
     logger.info { "Deleting game: $gameId" }
+    val game = findGameById(gameId)
     gameRepository.deleteById(gameId)
+    game.mods.forEach { mod ->
+      mod.versions
+          .flatMap { it.files }
+          .forEach { simpleStorageService.removeVersionFile(it.filePath) }
+      simpleStorageService.removeImage(mod.imagePath)
+    }
+    simpleStorageService.removeImage(game.imagePath)
     logger.info { "Game deleted successfully: $gameId" }
   }
 }

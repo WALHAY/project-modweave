@@ -28,37 +28,36 @@ class VersionController(
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   fun uploadModVersion(
-      @PathVariable modId: ModId,
+      @PathVariable modId: String,
       @Valid @ModelAttribute dto: VersionUploadDto,
   ): VersionResponseDto {
     logger.info { "POST /mods/$modId/versions - uploading version: ${dto.name}" }
-    return versionService.createModVersion(modId, dto.toVersionCreateCommand()).let {
+    return versionService.createModVersion(ModId(modId), dto.toVersionCreateCommand()).let {
       VersionResponseDto.fromVersion(it)
     }
   }
 
-  @PatchMapping("/{versionName}")
+  @PatchMapping("/{versionId}")
   fun changeVersionStatus(
       @PathVariable modId: String,
-      @PathVariable versionName: String,
-      status: String,
+      @PathVariable versionId: UUID,
+      @RequestParam status: VersionStatus,
       @AuthenticationPrincipal user: UserDetails?,
-  ) {
-    var authUser = requireUser(user)
-    logger.info { "PATCH /mods/$modId/versions/$versionName" }
-    versionService.changeVersionStatus(
-        UserId(authUser.username),
-        VersionId(UUID.fromString(versionName)),
-        VersionStatus.valueOf(status.uppercase()))
+  ): VersionResponseDto {
+    val authUser = requireUser(user)
+    logger.info { "PATCH /mods/$modId/versions/$versionId" }
+    return versionService
+        .changeVersionStatus(UserId(authUser.username), ModId(modId), VersionId(versionId), status)
+        .let { VersionResponseDto.fromVersion(it) }
   }
 
-  @DeleteMapping("/{versionName}")
+  @DeleteMapping("/{versionId}")
   fun deleteVersion(
       @PathVariable modId: String,
-      @PathVariable versionName: String,
+      @PathVariable versionId: UUID,
   ) {
-    logger.info { "DELETE /mods/$modId/versions/$versionName" }
-    versionService.deleteModVersion(VersionId(UUID.fromString(versionName)))
+    logger.info { "DELETE /mods/$modId/versions/$versionId" }
+    versionService.deleteModVersion(ModId(modId), VersionId(versionId))
   }
 
   private fun requireUser(user: UserDetails?): UserDetails =

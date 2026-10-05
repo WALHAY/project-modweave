@@ -3,11 +3,13 @@ package git.walhay.modweave.api.file.http
 import git.walhay.modweave.api.file.FileId
 import git.walhay.modweave.api.file.repository.FileRepository
 import git.walhay.modweave.api.storage.ISimpleStorageService
+import git.walhay.modweave.api.version.IVersionService
 import jakarta.servlet.http.HttpServletResponse
-import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
+import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpStatus
 import org.springframework.util.StreamUtils
 import org.springframework.web.bind.annotation.GetMapping
@@ -21,28 +23,33 @@ import org.springframework.web.server.ResponseStatusException
 class FileController(
     private val storageService: ISimpleStorageService,
     private val fileRepository: FileRepository,
+    private val versionService: IVersionService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @GetMapping("/{bucket}/{fileId}/download")
+  @GetMapping("/{fileId}/download", "/mods/{fileId}/download")
   fun downloadFile(
-      @PathVariable bucket: String,
-      @PathVariable fileId: Long,
+      @PathVariable fileId: UUID,
       response: HttpServletResponse,
   ) {
-    logger.info { "GET /files/$bucket/$fileId/download" }
+    logger.info { "GET /files/$fileId/download" }
     val file =
         fileRepository.findById(FileId(fileId))
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "File not found")
+    versionService.getModVersion(file.versionId)
 
     response.contentType = "application/octet-stream"
     response.setHeader(
         "Content-Disposition",
-        "attachment; filename=\"${URLEncoder.encode(file.filename, StandardCharsets.UTF_8)}\"",
+        ContentDisposition.attachment()
+            .filename(file.filename, StandardCharsets.UTF_8)
+            .build()
+            .toString(),
     )
 
     storageService.downloadVersionFile(file.filePath).use { input ->
       StreamUtils.copy(input, response.outputStream)
     }
+    fileRepository.incrementDownloads(file.id)
   }
 }

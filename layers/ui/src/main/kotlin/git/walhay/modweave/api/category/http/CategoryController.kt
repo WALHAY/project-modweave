@@ -35,10 +35,10 @@ class CategoryController(
 
   @DeleteMapping
   fun deleteCategory(
-      @RequestParam category: CategoryId,
+      @RequestParam category: String,
   ): Unit {
     logger.info { "DELETE /categories - deleting category: $category" }
-    categoryService.deleteCategory(category)
+    categoryService.deleteCategory(CategoryId(category))
   }
 
   @PatchMapping

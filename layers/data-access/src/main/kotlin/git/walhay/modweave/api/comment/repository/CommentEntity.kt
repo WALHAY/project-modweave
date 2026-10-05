@@ -12,7 +12,7 @@ import java.util.UUID
 @Entity
 @Table(schema = "modweave", name = "comments")
 class CommentEntity(
-    @Id @Column("id") val id: UUID,
+    @Id @Column("id") val id: UUID = UUID.randomUUID(),
     @Column("content", nullable = false) val content: String = "",
     @Column("publish_date", nullable = false) val publishDate: LocalDateTime = LocalDateTime.now(),
     @Column("user_id", nullable = false) val authorId: String = "",

@@ -15,7 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 
-@RestController("/comments")
+@RestController
+@RequestMapping("/comments")
 class CommentController(
     private val service: ICommentService,
 ) {
@@ -25,7 +26,7 @@ class CommentController(
   fun createComment(
       @ModelAttribute @Valid dto: CommentCreateDto,
       @AuthenticationPrincipal user: UserDetails?,
-  ) {
+  ): CommentResponseDto {
     val authenticatedUser = requireUser(user)
     logger.info {
       "POST /comments - creating comment for mod: ${dto.modId} by user: ${authenticatedUser.username}"

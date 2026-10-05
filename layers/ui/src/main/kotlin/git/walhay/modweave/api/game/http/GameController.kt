@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.game.http
 
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.game.http.dto.GameResponseDto
@@ -8,7 +9,6 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import mu.KLogger
 import mu.KotlinLogging
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus
@@ -36,10 +36,10 @@ class GameController(
 
   @GetMapping("/{gameId}")
   fun getGame(
-      @PathVariable gameId: GameId,
+      @PathVariable gameId: String,
   ): GameResponseDto {
     logger.info { "GET /games/$gameId" }
-    return gameService.findGameById(gameId).let { GameResponseDto.fromGame(it) }
+    return gameService.findGameById(GameId(gameId)).let { GameResponseDto.fromGame(it) }
   }
 
   @PostMapping
@@ -51,10 +51,10 @@ class GameController(
     return gameService.uploadGame(dto.toGameCreateCommand()).let { GameResponseDto.fromGame(it) }
   }
 
-  @DeleteMapping
+  @DeleteMapping("/{gameId}")
   @ResponseStatus(HttpStatus.OK)
-  fun deletegame(@PathVariable gameId: GameId) {
-    logger.info { "DELETE /games - deleting game: ${gameId.value}" }
-    gameService.deleteGame(gameId)
+  fun deleteGame(@PathVariable gameId: String) {
+    logger.info { "DELETE /games - deleting game: $gameId" }
+    gameService.deleteGame(GameId(gameId))
   }
 }

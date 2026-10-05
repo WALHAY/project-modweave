@@ -10,5 +10,6 @@ data class Page<T>(
   val isEmpty: Boolean
     get() = content.isEmpty()
 
-  inline fun map(transform: (T) -> T): Page<T> = copy(content = content.map(transform))
+  inline fun <R> map(transform: (T) -> R): Page<R> =
+      Page(content.map(transform), page, size, totalElements, totalPages)
 }

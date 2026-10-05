@@ -8,5 +8,9 @@ data class ModweaveProperties(
 ) {
   data class Business(
       val maxPageSize: Int = 100,
-  )
+  ) {
+    init {
+      require(maxPageSize > 0) { "Maximum page size must be positive" }
+    }
+  }
 }
