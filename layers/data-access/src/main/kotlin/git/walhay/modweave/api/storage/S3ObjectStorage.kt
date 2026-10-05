@@ -33,6 +33,22 @@ class S3ObjectStorage(
 
       logger.info("Creating bucket $bucket")
     }
+
+    if (bucket == modsBucket) {
+      minioClient.deleteBucketPolicy(DeleteBucketPolicyArgs.builder().bucket(bucket).build())
+    } else {
+      val policy =
+          """
+          {"Version":"2012-10-17","Statement":[{
+            "Effect":"Allow","Principal":"*","Action":["s3:GetObject"],
+            "Resource":["arn:aws:s3:::$bucket/*"]
+          }]}
+          """
+              .trimIndent()
+      minioClient.setBucketPolicy(
+          SetBucketPolicyArgs.builder().bucket(bucket).config(policy).build(),
+      )
+    }
   }
 
   private fun putFileIntoBucket(

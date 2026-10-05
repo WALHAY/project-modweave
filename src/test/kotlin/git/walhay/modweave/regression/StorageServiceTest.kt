@@ -11,19 +11,27 @@ import org.springframework.mock.web.MockMultipartFile
 
 class StorageServiceTest {
   @Test
-  fun `bucket initialization checks both configured buckets`() {
+  fun `existing file bucket becomes private while images remain public`() {
     val client =
         mock(MinioClient::class.java) { invocation ->
           if (invocation.method.name == "bucketExists") true else null
         }
     S3ObjectStorage(client, "mods", "images").initBuckets()
-    val buckets =
+    val policies =
         mockingDetails(client)
             .invocations
-            .filter { it.method.name == "bucketExists" }
-            .map { (it.arguments[0] as BucketExistsArgs).bucket() }
-    assertEquals(listOf("mods", "images"), buckets)
-    assertTrue(mockingDetails(client).invocations.none { it.method.name.endsWith("BucketPolicy") })
+            .filter { it.method.name == "setBucketPolicy" }
+            .map { it.arguments[0] as SetBucketPolicyArgs }
+            .associate { it.bucket() to it.config() }
+    assertFalse(policies.containsKey("mods"))
+    val removed =
+        mockingDetails(client)
+            .invocations
+            .single { it.method.name == "deleteBucketPolicy" }
+            .arguments[0]
+            as DeleteBucketPolicyArgs
+    assertEquals("mods", removed.bucket())
+    assertTrue(policies["images"]!!.contains("s3:GetObject"))
   }
 
   @Test
