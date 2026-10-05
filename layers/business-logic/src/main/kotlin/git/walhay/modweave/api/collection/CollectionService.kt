@@ -3,6 +3,7 @@ package git.walhay.modweave.api.collection
 import git.walhay.modweave.api.collection.command.CollectionCreateCommand
 import git.walhay.modweave.api.collection.exception.CollectionNotFoundException
 import git.walhay.modweave.api.collection.repository.CollectionRepository
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.common.paging.PageSizePolicy
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
@@ -12,7 +13,6 @@ import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize

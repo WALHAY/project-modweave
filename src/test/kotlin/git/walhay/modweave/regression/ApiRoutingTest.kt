@@ -1,6 +1,7 @@
 package git.walhay.modweave.regression
 
 import git.walhay.modweave.api.auth.http.AuthController
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.game.http.GameController
 import git.walhay.modweave.api.mod.IModService
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.context.annotation.Import
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -49,7 +49,8 @@ class ApiRoutingTest {
   fun `versioned public endpoints allow guests and mutations require authentication`() {
     val modId = git.walhay.modweave.api.mod.ModId("example")
     val page = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "id"))
-    `when`(versions.getModVersions(null, modId, page)).thenReturn(PageImpl(emptyList()))
+    `when`(versions.getModVersions(null, modId, page))
+        .thenReturn(Page(emptyList(), page = 0, size = 20, totalElements = 0, totalPages = 0))
     mvc.perform(get("/api/v1/mods/example/versions").param("page", "0").param("size", "20"))
         .andExpect(status().isOk)
     mvc.perform(delete("/api/v1/games/example")).andExpect(status().isUnauthorized)

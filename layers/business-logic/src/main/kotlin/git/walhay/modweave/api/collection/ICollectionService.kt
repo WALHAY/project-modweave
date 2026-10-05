@@ -1,9 +1,9 @@
 package git.walhay.modweave.api.collection
 
 import git.walhay.modweave.api.collection.command.CollectionCreateCommand
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.UserId
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 
 interface ICollectionService {

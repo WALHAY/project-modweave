@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.game.http
 
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.game.GameId
 import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.game.http.dto.GameResponseDto
@@ -8,7 +9,6 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import mu.KLogger
 import mu.KotlinLogging
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus

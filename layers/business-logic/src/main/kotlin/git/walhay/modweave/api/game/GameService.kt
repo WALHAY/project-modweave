@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.game
 
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.common.paging.PageSizePolicy
 import git.walhay.modweave.api.game.command.GameCreateCommand
 import git.walhay.modweave.api.game.exception.GameExistsException
@@ -12,7 +13,6 @@ import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize

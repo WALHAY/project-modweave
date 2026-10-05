@@ -1,11 +1,12 @@
 package git.walhay.modweave.api.mod.repository
 
 import git.walhay.modweave.api.collection.CollectionId
+import git.walhay.modweave.api.common.paging.Page
+import git.walhay.modweave.api.common.paging.toDomainPage
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.VersionStatus
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
@@ -26,7 +27,7 @@ class JpaModRepository(
   override fun findAll(pageable: Pageable, visibleStatus: VersionStatus?): Page<Mod> =
       (visibleStatus?.let { repository.findAllWithVersionStatus(it, pageable) }
               ?: repository.findAll(pageable))
-          .map { it.toDomain() }
+          .toDomainPage { it.toDomain() }
 
   override fun findAll(
       name: String,
@@ -36,7 +37,7 @@ class JpaModRepository(
       (visibleStatus?.let {
             repository.findAllByNameContainingIgnoreCaseAndVersionStatus(name, it, pageable)
           } ?: repository.findAllByNameContainingIgnoreCase(name, pageable))
-          .map { it.toDomain() }
+          .toDomainPage { it.toDomain() }
 
   override fun findAllByUser(
       username: UserId,
@@ -46,7 +47,7 @@ class JpaModRepository(
       (visibleStatus?.let {
             repository.findAllByPublisherIdAndVersionStatus(username.value, it, pageable)
           } ?: repository.findAllByPublisherId(username.value, pageable))
-          .map { it.toDomain() }
+          .toDomainPage { it.toDomain() }
 
   override fun findModsInCollection(
       collectionId: CollectionId,
@@ -56,7 +57,7 @@ class JpaModRepository(
       (visibleStatus?.let {
             repository.findByCollectionIdAndVersionStatus(collectionId.value, it, pageable)
           } ?: repository.findByCollectionId(collectionId.value, pageable))
-          .map { it.toDomain() }
+          .toDomainPage { it.toDomain() }
 
   override fun existsById(modId: ModId): Boolean = repository.existsById(modId.value)
 }

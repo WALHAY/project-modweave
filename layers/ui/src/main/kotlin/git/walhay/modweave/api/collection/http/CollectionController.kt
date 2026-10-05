@@ -4,6 +4,7 @@ import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.collection.ICollectionService
 import git.walhay.modweave.api.collection.http.dto.CollectionCreateDto
 import git.walhay.modweave.api.collection.http.dto.CollectionResponseDto
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.http.dto.ModResponseDto
@@ -13,7 +14,6 @@ import jakarta.validation.constraints.Min
 import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus.UNAUTHORIZED

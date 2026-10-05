@@ -1,10 +1,10 @@
 package git.walhay.modweave.api.version.repository
 
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.version.Version
 import git.walhay.modweave.api.version.VersionId
 import git.walhay.modweave.api.version.VersionStatus
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface VersionRepository {

@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.mod.http
 
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.mod.http.dto.ModResponseDto
@@ -11,7 +12,6 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import mu.KLogger
 import mu.KotlinLogging
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault

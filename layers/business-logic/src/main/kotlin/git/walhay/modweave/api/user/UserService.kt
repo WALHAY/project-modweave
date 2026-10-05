@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.user
 
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.common.paging.PageSizePolicy
 import git.walhay.modweave.api.user.command.UserCreateCommand
 import git.walhay.modweave.api.user.command.UserUpdateCommand
@@ -11,7 +12,6 @@ import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize

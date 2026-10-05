@@ -2,11 +2,12 @@ package git.walhay.modweave.api.collection.repository
 
 import git.walhay.modweave.api.collection.Collection
 import git.walhay.modweave.api.collection.CollectionId
+import git.walhay.modweave.api.common.paging.Page
+import git.walhay.modweave.api.common.paging.toDomainPage
 import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.user.UserId
 import jakarta.persistence.EntityManager
 import jakarta.persistence.LockModeType
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
@@ -22,7 +23,7 @@ class JpaCollectionRepository(
       repository.findByIdOrNull(id.value)?.toDomain()
 
   override fun findAllByUser(username: UserId, pageable: Pageable): Page<Collection> =
-      repository.findAllByOwner(username.value, pageable).map { it.toDomain() }
+      repository.findAllByOwner(username.value, pageable).toDomainPage { it.toDomain() }
 
   override fun save(collection: Collection): Collection {
     // Flush removal before insertion so reordering cannot violate the two unique keys.

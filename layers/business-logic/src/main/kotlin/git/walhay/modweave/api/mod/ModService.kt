@@ -3,6 +3,7 @@ package git.walhay.modweave.api.mod
 import git.walhay.modweave.api.category.exception.CategoryNotFoundException
 import git.walhay.modweave.api.category.repository.CategoryRepository
 import git.walhay.modweave.api.collection.CollectionId
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.common.paging.PageSizePolicy
 import git.walhay.modweave.api.game.IGameService
 import git.walhay.modweave.api.mod.command.ModCreateCommand
@@ -20,7 +21,6 @@ import mu.KLogger
 import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
 import org.springframework.cache.annotation.CacheEvict
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize

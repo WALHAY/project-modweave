@@ -1,11 +1,11 @@
 package git.walhay.modweave.api.mod.repository
 
 import git.walhay.modweave.api.collection.CollectionId
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.mod.Mod
 import git.walhay.modweave.api.mod.ModId
 import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.VersionStatus
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
 interface ModRepository {

@@ -2,6 +2,7 @@ package git.walhay.modweave.regression
 
 import git.walhay.modweave.api.collection.repository.CollectionRepository
 import git.walhay.modweave.api.comment.repository.CommentRepository
+import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.common.paging.PageSizePolicy
 import git.walhay.modweave.api.file.IFileService
 import git.walhay.modweave.api.game.GameId
@@ -25,7 +26,6 @@ import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.*
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.AnonymousAuthenticationToken
@@ -148,7 +148,7 @@ class ServiceSecurityTest {
   fun `guest list is restricted to approved versions and bounded pages`() {
     val bounded = PageRequest.of(0, 100)
     `when`(versions.findVersionsByModIdAndStatus(modId, VersionStatus.APPROVED, bounded))
-        .thenReturn(PageImpl(emptyList()))
+        .thenReturn(Page(emptyList(), page = 0, size = 100, totalElements = 0, totalPages = 0))
     assertTrue(service.getModVersions(null, modId, PageRequest.of(0, 500)).isEmpty)
     verify(versions).findVersionsByModIdAndStatus(modId, VersionStatus.APPROVED, bounded)
   }
@@ -156,7 +156,8 @@ class ServiceSecurityTest {
   @Test
   fun `admin list includes pending and rejected versions`() {
     val bounded = PageRequest.of(0, 100)
-    `when`(versions.findVersionsByModId(modId, bounded)).thenReturn(PageImpl(listOf(version)))
+    `when`(versions.findVersionsByModId(modId, bounded))
+        .thenReturn(Page(listOf(version), page = 0, size = 100, totalElements = 1, totalPages = 1))
 
     login("admin", "ADMIN")
 
