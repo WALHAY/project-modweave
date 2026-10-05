@@ -36,11 +36,8 @@ class AuthController(
     val authentication =
         authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(dto.username, dto.password))
-    val userDetails =
-        authentication.principal as org.springframework.security.core.userdetails.UserDetails
-    val accessToken = jwtService.generateAccessToken(userDetails)
-    val refreshToken = jwtService.generateRefreshToken(userDetails)
-    return TokenResponseDto(accessToken, refreshToken)
+    return createTokenResponse(
+        authentication.principal as org.springframework.security.core.userdetails.UserDetails)
   }
 
   @PostMapping("/refresh")
@@ -63,8 +60,13 @@ class AuthController(
         } catch (e: AuthenticationException) {
           throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token", e)
         }
-    val accessToken = jwtService.generateAccessToken(userDetails)
-    val refreshToken = jwtService.generateRefreshToken(userDetails)
-    return TokenResponseDto(accessToken, refreshToken)
+    return createTokenResponse(userDetails)
   }
+
+  private fun createTokenResponse(
+      userDetails: org.springframework.security.core.userdetails.UserDetails,
+  ): TokenResponseDto =
+      TokenResponseDto(
+          accessToken = jwtService.generateAccessToken(userDetails),
+          refreshToken = jwtService.generateRefreshToken(userDetails))
 }

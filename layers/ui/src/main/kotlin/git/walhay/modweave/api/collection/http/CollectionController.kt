@@ -58,8 +58,7 @@ class CollectionController(
       @Valid @ModelAttribute dto: CollectionCreateDto,
       @AuthenticationPrincipal user: UserDetails?,
   ): CollectionResponseDto {
-    val username =
-        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    val username = requireUsername(user)
     logger.info { "POST /collections - creating collection: ${dto.name} for user: $username" }
     return collectionService
         .createCollection(UserId(username), dto.toCollectionCreateCommand())
@@ -73,8 +72,7 @@ class CollectionController(
       @RequestParam(required = false) @Min(0) index: Int?,
       @AuthenticationPrincipal user: UserDetails?,
   ): CollectionResponseDto {
-    val username =
-        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    val username = requireUsername(user)
     logger.info { "PUT /collections/$collectionId - adding mod: $modId for user: $username" }
     return collectionService
         .addModToCollection(UserId(username), CollectionId(collectionId), ModId(modId), index)
@@ -86,8 +84,7 @@ class CollectionController(
       @PathVariable collectionId: UUID,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
-    val username =
-        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    val username = requireUsername(user)
     logger.info { "DELETE /collections/$collectionId for user: $username" }
     collectionService.deleteCollection(UserId(username), CollectionId(collectionId))
   }
@@ -98,10 +95,12 @@ class CollectionController(
       @PathVariable modId: String,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
-    val username =
-        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    val username = requireUsername(user)
     logger.info { "DELETE /collections/$collectionId/mods/$modId for user: $username" }
     return collectionService.deleteModFromCollection(
         UserId(username), CollectionId(collectionId), ModId(modId))
   }
+
+  private fun requireUsername(user: UserDetails?): String =
+      user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
 }

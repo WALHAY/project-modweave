@@ -89,11 +89,13 @@ class UserController(
       @ModelAttribute @Valid dto: UserUpdateDto,
       @AuthenticationPrincipal user: UserDetails?,
   ): UserResponseDto {
-    val username =
-        user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
+    val username = requireUsername(user)
     logger.info { "PATCH /users - updating user: $username" }
     return userService.updateUser(UserId(username), dto.toUserUpdateCommand()).let {
       UserResponseDto.fromUser(it)
     }
   }
+
+  private fun requireUsername(user: UserDetails?): String =
+      user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
 }
