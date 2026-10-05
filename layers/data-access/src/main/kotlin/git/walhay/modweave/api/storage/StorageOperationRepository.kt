@@ -26,7 +26,7 @@ class StorageOperationRepository(
         propagationBehavior = TransactionDefinition.PROPAGATION_REQUIRES_NEW
       }
 
-  /** This intent survives a rollback of the business transaction, and is written before S3 PUT. */
+  /** Save the upload intent before writing the object. */
   fun registerUpload(bucket: StorageBucket, key: String): UUID =
       independentTransaction.execute {
         val id = UUID.randomUUID()
@@ -43,7 +43,7 @@ class StorageOperationRepository(
         id
       }!!
 
-  /** The worker skips this row until the outer transaction commits or rolls back. */
+  /** Keep the intent locked until the business transaction finishes. */
   fun lockUpload(id: UUID) {
     val locked =
         jdbc.queryForList(
@@ -68,23 +68,41 @@ class StorageOperationRepository(
         key)
   }
 
+  /** Claim work before calling S3 so the database transaction stays short. */
   internal fun nextTask(): StorageCleanupTask? =
-      jdbc
-          .query(
+      independentTransaction.execute {
+        val task =
+            jdbc
+                .query(
+                    """
+                    select id, bucket, object_key, attempts from modweave.storage_cleanup_tasks
+                    where (status = 'PENDING' and next_attempt_at <= current_timestamp)
+                       or (status = 'PROCESSING' and claimed_until <= current_timestamp)
+                    order by next_attempt_at, created_at, id limit 1 for update skip locked
+                    """
+                        .trimIndent(),
+                    { rs: ResultSet, _: Int ->
+                      StorageCleanupTask(
+                          rs.getObject("id", UUID::class.java),
+                          StorageBucket.valueOf(rs.getString("bucket")),
+                          rs.getString("object_key"),
+                          rs.getInt("attempts"))
+                    })
+                .firstOrNull()
+        task?.also {
+          jdbc.update(
               """
-              select id, bucket, object_key, attempts from modweave.storage_cleanup_tasks
-              where next_attempt_at <= current_timestamp
-              order by next_attempt_at, created_at, id limit 1 for update skip locked
+              update modweave.storage_cleanup_tasks
+              set status = 'PROCESSING',
+                  claimed_until = current_timestamp + (? * interval '1 millisecond')
+              where id = ?
               """
                   .trimIndent(),
-              { rs: ResultSet, _: Int ->
-                StorageCleanupTask(
-                    rs.getObject("id", UUID::class.java),
-                    StorageBucket.valueOf(rs.getString("bucket")),
-                    rs.getString("object_key"),
-                    rs.getInt("attempts"))
-              })
-          .firstOrNull()
+              properties.claimTimeoutMs,
+              it.id)
+        }
+        task
+      }
 
   fun isReferenced(bucket: StorageBucket, key: String): Boolean =
       when (bucket) {
@@ -112,7 +130,7 @@ class StorageOperationRepository(
     jdbc.update(
         """
         update modweave.storage_cleanup_tasks
-        set attempts = attempts + 1, last_error = ?,
+        set status = 'PENDING', claimed_until = null, attempts = attempts + 1, last_error = ?,
             next_attempt_at = current_timestamp + (? * interval '1 millisecond')
         where id = ?
         """

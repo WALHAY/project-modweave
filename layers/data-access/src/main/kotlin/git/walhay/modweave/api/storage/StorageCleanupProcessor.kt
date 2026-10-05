@@ -27,28 +27,26 @@ class StorageCleanupProcessor(
 
   fun runBatch() {
     repeat(properties.batchSize) {
-      val found =
+      val task =
           try {
-            transaction.execute {
-              val task = operations.nextTask() ?: return@execute false
-              // Also protects an upload if a previous COMMIT result was uncertain.
-              if (!operations.isReferenced(task.bucket, task.key)) {
-                try {
-                  storage.remove(task.bucket, task.key)
-                } catch (e: Exception) {
-                  operations.retryLater(task, e)
-                  logger.warn(e) { "Storage cleanup ${task.id} will be retried" }
-                  return@execute true
-                }
-              }
-              operations.completeUpload(task.id)
-              true
-            }
+            transaction.execute { operations.nextTask() }
           } catch (e: Exception) {
             logger.warn(e) { "Storage cleanup database unavailable; tasks remain pending" }
             return
-          }
-      if (!found) return
+          } ?: return
+
+      if (operations.isReferenced(task.bucket, task.key)) {
+        transaction.execute { operations.completeUpload(task.id) }
+        return@repeat
+      }
+
+      try {
+        storage.remove(task.bucket, task.key)
+        transaction.execute { operations.completeUpload(task.id) }
+      } catch (e: Exception) {
+        transaction.execute { operations.retryLater(task, e) }
+        logger.warn(e) { "Storage cleanup ${task.id} will be retried" }
+      }
     }
   }
 }

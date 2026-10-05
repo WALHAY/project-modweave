@@ -87,7 +87,7 @@ docker compose -f docker/docker-compose.yaml up -d
 ./gradlew bootRun
 ```
 
-Compose создаёт схему и триггер при первом запуске PostgreSQL с пустым томом. Источники схемы — `sql/init.sql` и `sql/trigger.sql`; Gradle включает их в ресурсы. Для существующей базы примените `sql/migrate-0.0.1.sql`, затем `sql/trigger.sql`. Уникальные индексы требуют отсутствия дубликатов логинов, email, категорий без учёта регистра и путей файлов. Миграция не удаляет дубликаты автоматически. Ранее настроенные каталоги данных Docker следует перенести в именованные тома перед переходом на обновлённый Compose.
+Compose создаёт схему и таблицу outbox для очистки хранилища при первом запуске PostgreSQL с пустым томом. Источники схемы — `sql/init.sql` и `sql/storage-cleanup.sql`; Gradle включает эти файлы в ресурсы. Уникальные индексы требуют отсутствия дубликатов логинов, email, категорий без учёта регистра и путей файлов. Ранее настроенные каталоги данных Docker следует перенести в именованные тома перед переходом на обновлённый Compose.
 
 Регистрация и вход принимают `application/x-www-form-urlencoded`; загрузки — `multipart/form-data`. Примеры находятся в `requests/`. Для обновления отображаемого имени используется поле `name`. Ответы версий содержат UUID версии и файлов; скачивание: `GET /api/v1/files/{fileId}/download`. Гостям доступны одобренные версии, автору и администратору — также версии на проверке и отклонённые. Изменять статус может только администратор. Бакет файлов приватный, изображения публичны.
 
@@ -105,6 +105,6 @@ Compose создаёт схему и триггер при первом запу
 ./gradlew test --tests 'git.walhay.modweave.regression.*' ktfmtCheck
 ```
 
-Для отдельной временной PostgreSQL-базы можно заранее применить `sql/init.sql` и `sql/trigger.sql`, затем задать `MODWEAVE_TEST_DATABASE_URL`, `MODWEAVE_TEST_DATABASE_USER`, `MODWEAVE_TEST_DATABASE_PASSWORD`. Используйте только тестовую базу.
+Для отдельной временной PostgreSQL-базы можно заранее применить `sql/init.sql` и `sql/storage-cleanup.sql`, затем задать `MODWEAVE_TEST_DATABASE_URL`, `MODWEAVE_TEST_DATABASE_USER`, `MODWEAVE_TEST_DATABASE_PASSWORD`. Используйте только тестовую базу.
 
 Генератор демонстрационных данных: `python3 -m pip install -r seed/requirements.txt`, затем `python3 seed/main.py`. Он использует `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`; пароль сгенерированных пользователей задаёт `SEED_PASSWORD` (по умолчанию `seed-password`). Пароли сохраняются как BCrypt. Ссылки на файлы в этих данных демонстрационные: генератор не загружает объекты в SeaweedFS.

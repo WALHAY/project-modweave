@@ -14,7 +14,7 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
       - ../sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
-      - ../sql/trigger.sql:/docker-entrypoint-initdb.d/02-trigger.sql:ro
+      - ../sql/storage-cleanup.sql:/docker-entrypoint-initdb.d/02-storage-cleanup.sql:ro
     ports:
       - "5432:5432"
     networks:

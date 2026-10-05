@@ -115,5 +115,5 @@ subprojects {
 
 // One schema source for the application, Docker and repository tests.
 tasks.named('processResources') {
-  from('sql') { include 'init.sql', 'trigger.sql', 'storage-cleanup.sql' }
+  from('sql') { include 'init.sql', 'storage-cleanup.sql' }
 }
