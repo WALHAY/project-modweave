@@ -1,0 +1,8 @@
+@host=http://localhost:8080
+@fileId=00000000-0000-0000-0000-000000000000
+
+### Download a file
+GET {{host}}/api/v1/files/{{fileId}}/download
+
+### Legacy download alias
+GET {{host}}/api/v1/mods/{{fileId}}/download

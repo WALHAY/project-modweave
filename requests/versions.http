@@ -3,11 +3,39 @@
 @versionId=00000000-0000-0000-0000-000000000000
 @fileId=00000000-0000-0000-0000-000000000000
 
-### Public approved versions; with owner/admin token also shows pending and rejected
+### Public user: approved versions only
 GET {{host}}/api/v1/mods/example-mod/versions?page=0&size=20
 
-### Moderate version (admin token required)
+### Admin or mod owner: all versions, including pending and rejected
+GET {{host}}/api/v1/mods/example-mod/versions?page=0&size=20
+Authorization: Bearer {{accessToken}}
+
+### Upload another version
+POST {{host}}/api/v1/mods/example-mod/versions
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=ModweaveBoundary
+
+--ModweaveBoundary
+Content-Disposition: form-data; name="name"
+
+1.1.0
+--ModweaveBoundary
+Content-Disposition: form-data; name="changes"
+
+Bug fixes
+--ModweaveBoundary
+Content-Disposition: form-data; name="files"; filename="example-1.1.0.txt"
+Content-Type: text/plain
+
+Example mod file
+--ModweaveBoundary--
+
+### Admin: approve a pending version
 PATCH {{host}}/api/v1/mods/example-mod/versions/{{versionId}}?status=APPROVED
+Authorization: Bearer {{accessToken}}
+
+### Admin: reject a pending version
+PATCH {{host}}/api/v1/mods/example-mod/versions/{{versionId}}?status=REJECTED
 Authorization: Bearer {{accessToken}}
 
 ### Download approved file

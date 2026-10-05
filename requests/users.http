@@ -1,5 +1,6 @@
 @host=http://localhost:8080
 @accessToken=replace-with-access-token
+@password=example-password
 
 ### Get user
 GET {{host}}/api/v1/users/example
@@ -7,13 +8,19 @@ GET {{host}}/api/v1/users/example
 ### List users
 GET {{host}}/api/v1/users?page=0&size=5
 
+### List user's mods
+GET {{host}}/api/v1/users/example/mods?page=0&size=5
+
+### List user's collections
+GET {{host}}/api/v1/users/example/collections?page=0&size=5
+
 ### Register
 POST {{host}}/api/v1/users
 Content-Type: application/x-www-form-urlencoded
 
-username=example&name=Example&email=example@example.com&password=example-password
+username=example&name=Example&email=example@example.com&password={{password}}
 
-### Update display name
+### Update authenticated user
 PATCH {{host}}/api/v1/users
 Content-Type: application/x-www-form-urlencoded
 Authorization: Bearer {{accessToken}}

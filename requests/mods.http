@@ -4,6 +4,9 @@
 ### List mods
 GET {{host}}/api/v1/mods?page=0&size=5
 
+### Get a mod
+GET {{host}}/api/v1/mods/example-mod
+
 ### Upload mod with its first version
 POST {{host}}/api/v1/mods
 Authorization: Bearer {{accessToken}}
@@ -26,6 +29,10 @@ Content-Disposition: form-data; name="versionName"
 
 1.0.0
 --ModweaveBoundary
+Content-Disposition: form-data; name="categories"
+
+Gameplay
+--ModweaveBoundary
 Content-Disposition: form-data; name="image"; filename="image.png"
 Content-Type: image/png
 
@@ -36,3 +43,7 @@ Content-Type: text/plain
 
 Example mod file
 --ModweaveBoundary--
+
+### Delete a mod
+DELETE {{host}}/api/v1/mods/example-mod
+Authorization: Bearer {{accessToken}}

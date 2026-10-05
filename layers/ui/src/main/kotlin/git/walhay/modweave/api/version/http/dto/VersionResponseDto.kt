@@ -10,7 +10,8 @@ data class VersionResponseDto(
     val name: String,
     val changes: String?,
     val uploadDate: LocalDateTime,
-    val status: String
+    val status: String,
+    val modId: String,
 ) {
   companion object {
     fun fromVersion(version: Version): VersionResponseDto =
@@ -20,7 +21,8 @@ data class VersionResponseDto(
             name = version.name,
             changes = version.changes,
             uploadDate = version.uploadDate,
-            status = version.status.toString())
+            status = version.status.toString(),
+            modId = version.modId.value)
   }
 }
 

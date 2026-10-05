@@ -152,4 +152,17 @@ class ServiceSecurityTest {
     assertTrue(service.getModVersions(null, modId, PageRequest.of(0, 500)).isEmpty)
     verify(versions).findVersionsByModIdAndStatus(modId, VersionStatus.APPROVED, bounded)
   }
+
+  @Test
+  fun `admin list includes pending and rejected versions`() {
+    val bounded = PageRequest.of(0, 100)
+    `when`(versions.findVersionsByModId(modId, bounded)).thenReturn(PageImpl(listOf(version)))
+
+    login("admin", "ADMIN")
+
+    assertEquals(
+        listOf(version),
+        service.getModVersions(UserId("admin"), modId, PageRequest.of(0, 500)).content)
+    verify(versions).findVersionsByModId(modId, bounded)
+  }
 }

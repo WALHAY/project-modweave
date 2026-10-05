@@ -43,11 +43,12 @@ class VersionController(
       @PathVariable versionId: UUID,
       @RequestParam status: VersionStatus,
       @AuthenticationPrincipal user: UserDetails?,
-  ) {
+  ): VersionResponseDto {
     val authUser = requireUser(user)
     logger.info { "PATCH /mods/$modId/versions/$versionId" }
-    versionService.changeVersionStatus(
-        UserId(authUser.username), ModId(modId), VersionId(versionId), status)
+    return versionService
+        .changeVersionStatus(UserId(authUser.username), ModId(modId), VersionId(versionId), status)
+        .let { VersionResponseDto.fromVersion(it) }
   }
 
   @DeleteMapping("/{versionId}")
