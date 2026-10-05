@@ -1,4 +1,6 @@
 -- Durable recovery journal. Apply before starting an upgraded application.
+create schema if not exists modweave;
+
 create table if not exists modweave.storage_cleanup_tasks (
     id uuid primary key,
     bucket varchar(16) not null check (bucket in ('MODS', 'IMAGES')),
