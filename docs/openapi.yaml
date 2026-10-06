@@ -1,24 +1,40 @@
 openapi: 3.1.0
 info:
   title: ModWeave API
-  version: 1.0.0
-  description: REST API for publishing, moderating, and distributing game modifications.
+  version: 2.0.0
+  description: Public REST API for ModWeave. API v1 remains available for existing clients. Public reads need no
+    token; mutations require a bearer access token unless stated otherwise. Form bodies and multipart uploads are
+    supported directly by Swagger UI. Timestamps are local server date-times without a UTC offset (legacy domain
+    model).
+  license:
+    name: MIT
+    identifier: MIT
 servers:
-  - url: http://localhost:8080/api/v1
-    description: Local development server
+- url: /
+  description: Same origin as the API documentation (locally http://localhost:8080)
 tags:
-  - name: Authentication
-  - name: Users
-  - name: Games
-  - name: Categories
-  - name: Mods
-  - name: Versions
-  - name: Moderation
-  - name: Comments
-  - name: Collections
-  - name: Files
+- name: Authentication
+  description: Authentication resources and operations.
+- name: Users
+  description: Users resources and operations.
+- name: Games
+  description: Games resources and operations.
+- name: Categories
+  description: Categories resources and operations.
+- name: Mods
+  description: Mods resources and operations.
+- name: Versions
+  description: Versions resources and operations.
+- name: Moderation
+  description: Moderation resources and operations.
+- name: Comments
+  description: Comments resources and operations.
+- name: Collections
+  description: Collections resources and operations.
+- name: Files
+  description: Files resources and operations.
 paths:
-  /auth/login:
+  /api/v2/auth/login:
     post:
       tags: [Authentication]
       summary: Log in
@@ -26,18 +42,24 @@ paths:
         required: true
         content:
           application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/AuthRequest'
+            schema: {$ref: '#/components/schemas/AuthRequest'}
+            examples:
+              default: {$ref: '#/components/examples/AuthRequest'}
       responses:
         '200':
           description: Access and refresh tokens
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TokenResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-  /auth/refresh:
+              schema: {$ref: '#/components/schemas/TokenResponse'}
+              examples:
+                default: {$ref: '#/components/examples/TokenResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+      operationId: login
+      security: []
+      description: Public operation.
+  /api/v2/auth/refresh:
     post:
       tags: [Authentication]
       summary: Refresh access and refresh tokens
@@ -45,83 +67,109 @@ paths:
         required: true
         content:
           application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/RefreshTokenRequest'
+            schema: {$ref: '#/components/schemas/RefreshTokenRequest'}
+            examples:
+              default: {$ref: '#/components/examples/RefreshTokenRequest'}
       responses:
         '200':
           description: Refreshed tokens
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TokenResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /users/{username}:
+              schema: {$ref: '#/components/schemas/TokenResponse'}
+              examples:
+                default: {$ref: '#/components/examples/TokenResponse'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+      operationId: refreshTokens
+      security: []
+      description: Public operation.
+  /api/v2/users/{username}:
     get:
       tags: [Users]
       summary: Get a user
       parameters:
-        - $ref: '#/components/parameters/Username'
+      - {$ref: '#/components/parameters/Username'}
       responses:
         '200':
           description: User
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /users/{username}/mods:
+              schema: {$ref: '#/components/schemas/User'}
+              examples:
+                default: {$ref: '#/components/examples/User'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: getUser
+      security: []
+      description: Public operation.
+  /api/v2/users/{username}/mods:
     get:
       tags: [Users]
       summary: List a user's mods
       parameters:
-        - $ref: '#/components/parameters/Username'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
-        - $ref: '#/components/parameters/SortName'
+      - {$ref: '#/components/parameters/Username'}
+      - {$ref: '#/components/parameters/Page'}
+      - {$ref: '#/components/parameters/Size'}
+      - {$ref: '#/components/parameters/SortName'}
       responses:
         '200':
           description: Mod page
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ModPage'
-  /users/{username}/collections:
+              schema: {$ref: '#/components/schemas/ModPage'}
+              examples:
+                default: {$ref: '#/components/examples/ModPage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+      operationId: listUserMods
+      security: []
+      description: Public operation.
+  /api/v2/users/{username}/collections:
     get:
       tags: [Users]
       summary: List a user's collections
       parameters:
-        - $ref: '#/components/parameters/Username'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
-        - $ref: '#/components/parameters/SortName'
+      - {$ref: '#/components/parameters/Username'}
+      - {$ref: '#/components/parameters/Page'}
+      - {$ref: '#/components/parameters/Size'}
+      - {$ref: '#/components/parameters/SortName'}
       responses:
         '200':
           description: Collection page
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/CollectionPage'
-  /users:
+              schema: {$ref: '#/components/schemas/CollectionPage'}
+              examples:
+                default: {$ref: '#/components/examples/CollectionPage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+      operationId: listUserCollections
+      security: []
+      description: Public operation.
+  /api/v2/users:
     get:
       tags: [Users]
       summary: List users
       parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
-        - name: username
-          in: query
-          schema: { type: string }
-        - $ref: '#/components/parameters/SortUsername'
+      - {$ref: '#/components/parameters/Page'}
+      - {$ref: '#/components/parameters/Size'}
+      - name: username
+        in: query
+        schema: {type: string}
+      - {$ref: '#/components/parameters/SortUsername'}
       responses:
         '200':
           description: User page
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/UserPage'
+              schema: {$ref: '#/components/schemas/UserPage'}
+              examples:
+                default: {$ref: '#/components/examples/UserPage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: listUsers
+      security: []
+      description: Public operation.
     post:
       tags: [Users]
       summary: Register a user
@@ -129,109 +177,115 @@ paths:
         required: true
         content:
           application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/UserCreateRequest'
+            schema: {$ref: '#/components/schemas/UserCreateRequest'}
+            examples:
+              default: {$ref: '#/components/examples/UserCreateRequest'}
       responses:
-        '200':
+        '409': {$ref: '#/components/responses/Conflict'}
+        '201':
           description: Created user
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '409':
-          $ref: '#/components/responses/Conflict'
-    patch:
-      tags: [Users]
-      summary: Update the authenticated user
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/UserUpdateRequest'
-      responses:
-        '200':
-          description: Updated user
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /games:
+              schema: {$ref: '#/components/schemas/User'}
+              examples:
+                default: {$ref: '#/components/examples/User'}
+          headers:
+            Location:
+              description: URI of the created resource.
+              required: true
+              schema: {type: string}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+      operationId: registerUser
+      security: []
+      description: Public operation.
+  /api/v2/games:
     get:
       tags: [Games]
       summary: List games
       parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
-        - name: name
-          in: query
-          schema: { type: string }
-        - $ref: '#/components/parameters/SortName'
+      - {$ref: '#/components/parameters/Page'}
+      - {$ref: '#/components/parameters/Size'}
+      - name: name
+        in: query
+        schema: {type: string}
+      - {$ref: '#/components/parameters/SortName'}
       responses:
         '200':
           description: Game page
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/GamePage'
+              schema: {$ref: '#/components/schemas/GamePage'}
+              examples:
+                default: {$ref: '#/components/examples/GamePage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: listGames
+      security: []
+      description: Public operation.
     post:
       tags: [Games]
       summary: Create a game
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
           multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/GameCreateRequest'
+            schema: {$ref: '#/components/schemas/GameCreateRequest'}
+            examples:
+              default: {$ref: '#/components/examples/GameCreateRequest'}
       responses:
         '201':
           description: Created game
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Game'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-  /games/{gameId}:
+              schema: {$ref: '#/components/schemas/Game'}
+              examples:
+                default: {$ref: '#/components/examples/Game'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+      operationId: createGame
+      description: Administrator access.
+  /api/v2/games/{gameId}:
     get:
       tags: [Games]
       summary: Get a game
       parameters:
-        - $ref: '#/components/parameters/GameId'
+      - {$ref: '#/components/parameters/GameId'}
       responses:
         '200':
           description: Game
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Game'
-        '404':
-          $ref: '#/components/responses/NotFound'
+              schema: {$ref: '#/components/schemas/Game'}
+              examples:
+                default: {$ref: '#/components/examples/Game'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: getGame
+      security: []
+      description: Public operation.
     delete:
       tags: [Games]
       summary: Delete a game
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/GameId'
+      - {$ref: '#/components/parameters/GameId'}
       responses:
         '200':
           description: Game deleted
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-
-  /categories:
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+      operationId: deleteGame
+      description: Administrator access.
+  /api/v2/categories:
     get:
       tags: [Categories]
       summary: List categories
@@ -242,412 +296,580 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  $ref: '#/components/schemas/Category'
+                items: {$ref: '#/components/schemas/Category'}
+              example:
+              - name: Utility
+                description: Quality-of-life mods
+      operationId: listCategories
+      security: []
+      description: Public operation.
     post:
       tags: [Categories]
       summary: Create a category
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CategoryRequest'
+          application/json:
+            schema: {$ref: '#/components/schemas/CategoryRequest'}
+            examples:
+              default: {$ref: '#/components/examples/CategoryRequest'}
       responses:
         '201':
           description: Created category
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-    patch:
-      tags: [Categories]
-      summary: Update a category
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CategoryRequest'
-      responses:
-        '200':
-          description: Updated category
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-    delete:
-      tags: [Categories]
-      summary: Delete a category
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: category
-          in: query
-          required: true
-          schema: { type: string }
-      responses:
-        '200':
-          description: Category deleted
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-
-  /mods:
+              schema: {$ref: '#/components/schemas/Category'}
+              examples:
+                default: {$ref: '#/components/examples/Category'}
+          headers:
+            Location:
+              description: URI of the created category.
+              required: true
+              schema: {type: string}
+              example: /api/v2/categories/Utility
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+      operationId: createCategory
+      description: Administrator access.
+  /api/v2/mods:
     get:
       tags: [Mods]
       summary: List mods
       parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
-        - name: name
-          in: query
-          schema: { type: string }
-        - $ref: '#/components/parameters/SortName'
+      - {$ref: '#/components/parameters/Page'}
+      - {$ref: '#/components/parameters/Size'}
+      - name: name
+        in: query
+        schema: {type: string}
+      - {$ref: '#/components/parameters/SortName'}
       responses:
         '200':
           description: Mod page
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ModPage'
+              schema: {$ref: '#/components/schemas/ModPage'}
+              examples:
+                default: {$ref: '#/components/examples/ModPage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: listMods
+      security: []
+      description: Public operation.
     post:
       tags: [Mods]
       summary: Upload a mod with its first version
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
           multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ModUploadRequest'
+            schema: {$ref: '#/components/schemas/ModUploadRequest'}
+            examples:
+              default: {$ref: '#/components/examples/ModUploadRequest'}
       responses:
         '201':
           description: Created mod
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Mod'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-  /mods/{modId}:
+              schema: {$ref: '#/components/schemas/Mod'}
+              examples:
+                default: {$ref: '#/components/examples/Mod'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+      operationId: createMod
+      description: Authenticated author for creation; owner or administrator for deletion access.
+  /api/v2/mods/{modId}:
     get:
       tags: [Mods]
       summary: Get a mod
       parameters:
-        - $ref: '#/components/parameters/ModId'
+      - {$ref: '#/components/parameters/ModId'}
       responses:
         '200':
           description: Mod
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Mod'
-        '404':
-          $ref: '#/components/responses/NotFound'
+              schema: {$ref: '#/components/schemas/Mod'}
+              examples:
+                default: {$ref: '#/components/examples/Mod'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: getMod
+      security: []
+      description: Public operation.
     delete:
       tags: [Mods]
       summary: Delete a mod
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/ModId'
+      - {$ref: '#/components/parameters/ModId'}
       responses:
         '200':
           description: Mod deleted
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-  /mods/{modId}/versions:
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+      operationId: deleteMod
+      description: Authenticated author for creation; owner or administrator for deletion access.
+  /api/v2/mods/{modId}/versions:
     get:
       tags: [Versions]
       summary: List versions for a mod
-      description: Guests receive approved versions. The owner and administrators also receive pending and rejected versions.
+      description: Guests receive approved versions. The owner and administrators also receive pending and rejected
+        versions.
       security:
-        - {}
-        - bearerAuth: []
+      - {}
+      - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/ModId'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
-        - $ref: '#/components/parameters/SortIdDesc'
+      - {$ref: '#/components/parameters/ModId'}
+      - {$ref: '#/components/parameters/Page'}
+      - {$ref: '#/components/parameters/Size'}
+      - {$ref: '#/components/parameters/SortIdDesc'}
       responses:
         '200':
           description: Version page
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/VersionPage'
+              schema: {$ref: '#/components/schemas/VersionPage'}
+              examples:
+                default: {$ref: '#/components/examples/VersionPage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '404': {$ref: '#/components/responses/NotFound'}
+      operationId: listModVersions
     post:
       tags: [Versions]
       summary: Upload a new mod version
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/ModId'
+      - {$ref: '#/components/parameters/ModId'}
       requestBody:
         required: true
         content:
           multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/VersionUploadRequest'
+            schema: {$ref: '#/components/schemas/VersionUploadRequest'}
+            examples:
+              default: {$ref: '#/components/examples/VersionUploadRequest'}
       responses:
         '201':
           description: Created pending version
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Version'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-  /mods/{modId}/versions/{versionId}:
+              schema: {$ref: '#/components/schemas/Version'}
+              examples:
+                default: {$ref: '#/components/examples/Version'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+        '413': {$ref: '#/components/responses/PayloadTooLarge'}
+      operationId: createVersion
+      description: Mod owner or administrator access.
+  /api/v2/mods/{modId}/versions/{versionId}:
     patch:
       tags: [Moderation]
       summary: Approve or reject a version
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/ModId'
-        - $ref: '#/components/parameters/VersionId'
-        - name: status
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/VersionStatus'
-          description: Only APPROVED or REJECTED should be used for moderation.
+      - {$ref: '#/components/parameters/ModId'}
+      - {$ref: '#/components/parameters/VersionId'}
+      - name: status
+        in: query
+        required: true
+        schema: {type: string, enum: [APPROVED, REJECTED]}
+        description: Only APPROVED or REJECTED should be used for moderation.
+        example: APPROVED
       responses:
         '200':
           description: Version status changed
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Version'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
+              schema: {$ref: '#/components/schemas/Version'}
+              examples:
+                default: {$ref: '#/components/examples/Version'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: moderateVersion
+      description: Administrator access.
     delete:
       tags: [Versions]
       summary: Delete a mod version
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/ModId'
-        - $ref: '#/components/parameters/VersionId'
+      - {$ref: '#/components/parameters/ModId'}
+      - {$ref: '#/components/parameters/VersionId'}
       responses:
         '200':
           description: Version deleted
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /comments:
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: deleteVersion
+      description: Mod owner or administrator access.
+  /api/v2/comments:
     post:
       tags: [Comments]
       summary: Create a comment
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
           application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CommentCreateRequest'
+            schema: {$ref: '#/components/schemas/CommentCreateRequest'}
+            examples:
+              default: {$ref: '#/components/examples/CommentCreateRequest'}
       responses:
-        '200':
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '201':
           description: Created comment
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Comment'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-  /comments/{commentId}:
+              schema: {$ref: '#/components/schemas/Comment'}
+              examples:
+                default: {$ref: '#/components/examples/Comment'}
+          headers:
+            Location:
+              description: URI of the created resource.
+              required: true
+              schema: {type: string}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+      operationId: createComment
+      description: Authenticated user for creation; comment author or administrator for deletion access.
+    get:
+      tags: [Comments]
+      summary: List comments for a mod
+      parameters:
+      - name: modId
+        in: query
+        required: true
+        schema: {type: string}
+        example: example-mod
+      - {$ref: '#/components/parameters/Page'}
+      - {$ref: '#/components/parameters/Size'}
+      responses:
+        '200':
+          description: Comments ordered by publish date, then id
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/CommentPage'}
+              examples:
+                default: {$ref: '#/components/examples/CommentPage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: listModComments
+      security: []
+      description: Public operation.
+  /api/v2/comments/{commentId}:
     delete:
       tags: [Comments]
       summary: Delete a comment
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/CommentId'
+      - {$ref: '#/components/parameters/CommentId'}
       responses:
         '200':
           description: Comment deleted
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /collections:
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: deleteComment
+      description: Authenticated user for creation; comment author or administrator for deletion access.
+    get:
+      tags: [Comments]
+      summary: Get a comment
+      parameters:
+      - {$ref: '#/components/parameters/CommentId'}
+      responses:
+        '200':
+          description: Comment
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Comment'}
+              examples:
+                default: {$ref: '#/components/examples/Comment'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: getComment
+      security: []
+      description: Public operation.
+  /api/v2/collections:
     post:
       tags: [Collections]
       summary: Create a collection
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       requestBody:
         required: true
         content:
           application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CollectionCreateRequest'
+            schema: {$ref: '#/components/schemas/CollectionCreateRequest'}
+            examples:
+              default: {$ref: '#/components/examples/CollectionCreateRequest'}
       responses:
-        '200':
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '201':
           description: Created collection
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Collection'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-  /collections/{collectionId}:
+              schema: {$ref: '#/components/schemas/Collection'}
+              examples:
+                default: {$ref: '#/components/examples/Collection'}
+          headers:
+            Location:
+              description: URI of the created resource.
+              required: true
+              schema: {type: string}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+      operationId: createCollection
+      description: Authenticated user for creation; collection owner or administrator for changes access.
+  /api/v2/collections/{collectionId}:
     get:
       tags: [Collections]
       summary: Get a collection
       parameters:
-        - $ref: '#/components/parameters/CollectionId'
+      - {$ref: '#/components/parameters/CollectionId'}
       responses:
         '200':
           description: Collection
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Collection'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    put:
-      tags: [Collections]
-      summary: Add a mod to a collection
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/CollectionId'
-        - name: modId
-          in: query
-          required: true
-          schema: { type: string }
-        - name: index
-          in: query
-          schema: { type: integer, minimum: 0 }
-      responses:
-        '200':
-          description: Updated collection
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Collection'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+              schema: {$ref: '#/components/schemas/Collection'}
+              examples:
+                default: {$ref: '#/components/examples/Collection'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: getCollection
+      security: []
+      description: Public operation.
     delete:
       tags: [Collections]
       summary: Delete a collection
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/CollectionId'
+      - {$ref: '#/components/parameters/CollectionId'}
       responses:
         '200':
           description: Collection deleted
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-  /collections/{collectionId}/mods:
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+      operationId: deleteCollection
+      description: Authenticated user for creation; collection owner or administrator for changes access.
+  /api/v2/collections/{collectionId}/mods:
     get:
       tags: [Collections]
       summary: List mods in a collection
       parameters:
-        - $ref: '#/components/parameters/CollectionId'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
-        - $ref: '#/components/parameters/SortIndex'
+      - {$ref: '#/components/parameters/CollectionId'}
+      - {$ref: '#/components/parameters/Page'}
+      - {$ref: '#/components/parameters/Size'}
+      - {$ref: '#/components/parameters/SortIndex'}
       responses:
         '200':
           description: Mod page
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ModPage'
-  /collections/{collectionId}/mods/{modId}:
+              schema: {$ref: '#/components/schemas/ModPage'}
+              examples:
+                default: {$ref: '#/components/examples/ModPage'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+      operationId: listCollectionMods
+      security: []
+      description: Public operation.
+    post:
+      tags: [Collections]
+      summary: Insert a mod into a collection
+      security:
+      - bearerAuth: []
+      parameters:
+      - {$ref: '#/components/parameters/CollectionId'}
+      - name: modId
+        in: query
+        required: true
+        schema: {type: string}
+      - name: index
+        in: query
+        schema: {type: integer, minimum: 0}
+      responses:
+        '200':
+          description: Updated collection
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Collection'}
+              examples:
+                default: {$ref: '#/components/examples/Collection'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+      description: Owner or administrator only. Insert at index (zero based), or append when omitted. Duplicate
+        membership and an index beyond the current size return 400.
+      operationId: addCollectionMod
+  /api/v2/collections/{collectionId}/mods/{modId}:
     delete:
       tags: [Collections]
       summary: Remove a mod from a collection
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - $ref: '#/components/parameters/CollectionId'
-        - $ref: '#/components/parameters/ModId'
+      - {$ref: '#/components/parameters/CollectionId'}
+      - {$ref: '#/components/parameters/ModId'}
       responses:
         '200':
           description: Mod removed
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-
-  /files/{fileId}/download:
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+      operationId: removeCollectionMod
+      description: Authenticated user for creation; collection owner or administrator for changes access.
+  /api/v2/files/{fileId}/download:
     get:
       tags: [Files]
       summary: Download a file
       parameters:
-        - $ref: '#/components/parameters/FileId'
+      - {$ref: '#/components/parameters/FileId'}
       responses:
         '200':
           description: Binary mod file
           headers:
             Content-Disposition:
-              schema: { type: string }
+              schema: {type: string}
           content:
             application/octet-stream:
-              schema:
-                type: string
-                format: binary
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /mods/{fileId}/download:
+              schema: {type: string, format: binary}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+      operationId: downloadFile
+      security:
+      - {}
+      - bearerAuth: []
+      description: Guests may download approved versions. Pending/rejected files require the mod owner or an administrator.
+        Download increments an informational counter; it does not change the resource representation.
+  /api/v2/categories/{categoryName}:
     get:
-      tags: [Files]
-      summary: Download a file (legacy alias)
+      tags: [Categories]
+      summary: Get a category
       parameters:
-        - $ref: '#/components/parameters/FileId'
+      - {$ref: '#/components/parameters/CategoryName'}
       responses:
         '200':
-          description: Binary mod file
+          description: Category
           content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-        '404':
-          $ref: '#/components/responses/NotFound'
-
+            application/json:
+              schema: {$ref: '#/components/schemas/Category'}
+              examples:
+                default: {$ref: '#/components/examples/Category'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+      operationId: getCategory
+      security: []
+      description: Public operation.
+    patch:
+      tags: [Categories]
+      summary: Update a category
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/CategoryPatchRequest'}
+            examples:
+              default: {$ref: '#/components/examples/CategoryPatchRequest'}
+      responses:
+        '200':
+          description: Updated category
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Category'}
+              examples:
+                default: {$ref: '#/components/examples/Category'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+      parameters:
+      - {$ref: '#/components/parameters/CategoryName'}
+      description: Administrator only. Change description while preserving the category name. An explicit null clears
+        the description; an empty patch is invalid. Repeating the same patch has the same effect.
+      operationId: updateCategory
+    delete:
+      tags: [Categories]
+      summary: Delete a category
+      security:
+      - bearerAuth: []
+      parameters:
+      - {$ref: '#/components/parameters/CategoryName'}
+      responses:
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '204':
+          description: Category deleted
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+      operationId: deleteCategory
+      description: Administrator access.
+  /api/v2/users/me:
+    patch:
+      tags: [Users]
+      summary: Update the authenticated user
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: {$ref: '#/components/schemas/UserUpdateRequest'}
+            examples:
+              default: {$ref: '#/components/examples/UserUpdateRequest'}
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/User'}
+              examples:
+                default: {$ref: '#/components/examples/User'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '415': {$ref: '#/components/responses/UnsupportedMediaType'}
+      operationId: updateCurrentUser
+      description: Authenticated user updating their own profile access.
 components:
   securitySchemes:
     bearerAuth:
@@ -659,63 +881,100 @@ components:
       name: page
       in: query
       required: true
-      schema: { type: integer, minimum: 0, default: 0 }
+      schema: {type: integer, minimum: 0, default: 0}
+      description: Zero-based page number; required.
+      example: 0
     Size:
       name: size
       in: query
       required: true
-      schema: { type: integer, minimum: 1, default: 20 }
+      schema: {type: integer, minimum: 1, default: 20}
+      description: Requested page size; required. Values above the configured limit are capped (100 by default).
+      example: 20
     SortName:
       name: sort
       in: query
-      schema: { type: string, default: name }
+      schema: {type: string, default: 'name,asc'}
+      description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields.
+        Supported properties: name, id.'
+      example: name,asc
     SortUsername:
       name: sort
       in: query
-      schema: { type: string, default: username }
+      schema: {type: string, default: 'username,asc'}
+      description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields.
+        Supported properties: username, name.'
+      example: username,asc
     SortIdDesc:
       name: sort
       in: query
-      schema: { type: string, default: id }
+      schema: {type: string, default: 'id,desc'}
+      description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields.
+        Supported properties: id, name, uploadDate.'
+      example: id,desc
     SortIndex:
       name: sort
       in: query
-      schema: { type: string, default: index }
+      schema: {type: string, default: 'index,asc'}
+      description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields.
+        Supported properties: index.'
+      example: index,asc
     Username:
       name: username
       in: path
       required: true
-      schema: { type: string }
+      schema: {type: string}
+      description: username resource identifier.
+      example: author
     GameId:
       name: gameId
       in: path
       required: true
-      schema: { type: string }
+      schema: {type: string}
+      description: gameId resource identifier.
+      example: example-game
     ModId:
       name: modId
       in: path
       required: true
-      schema: { type: string }
+      schema: {type: string}
+      description: modId resource identifier.
+      example: example-mod
     VersionId:
       name: versionId
       in: path
       required: true
-      schema: { type: string, format: uuid }
+      schema: {type: string, format: uuid}
+      description: versionId resource identifier.
+      example: 00000000-0000-0000-0000-000000000001
     CommentId:
       name: commentId
       in: path
       required: true
-      schema: { type: string, format: uuid }
+      schema: {type: string, format: uuid}
+      description: commentId resource identifier.
+      example: 00000000-0000-0000-0000-000000000001
     CollectionId:
       name: collectionId
       in: path
       required: true
-      schema: { type: string, format: uuid }
+      schema: {type: string, format: uuid}
+      description: collectionId resource identifier.
+      example: 00000000-0000-0000-0000-000000000001
     FileId:
       name: fileId
       in: path
       required: true
-      schema: { type: string, format: uuid }
+      schema: {type: string, format: uuid}
+      description: fileId resource identifier.
+      example: 00000000-0000-0000-0000-000000000001
+    CategoryName:
+      name: categoryName
+      in: path
+      required: true
+      description: Category name, compared without case; URL-encode special characters.
+      schema: {type: string, minLength: 1, maxLength: 50}
+      example: Utility
   responses:
     Unauthorized:
       description: Authentication is required or credentials are invalid
@@ -725,207 +984,615 @@ components:
       description: Resource not found
     Conflict:
       description: Resource conflicts with an existing resource
+    BadRequest:
+      description: Missing or malformed parameter/body, invalid UUID or enum, failed validation, duplicate collection
+        member or invalid index.
+    UnsupportedMediaType:
+      description: Request Content-Type is not supported.
+    PayloadTooLarge:
+      description: Multipart upload exceeds the configured size limit.
   schemas:
     AuthRequest:
       type: object
       required: [username, password]
       properties:
-        username: { type: string }
-        password: { type: string, format: password }
+        username: {type: string, minLength: 1, pattern: .*\S.*}
+        password: {type: string, format: password, minLength: 1, pattern: .*\S.*}
+      examples:
+      - username: author
+        password: demo-password
     RefreshTokenRequest:
       type: object
       required: [refreshToken]
       properties:
-        refreshToken: { type: string }
+        refreshToken: {type: string, minLength: 1, pattern: .*\S.*}
+      examples:
+      - refreshToken: example-refresh-token
     TokenResponse:
       type: object
       required: [accessToken, refreshToken]
       properties:
-        accessToken: { type: string }
-        refreshToken: { type: string }
+        accessToken: {type: string}
+        refreshToken: {type: string}
+      examples:
+      - accessToken: example-access-token
+        refreshToken: example-refresh-token
     User:
       type: object
       required: [username, name, registerDate]
       properties:
-        username: { type: string }
-        name: { type: string }
-        registerDate: { type: string, format: date-time }
+        username: {type: string}
+        name: {type: string}
+        registerDate:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?$
+          description: Local server date-time, without offset.
+      examples:
+      - username: author
+        name: Author
+        registerDate: '2026-10-06T12:00:00'
     UserCreateRequest:
       type: object
       required: [username, name, password, email]
       properties:
-        username: { type: string, minLength: 3, maxLength: 50, pattern: '^[A-Za-z0-9_-]+$' }
-        name: { type: string, maxLength: 100 }
-        password: { type: string, format: password, minLength: 8, maxLength: 72 }
-        email: { type: string, format: email, maxLength: 320 }
+        username: {type: string, minLength: 3, maxLength: 50, pattern: '^[A-Za-z0-9_-]+$'}
+        name: {type: string, maxLength: 100, minLength: 1, pattern: .*\S.*}
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 72
+          pattern: .*\S.*
+          description: 8–72 characters, and at most 72 UTF-8 bytes (BCrypt limit).
+        email: {type: string, format: email, maxLength: 320, minLength: 1, pattern: .*\S.*}
+      examples:
+      - username: author
+        name: Author
+        password: demo-password
+        email: author@example.test
     UserUpdateRequest:
       type: object
       minProperties: 1
       properties:
-        name: { type: string, minLength: 1, maxLength: 100 }
-        password: { type: string, format: password, minLength: 8, maxLength: 72 }
-        email: { type: string, format: email, maxLength: 320 }
+        name: {type: string, minLength: 1, maxLength: 100, pattern: .*\S.*}
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 72
+          description: 8–72 characters, and at most 72 UTF-8 bytes (BCrypt limit).
+        email: {type: string, format: email, maxLength: 320, minLength: 1}
+      additionalProperties: false
+      examples:
+      - name: Updated Author
     Game:
       type: object
       required: [id, name, imagePath]
       properties:
-        id: { type: string }
-        name: { type: string }
-        description: { type: string, nullable: true }
-        imagePath: { type: string }
+        id: {type: string}
+        name: {type: string}
+        description: {type: [string, 'null']}
+        imagePath: {type: string}
+      examples:
+      - id: example-game
+        name: Example Game
+        description: null
+        imagePath: game.png
     GameCreateRequest:
       type: object
       required: [name, image]
       properties:
-        name: { type: string }
-        description: { type: string }
-        image: { type: string, format: binary }
+        name: {type: string, minLength: 1, pattern: .*\S.*}
+        description: {type: string}
+        image:
+          type: string
+          format: binary
+          description: Non-empty PNG, JPEG, GIF or WebP image, at most 100 MB.
+      examples:
+      - name: Example Game
+        image: PNG binary
     Category:
       type: object
       required: [name]
       properties:
-        name: { type: string }
-        description: { type: string, nullable: true }
+        name: {type: string}
+        description: {type: [string, 'null']}
+      examples:
+      - name: Utility
+        description: Quality-of-life mods
     CategoryRequest:
       type: object
       required: [name]
       properties:
-        name: { type: string }
-        description: { type: string }
+        name: {type: string, minLength: 1, maxLength: 50, pattern: .*\S.*}
+        description: {type: [string, 'null']}
+      additionalProperties: false
+      examples:
+      - name: Utility
+        description: Quality-of-life mods
     Mod:
       type: object
       required: [id, name, imagePath, creationDate, publisherId, gameId, categories]
       properties:
-        id: { type: string }
-        name: { type: string }
-        description: { type: string, nullable: true }
-        imagePath: { type: string }
-        creationDate: { type: string, format: date-time }
-        publisherId: { type: string }
-        gameId: { type: string }
+        id: {type: string}
+        name: {type: string}
+        description: {type: [string, 'null']}
+        imagePath: {type: string}
+        creationDate:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?$
+          description: Local server date-time, without offset.
+        publisherId: {type: string}
+        gameId: {type: string}
         categories:
           type: array
-          items: { type: string }
+          items: {type: string}
+      examples:
+      - id: example-mod
+        name: Example Mod
+        description: null
+        imagePath: mod.png
+        creationDate: '2026-10-06T12:00:00'
+        publisherId: author
+        gameId: example-game
+        categories: [Utility]
     ModUploadRequest:
       type: object
       required: [name, image, versionName, files, gameId]
       properties:
-        name: { type: string, minLength: 3, maxLength: 50 }
-        description: { type: string }
-        image: { type: string, format: binary }
+        name: {type: string, minLength: 3, maxLength: 50, pattern: .*\S.*}
+        description: {type: string}
+        image:
+          type: string
+          format: binary
+          description: Non-empty PNG, JPEG, GIF or WebP image, at most 100 MB.
         categories:
           type: array
-          items: { type: string }
-        versionName: { type: string }
+          items: {type: string}
+        versionName: {type: string, minLength: 1, pattern: .*\S.*}
         files:
           type: array
           minItems: 1
-          items: { type: string, format: binary }
-        gameId: { type: string }
+          items: {type: string, format: binary}
+          description: Non-empty files; at most 100 MB per file and 500 MB for the complete multipart request.
+        gameId: {type: string, minLength: 1, pattern: .*\S.*}
+      examples:
+      - name: Example Mod
+        image: PNG binary
+        versionName: '1.0'
+        files: [ZIP binary]
+        gameId: example-game
+        categories: [Utility]
     VersionStatus:
       type: string
       enum: [PENDING, APPROVED, REJECTED]
+      examples: [APPROVED]
     File:
       type: object
       required: [id, filename, downloads]
       properties:
-        id: { type: string, format: uuid }
-        filename: { type: string }
-        downloads: { type: integer, minimum: 0 }
+        id: {type: string, format: uuid}
+        filename: {type: string}
+        downloads: {type: integer, minimum: 0}
+      examples:
+      - id: 00000000-0000-0000-0000-000000000001
+        filename: mod.zip
+        downloads: 0
     Version:
       type: object
       required: [id, files, name, uploadDate, status, modId]
       properties:
-        id: { type: string, format: uuid }
+        id: {type: string, format: uuid}
         files:
           type: array
-          items: { $ref: '#/components/schemas/File' }
-        name: { type: string }
-        changes: { type: string, nullable: true }
-        uploadDate: { type: string, format: date-time }
-        status: { $ref: '#/components/schemas/VersionStatus' }
-        modId: { type: string }
+          items: {$ref: '#/components/schemas/File'}
+        name: {type: string}
+        changes: {type: [string, 'null']}
+        uploadDate:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?$
+          description: Local server date-time, without offset.
+        status: {$ref: '#/components/schemas/VersionStatus'}
+        modId: {type: string}
+      examples:
+      - id: 00000000-0000-0000-0000-000000000001
+        files:
+        - id: 00000000-0000-0000-0000-000000000001
+          filename: mod.zip
+          downloads: 0
+        name: '1.0'
+        changes: null
+        uploadDate: '2026-10-06T12:00:00'
+        status: APPROVED
+        modId: example-mod
     VersionUploadRequest:
       type: object
       required: [name, files]
       properties:
-        name: { type: string }
-        changes: { type: string }
+        name: {type: string, minLength: 1, pattern: .*\S.*}
+        changes: {type: string}
         files:
           type: array
           minItems: 1
-          items: { type: string, format: binary }
+          items: {type: string, format: binary}
+          description: Non-empty files; at most 100 MB per file and 500 MB for the complete multipart request.
+      examples:
+      - name: '1.1'
+        changes: Bug fixes
+        files: [ZIP binary]
     Comment:
       type: object
       required: [id, content, publishDate, authorId]
       properties:
-        id: { type: string, format: uuid }
-        content: { type: string }
-        publishDate: { type: string, format: date-time }
-        authorId: { type: string }
+        id: {type: string, format: uuid}
+        content: {type: string}
+        publishDate:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?$
+          description: Local server date-time, without offset.
+        authorId: {type: string}
+      examples:
+      - id: 00000000-0000-0000-0000-000000000001
+        content: Works well
+        publishDate: '2026-10-06T12:00:00'
+        authorId: author
     CommentCreateRequest:
       type: object
       required: [content, modId]
       properties:
-        content: { type: string }
-        modId: { type: string }
+        content: {type: string, minLength: 1, pattern: .*\S.*}
+        modId: {type: string, minLength: 1, pattern: .*\S.*}
+      examples:
+      - content: Works well
+        modId: example-mod
     Collection:
       type: object
       required: [id, name]
       properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        description: { type: string, nullable: true }
+        id: {type: string, format: uuid}
+        name: {type: string}
+        description: {type: [string, 'null']}
+      examples:
+      - id: 00000000-0000-0000-0000-000000000001
+        name: Favorites
+        description: null
     CollectionCreateRequest:
       type: object
       required: [name]
       properties:
-        name: { type: string }
-        description: { type: string }
+        name: {type: string, minLength: 1, pattern: .*\S.*}
+        description: {type: string}
+      examples:
+      - name: Favorites
     PageMetadata:
       type: object
       properties:
-        number: { type: integer }
-        size: { type: integer }
-        totalElements: { type: integer, format: int64 }
-        totalPages: { type: integer }
+        size: {type: integer, minimum: 1}
+        totalElements: {type: integer, format: int64, minimum: 0}
+        totalPages: {type: integer, minimum: 0}
+        page: {type: integer, minimum: 0}
+        isEmpty: {type: boolean}
+      required: [size, totalElements, totalPages, page, isEmpty]
+      examples:
+      - page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
     UserPage:
       allOf:
-        - $ref: '#/components/schemas/PageMetadata'
-        - type: object
-          properties:
-            content:
-              type: array
-              items: { $ref: '#/components/schemas/User' }
+      - {$ref: '#/components/schemas/PageMetadata'}
+      - type: object
+        properties:
+          content:
+            type: array
+            items: {$ref: '#/components/schemas/User'}
+        required: [content]
+      examples:
+      - page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - username: author
+          name: Author
+          registerDate: '2026-10-06T12:00:00'
     GamePage:
       allOf:
-        - $ref: '#/components/schemas/PageMetadata'
-        - type: object
-          properties:
-            content:
-              type: array
-              items: { $ref: '#/components/schemas/Game' }
+      - {$ref: '#/components/schemas/PageMetadata'}
+      - type: object
+        properties:
+          content:
+            type: array
+            items: {$ref: '#/components/schemas/Game'}
+        required: [content]
+      examples:
+      - page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - id: example-game
+          name: Example Game
+          description: null
+          imagePath: game.png
     ModPage:
       allOf:
-        - $ref: '#/components/schemas/PageMetadata'
-        - type: object
-          properties:
-            content:
-              type: array
-              items: { $ref: '#/components/schemas/Mod' }
+      - {$ref: '#/components/schemas/PageMetadata'}
+      - type: object
+        properties:
+          content:
+            type: array
+            items: {$ref: '#/components/schemas/Mod'}
+        required: [content]
+      examples:
+      - page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - id: example-mod
+          name: Example Mod
+          description: null
+          imagePath: mod.png
+          creationDate: '2026-10-06T12:00:00'
+          publisherId: author
+          gameId: example-game
+          categories: [Utility]
     VersionPage:
       allOf:
-        - $ref: '#/components/schemas/PageMetadata'
-        - type: object
-          properties:
-            content:
-              type: array
-              items: { $ref: '#/components/schemas/Version' }
+      - {$ref: '#/components/schemas/PageMetadata'}
+      - type: object
+        properties:
+          content:
+            type: array
+            items: {$ref: '#/components/schemas/Version'}
+        required: [content]
+      examples:
+      - page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - id: 00000000-0000-0000-0000-000000000001
+          files:
+          - id: 00000000-0000-0000-0000-000000000001
+            filename: mod.zip
+            downloads: 0
+          name: '1.0'
+          changes: null
+          uploadDate: '2026-10-06T12:00:00'
+          status: APPROVED
+          modId: example-mod
     CollectionPage:
       allOf:
-        - $ref: '#/components/schemas/PageMetadata'
-        - type: object
-          properties:
-            content:
-              type: array
-              items: { $ref: '#/components/schemas/Collection' }
+      - {$ref: '#/components/schemas/PageMetadata'}
+      - type: object
+        properties:
+          content:
+            type: array
+            items: {$ref: '#/components/schemas/Collection'}
+        required: [content]
+      examples:
+      - page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - id: 00000000-0000-0000-0000-000000000001
+          name: Favorites
+          description: null
+    CategoryPatchRequest:
+      type: object
+      additionalProperties: false
+      required: [description]
+      properties:
+        description: {type: [string, 'null']}
+      examples:
+      - description: Updated description
+    CommentPage:
+      allOf:
+      - {$ref: '#/components/schemas/PageMetadata'}
+      - type: object
+        properties:
+          content:
+            type: array
+            items: {$ref: '#/components/schemas/Comment'}
+        required: [content]
+      examples:
+      - page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - id: 00000000-0000-0000-0000-000000000001
+          content: Works well
+          publishDate: '2026-10-06T12:00:00'
+          authorId: author
+  examples:
+    AuthRequest:
+      value:
+        username: author
+        password: demo-password
+    RefreshTokenRequest:
+      value:
+        refreshToken: example-refresh-token
+    TokenResponse:
+      value:
+        accessToken: example-access-token
+        refreshToken: example-refresh-token
+    User:
+      value:
+        username: author
+        name: Author
+        registerDate: '2026-10-06T12:00:00'
+    UserCreateRequest:
+      value:
+        username: author
+        name: Author
+        password: demo-password
+        email: author@example.test
+    UserUpdateRequest:
+      value:
+        name: Updated Author
+    Game:
+      value:
+        id: example-game
+        name: Example Game
+        description: null
+        imagePath: game.png
+    GameCreateRequest:
+      value:
+        name: Example Game
+        image: PNG binary
+    Category:
+      value:
+        name: Utility
+        description: Quality-of-life mods
+    CategoryRequest:
+      value:
+        name: Utility
+        description: Quality-of-life mods
+    CategoryPatchRequest:
+      value:
+        description: Updated description
+    Mod:
+      value:
+        id: example-mod
+        name: Example Mod
+        description: null
+        imagePath: mod.png
+        creationDate: '2026-10-06T12:00:00'
+        publisherId: author
+        gameId: example-game
+        categories: [Utility]
+    ModUploadRequest:
+      value:
+        name: Example Mod
+        image: PNG binary
+        versionName: '1.0'
+        files: [ZIP binary]
+        gameId: example-game
+        categories: [Utility]
+    VersionUploadRequest:
+      value:
+        name: '1.1'
+        changes: Bug fixes
+        files: [ZIP binary]
+    Comment:
+      value:
+        id: 00000000-0000-0000-0000-000000000001
+        content: Works well
+        publishDate: '2026-10-06T12:00:00'
+        authorId: author
+    CommentCreateRequest:
+      value:
+        content: Works well
+        modId: example-mod
+    Collection:
+      value:
+        id: 00000000-0000-0000-0000-000000000001
+        name: Favorites
+        description: null
+    CollectionCreateRequest:
+      value:
+        name: Favorites
+    Version:
+      value:
+        id: 00000000-0000-0000-0000-000000000001
+        files:
+        - id: 00000000-0000-0000-0000-000000000001
+          filename: mod.zip
+          downloads: 0
+        name: '1.0'
+        changes: null
+        uploadDate: '2026-10-06T12:00:00'
+        status: APPROVED
+        modId: example-mod
+    UserPage:
+      value:
+        page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - username: author
+          name: Author
+          registerDate: '2026-10-06T12:00:00'
+    GamePage:
+      value:
+        page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - id: example-game
+          name: Example Game
+          description: null
+          imagePath: game.png
+    ModPage:
+      value:
+        page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - id: example-mod
+          name: Example Mod
+          description: null
+          imagePath: mod.png
+          creationDate: '2026-10-06T12:00:00'
+          publisherId: author
+          gameId: example-game
+          categories: [Utility]
+    VersionPage:
+      value:
+        page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - id: 00000000-0000-0000-0000-000000000001
+          files:
+          - id: 00000000-0000-0000-0000-000000000001
+            filename: mod.zip
+            downloads: 0
+          name: '1.0'
+          changes: null
+          uploadDate: '2026-10-06T12:00:00'
+          status: APPROVED
+          modId: example-mod
+    CollectionPage:
+      value:
+        page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - id: 00000000-0000-0000-0000-000000000001
+          name: Favorites
+          description: null
+    CommentPage:
+      value:
+        page: 0
+        size: 20
+        totalElements: 1
+        totalPages: 1
+        isEmpty: false
+        content:
+        - id: 00000000-0000-0000-0000-000000000001
+          content: Works well
+          publishDate: '2026-10-06T12:00:00'
+          authorId: author
+security: []
