@@ -3,9 +3,11 @@ package git.walhay.modweave.api.version.repository
 import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.common.paging.toDomainPage
 import git.walhay.modweave.api.mod.ModId
+import git.walhay.modweave.api.mod.repository.ModEntity
 import git.walhay.modweave.api.version.Version
 import git.walhay.modweave.api.version.VersionId
 import git.walhay.modweave.api.version.VersionStatus
+import jakarta.persistence.EntityManager
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Repository
 @Repository
 class JpaVersionRepository(
     private val repository: SpringDataVersionRepository,
+    private val entityManager: EntityManager,
 ) : VersionRepository {
   override fun save(version: Version): Version =
       repository.save(VersionEntity.fromVersion(version)).toDomain()
@@ -34,5 +37,12 @@ class JpaVersionRepository(
         it.toDomain()
       }
 
-  override fun delete(versionId: VersionId) = repository.deleteById(versionId.value)
+  override fun delete(versionId: VersionId) {
+    val version = repository.findByIdOrNull(versionId.value) ?: return
+    // Keep the managed parent collection consistent before Hibernate checks deleted references.
+    entityManager.find(ModEntity::class.java, version.modId)?.versions?.removeIf {
+      it.id == versionId.value
+    }
+    repository.delete(version)
+  }
 }

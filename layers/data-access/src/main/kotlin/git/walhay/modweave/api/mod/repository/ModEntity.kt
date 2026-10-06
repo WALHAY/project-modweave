@@ -27,7 +27,7 @@ class ModEntity(
         joinColumns = [JoinColumn(name = "mod_id", nullable = false)],
     )
     @Column(name = "category_name")
-    val categories: Set<String> = emptySet(),
+    val categories: MutableSet<String> = mutableSetOf(),
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "mod_id", insertable = false, updatable = false)
     val versions: MutableList<VersionEntity> = mutableListOf(),
@@ -56,7 +56,7 @@ class ModEntity(
             mod.creationDate,
             mod.publisherId.value,
             mod.gameId.value,
-            mod.categories.map { it.value }.toSet(),
+            mod.categories.map { it.value }.toMutableSet(),
             mod.versions.map { VersionEntity.fromVersion(it) }.toMutableList())
   }
 }

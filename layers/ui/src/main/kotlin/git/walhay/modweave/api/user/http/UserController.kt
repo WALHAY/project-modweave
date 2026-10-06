@@ -15,10 +15,12 @@ import mu.KotlinLogging
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus.UNAUTHORIZED
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import org.springframework.web.util.UriComponentsBuilder
 
 @RestController
 @RequestMapping("/users")
@@ -76,7 +78,7 @@ class UserController(
     }
   }
 
-  @PostMapping
+  @PostMapping(version = "1")
   fun createUser(
       @ModelAttribute @Valid dto: UserCreateDto,
   ): UserResponseDto {
@@ -84,7 +86,18 @@ class UserController(
     return userService.createUser(dto.toUserCreateCommand()).let { UserResponseDto.fromUser(it) }
   }
 
-  @PatchMapping
+  @PostMapping(version = "2", consumes = ["application/x-www-form-urlencoded"])
+  fun registerUser(@ModelAttribute @Valid dto: UserCreateDto): ResponseEntity<UserResponseDto> {
+    val result = createUser(dto)
+    val location =
+        UriComponentsBuilder.fromPath("/api/v2/users/{username}")
+            .buildAndExpand(result.username)
+            .encode()
+            .toUri()
+    return ResponseEntity.created(location).body(result)
+  }
+
+  @PatchMapping(version = "1")
   fun updateUser(
       @ModelAttribute @Valid dto: UserUpdateDto,
       @AuthenticationPrincipal user: UserDetails?,
@@ -94,6 +107,18 @@ class UserController(
     return userService.updateUser(UserId(username), dto.toUserUpdateCommand()).let {
       UserResponseDto.fromUser(it)
     }
+  }
+
+  @PatchMapping("/me", version = "2", consumes = ["application/x-www-form-urlencoded"])
+  fun updateCurrentUser(
+      @ModelAttribute @Valid dto: UserUpdateDto,
+      @AuthenticationPrincipal user: UserDetails?,
+      @RequestParam fields: Map<String, String>,
+  ): UserResponseDto {
+    require(fields.keys.all { it in setOf("name", "password", "email") }) {
+      "Unknown profile field"
+    }
+    return updateUser(dto, user)
   }
 
   private fun requireUsername(user: UserDetails?): String =

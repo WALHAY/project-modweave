@@ -16,6 +16,9 @@ import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.web.accept.ApiVersionResolver
+import org.springframework.web.accept.DefaultApiVersionStrategy
+import org.springframework.web.accept.SemanticApiVersionParser
 
 class HttpAndValidationTest {
   @Test
@@ -25,6 +28,15 @@ class HttpAndValidationTest {
     val mvc =
         MockMvcBuilders.standaloneSetup(
                 GameController(gameService), CommentController(commentService))
+            .setApiVersionStrategy(
+                DefaultApiVersionStrategy(
+                    listOf(ApiVersionResolver { "1" }),
+                    SemanticApiVersionParser(),
+                    false,
+                    "1",
+                    true,
+                    null,
+                    null))
             .setCustomArgumentResolvers(
                 org.springframework.security.web.method.annotation
                     .AuthenticationPrincipalArgumentResolver())

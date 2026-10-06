@@ -37,7 +37,7 @@ class VersionController(
     }
   }
 
-  @PatchMapping("/{versionId}")
+  @PatchMapping("/{versionId}", version = "1")
   fun changeVersionStatus(
       @PathVariable modId: String,
       @PathVariable versionId: UUID,
@@ -49,6 +49,19 @@ class VersionController(
     return versionService
         .changeVersionStatus(UserId(authUser.username), ModId(modId), VersionId(versionId), status)
         .let { VersionResponseDto.fromVersion(it) }
+  }
+
+  @PatchMapping("/{versionId}", version = "2")
+  fun moderateVersion(
+      @PathVariable modId: String,
+      @PathVariable versionId: UUID,
+      @RequestParam status: VersionStatus,
+      @AuthenticationPrincipal user: UserDetails?,
+  ): VersionResponseDto {
+    require(status == VersionStatus.APPROVED || status == VersionStatus.REJECTED) {
+      "Moderation status must be APPROVED or REJECTED"
+    }
+    return changeVersionStatus(modId, versionId, status, user)
   }
 
   @DeleteMapping("/{versionId}")

@@ -11,12 +11,14 @@ import git.walhay.modweave.api.mod.http.dto.ModResponseDto
 import git.walhay.modweave.api.user.UserId
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
+import java.net.URI
 import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus.UNAUTHORIZED
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
@@ -53,7 +55,7 @@ class CollectionController(
     }
   }
 
-  @PostMapping
+  @PostMapping(version = "1")
   fun createCollection(
       @Valid @ModelAttribute dto: CollectionCreateDto,
       @AuthenticationPrincipal user: UserDetails?,
@@ -65,7 +67,16 @@ class CollectionController(
         .let { CollectionResponseDto.fromCollection(it) }
   }
 
-  @PutMapping("/{collectionId}")
+  @PostMapping(version = "2", consumes = ["application/x-www-form-urlencoded"])
+  fun createCollectionV2(
+      @Valid @ModelAttribute dto: CollectionCreateDto,
+      @AuthenticationPrincipal user: UserDetails?,
+  ): ResponseEntity<CollectionResponseDto> {
+    val result = createCollection(dto, user)
+    return ResponseEntity.created(URI.create("/api/v2/collections/${result.id}")).body(result)
+  }
+
+  @PutMapping("/{collectionId}", version = "1")
   fun addModToCollection(
       @PathVariable collectionId: UUID,
       @RequestParam modId: String,
@@ -78,6 +89,14 @@ class CollectionController(
         .addModToCollection(UserId(username), CollectionId(collectionId), ModId(modId), index)
         .let { CollectionResponseDto.fromCollection(it) }
   }
+
+  @PostMapping("/{collectionId}/mods", version = "2")
+  fun insertMod(
+      @PathVariable collectionId: UUID,
+      @RequestParam modId: String,
+      @RequestParam(required = false) @Min(0) index: Int?,
+      @AuthenticationPrincipal user: UserDetails?,
+  ): CollectionResponseDto = addModToCollection(collectionId, modId, index, user)
 
   @DeleteMapping("/{collectionId}")
   fun deleteCollection(
