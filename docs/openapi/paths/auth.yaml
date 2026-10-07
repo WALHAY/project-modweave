@@ -6,20 +6,20 @@ auth/login:
       required: true
       content:
         application/x-www-form-urlencoded:
-          schema: {$ref: ../../openapi.yaml#/components/schemas/AuthRequest}
+          schema: {$ref: ../openapi.yaml#/components/schemas/AuthRequest}
           examples:
-            default: {$ref: ../../openapi.yaml#/components/examples/AuthRequest}
+            default: {$ref: ../openapi.yaml#/components/examples/AuthRequest}
     responses:
       '200':
         description: Access and refresh tokens
         content:
           application/json:
-            schema: {$ref: ../../openapi.yaml#/components/schemas/TokenResponse}
+            schema: {$ref: ../openapi.yaml#/components/schemas/TokenResponse}
             examples:
-              default: {$ref: ../../openapi.yaml#/components/examples/TokenResponse}
-      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
-      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+              default: {$ref: ../openapi.yaml#/components/examples/TokenResponse}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '415': {$ref: ../openapi.yaml#/components/responses/UnsupportedMediaType}
     operationId: login
     security: []
     description: Public operation.
@@ -31,20 +31,20 @@ auth/refresh:
       required: true
       content:
         application/x-www-form-urlencoded:
-          schema: {$ref: ../../openapi.yaml#/components/schemas/RefreshTokenRequest}
+          schema: {$ref: ../openapi.yaml#/components/schemas/RefreshTokenRequest}
           examples:
-            default: {$ref: ../../openapi.yaml#/components/examples/RefreshTokenRequest}
+            default: {$ref: ../openapi.yaml#/components/examples/RefreshTokenRequest}
     responses:
       '200':
         description: Refreshed tokens
         content:
           application/json:
-            schema: {$ref: ../../openapi.yaml#/components/schemas/TokenResponse}
+            schema: {$ref: ../openapi.yaml#/components/schemas/TokenResponse}
             examples:
-              default: {$ref: ../../openapi.yaml#/components/examples/TokenResponse}
-      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
-      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+              default: {$ref: ../openapi.yaml#/components/examples/TokenResponse}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '415': {$ref: ../openapi.yaml#/components/responses/UnsupportedMediaType}
     operationId: refreshTokens
     security: []
     description: Public operation.

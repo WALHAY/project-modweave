@@ -8,26 +8,26 @@ collections:
       required: true
       content:
         application/x-www-form-urlencoded:
-          schema: {$ref: ../../openapi.yaml#/components/schemas/CollectionCreateRequest}
+          schema: {$ref: ../openapi.yaml#/components/schemas/CollectionCreateRequest}
           examples:
-            default: {$ref: ../../openapi.yaml#/components/examples/CollectionCreateRequest}
+            default: {$ref: ../openapi.yaml#/components/examples/CollectionCreateRequest}
     responses:
-      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '201':
         description: Created collection
         content:
           application/json:
-            schema: {$ref: ../../openapi.yaml#/components/schemas/Collection}
+            schema: {$ref: ../openapi.yaml#/components/schemas/Collection}
             examples:
-              default: {$ref: ../../openapi.yaml#/components/examples/Collection}
+              default: {$ref: ../openapi.yaml#/components/examples/Collection}
         headers:
           Location:
             description: URI of the created resource.
             required: true
             schema: {type: string}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
-      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
-      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '403': {$ref: ../openapi.yaml#/components/responses/Forbidden}
+      '415': {$ref: ../openapi.yaml#/components/responses/UnsupportedMediaType}
     operationId: createCollection
     description: Authenticated user for creation; collection owner or administrator for changes access.
 collections/{collectionId}:
@@ -35,23 +35,23 @@ collections/{collectionId}:
     tags: [Collections]
     summary: Get a collection
     parameters:
-    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
-    - {$ref: ../../openapi.yaml#/components/parameters/CollectionId}
+    - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../openapi.yaml#/components/parameters/CollectionId}
     responses:
       '200':
         description: Collection
         content:
           application/json:
-            schema: {$ref: ../../openapi.yaml#/components/schemas/Collection}
+            schema: {$ref: ../openapi.yaml#/components/schemas/Collection}
             examples:
-              default: {$ref: ../../openapi.yaml#/components/examples/Collection}
+              default: {$ref: ../openapi.yaml#/components/examples/Collection}
         headers:
-          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
-          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
-      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
-      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+          Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: getCollection
     security: []
     description: Public operation.
@@ -61,12 +61,12 @@ collections/{collectionId}:
     security:
     - bearerAuth: []
     parameters:
-    - {$ref: ../../openapi.yaml#/components/parameters/CollectionId}
+    - {$ref: ../openapi.yaml#/components/parameters/CollectionId}
     responses:
-      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
-      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
-      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../openapi.yaml#/components/responses/Forbidden}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
       '204': {description: Collection deleted}
     operationId: deleteCollection
     description: Authenticated user for creation; collection owner or administrator for changes access.
@@ -75,26 +75,26 @@ collections/{collectionId}/mods:
     tags: [Collections]
     summary: List mods in a collection
     parameters:
-    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
-    - {$ref: ../../openapi.yaml#/components/parameters/CollectionId}
-    - {$ref: ../../openapi.yaml#/components/parameters/Page}
-    - {$ref: ../../openapi.yaml#/components/parameters/Size}
-    - {$ref: ../../openapi.yaml#/components/parameters/SortIndex}
+    - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../openapi.yaml#/components/parameters/CollectionId}
+    - {$ref: ../openapi.yaml#/components/parameters/Page}
+    - {$ref: ../openapi.yaml#/components/parameters/Size}
+    - {$ref: ../openapi.yaml#/components/parameters/SortIndex}
     responses:
       '200':
         description: Mod page
         content:
           application/json:
-            schema: {$ref: ../../openapi.yaml#/components/schemas/ModPage}
+            schema: {$ref: ../openapi.yaml#/components/schemas/ModPage}
             examples:
-              default: {$ref: ../../openapi.yaml#/components/examples/ModPage}
+              default: {$ref: ../openapi.yaml#/components/examples/ModPage}
         headers:
-          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
-          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
-      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
-      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+          Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
     operationId: listCollectionMods
     security: []
     description: Public operation.
@@ -104,26 +104,26 @@ collections/{collectionId}/mods:
     security:
     - bearerAuth: []
     parameters:
-    - {$ref: ../../openapi.yaml#/components/parameters/CollectionId}
+    - {$ref: ../openapi.yaml#/components/parameters/CollectionId}
     requestBody:
       required: true
       content:
         application/json:
-          schema: {$ref: ../../openapi.yaml#/components/schemas/CollectionModRequest}
+          schema: {$ref: ../openapi.yaml#/components/schemas/CollectionModRequest}
           examples:
-            default: {$ref: ../../openapi.yaml#/components/examples/CollectionModRequest}
+            default: {$ref: ../openapi.yaml#/components/examples/CollectionModRequest}
     responses:
       '200':
         description: Updated collection
         content:
           application/json:
-            schema: {$ref: ../../openapi.yaml#/components/schemas/Collection}
+            schema: {$ref: ../openapi.yaml#/components/schemas/Collection}
             examples:
-              default: {$ref: ../../openapi.yaml#/components/examples/Collection}
-      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
-      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
-      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+              default: {$ref: ../openapi.yaml#/components/examples/Collection}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../openapi.yaml#/components/responses/Forbidden}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
     description: Owner or administrator only. Insert at index (zero based), or append when omitted. Duplicate membership
       and an index beyond the current size return 400.
     operationId: addCollectionMod
@@ -134,13 +134,13 @@ collections/{collectionId}/mods/{modId}:
     security:
     - bearerAuth: []
     parameters:
-    - {$ref: ../../openapi.yaml#/components/parameters/CollectionId}
-    - {$ref: ../../openapi.yaml#/components/parameters/ModId}
+    - {$ref: ../openapi.yaml#/components/parameters/CollectionId}
+    - {$ref: ../openapi.yaml#/components/parameters/ModId}
     responses:
-      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
-      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
-      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../openapi.yaml#/components/responses/Forbidden}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
       '204': {description: Mod removed}
     operationId: removeCollectionMod
     description: Authenticated user for creation; collection owner or administrator for changes access.

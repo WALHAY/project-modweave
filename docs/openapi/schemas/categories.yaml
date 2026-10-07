@@ -5,7 +5,7 @@ Category:
     name: {type: string}
     description:
       type: [string, 'null']
-    _links: {$ref: ../../openapi.yaml#/components/schemas/Links}
+    _links: {$ref: ../openapi.yaml#/components/schemas/Links}
   examples:
   - name: Utility
     description: Quality-of-life mods
@@ -19,7 +19,7 @@ CategoryCollection:
     items:
       type: array
       items: {$ref: '#/Category'}
-    _links: {$ref: ../../openapi.yaml#/components/schemas/PageLinks}
+    _links: {$ref: ../openapi.yaml#/components/schemas/PageLinks}
   examples:
   - items:
     - name: Utility

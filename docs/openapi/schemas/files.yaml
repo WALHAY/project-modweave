@@ -5,7 +5,7 @@ File:
     id: {type: string, format: uuid}
     filename: {type: string}
     downloads: {type: integer, minimum: 0}
-    _links: {$ref: ../../openapi.yaml#/components/schemas/Links}
+    _links: {$ref: ../openapi.yaml#/components/schemas/Links}
   examples:
   - id: 00000000-0000-0000-0000-000000000001
     filename: mod.zip

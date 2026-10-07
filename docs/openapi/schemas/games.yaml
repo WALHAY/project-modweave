@@ -7,7 +7,7 @@ Game:
     description:
       type: [string, 'null']
     imagePath: {type: string}
-    _links: {$ref: ../../openapi.yaml#/components/schemas/Links}
+    _links: {$ref: ../openapi.yaml#/components/schemas/Links}
   examples:
   - id: example-game
     name: Example Game
@@ -27,12 +27,12 @@ GameCreateRequest:
   - {name: Example Game, image: PNG binary}
 GamePage:
   allOf:
-  - {$ref: ../../openapi.yaml#/components/schemas/PageMetadata}
+  - {$ref: ../openapi.yaml#/components/schemas/PageMetadata}
   - type: object
     properties:
       content:
         type: array
-        items: {$ref: ../../openapi.yaml#/components/schemas/Game}
+        items: {$ref: ../openapi.yaml#/components/schemas/Game}
     required: [content]
   examples:
   - page: 0

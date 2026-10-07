@@ -6,7 +6,7 @@ PageMetadata:
     totalPages: {type: integer, minimum: 0}
     page: {type: integer, minimum: 0}
     empty: {type: boolean}
-    _links: {$ref: ../../openapi.yaml#/components/schemas/PageLinks}
+    _links: {$ref: ../openapi.yaml#/components/schemas/PageLinks}
   required: [size, totalElements, totalPages, page, empty, _links]
   examples:
   - page: 0

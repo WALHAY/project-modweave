@@ -3,13 +3,13 @@ categories:
     tags: [Categories]
     summary: List categories
     parameters:
-    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
     responses:
       '200':
         description: Categories
         content:
           application/json:
-            schema: {$ref: ../../openapi.yaml#/components/schemas/CategoryCollection}
+            schema: {$ref: ../openapi.yaml#/components/schemas/CategoryCollection}
             example:
               items:
               - name: Utility
@@ -19,10 +19,10 @@ categories:
               _links:
                 self: {href: /api/v2/categories, method: GET}
         headers:
-          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
-          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
-      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+          Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
     operationId: listCategories
     security: []
     description: Public operation.
@@ -35,28 +35,28 @@ categories:
       required: true
       content:
         application/json:
-          schema: {$ref: ../../openapi.yaml#/components/schemas/CategoryRequest}
+          schema: {$ref: ../openapi.yaml#/components/schemas/CategoryRequest}
           examples:
-            default: {$ref: ../../openapi.yaml#/components/examples/CategoryRequest}
+            default: {$ref: ../openapi.yaml#/components/examples/CategoryRequest}
     responses:
       '201':
         description: Created category
         content:
           application/json:
-            schema: {$ref: ../../openapi.yaml#/components/schemas/Category}
+            schema: {$ref: ../openapi.yaml#/components/schemas/Category}
             examples:
-              default: {$ref: ../../openapi.yaml#/components/examples/Category}
+              default: {$ref: ../openapi.yaml#/components/examples/Category}
         headers:
           Location:
             description: URI of the created category.
             required: true
             schema: {type: string}
             example: /api/v2/categories/Utility
-      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
-      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
-      '409': {$ref: ../../openapi.yaml#/components/responses/Conflict}
-      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../openapi.yaml#/components/responses/Forbidden}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '409': {$ref: ../openapi.yaml#/components/responses/Conflict}
+      '415': {$ref: ../openapi.yaml#/components/responses/UnsupportedMediaType}
     operationId: createCategory
     description: Administrator access.
 categories/{categoryName}:
@@ -64,23 +64,23 @@ categories/{categoryName}:
     tags: [Categories]
     summary: Get a category
     parameters:
-    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
-    - {$ref: ../../openapi.yaml#/components/parameters/CategoryName}
+    - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../openapi.yaml#/components/parameters/CategoryName}
     responses:
       '200':
         description: Category
         content:
           application/json:
-            schema: {$ref: ../../openapi.yaml#/components/schemas/Category}
+            schema: {$ref: ../openapi.yaml#/components/schemas/Category}
             examples:
-              default: {$ref: ../../openapi.yaml#/components/examples/Category}
+              default: {$ref: ../openapi.yaml#/components/examples/Category}
         headers:
-          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
-          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
-      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
-      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+          Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: getCategory
     security: []
     description: Public operation.
@@ -93,24 +93,24 @@ categories/{categoryName}:
       required: true
       content:
         application/json:
-          schema: {$ref: ../../openapi.yaml#/components/schemas/CategoryPatchRequest}
+          schema: {$ref: ../openapi.yaml#/components/schemas/CategoryPatchRequest}
           examples:
-            default: {$ref: ../../openapi.yaml#/components/examples/CategoryPatchRequest}
+            default: {$ref: ../openapi.yaml#/components/examples/CategoryPatchRequest}
     responses:
       '200':
         description: Updated category
         content:
           application/json:
-            schema: {$ref: ../../openapi.yaml#/components/schemas/Category}
+            schema: {$ref: ../openapi.yaml#/components/schemas/Category}
             examples:
-              default: {$ref: ../../openapi.yaml#/components/examples/Category}
-      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
-      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
-      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
-      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+              default: {$ref: ../openapi.yaml#/components/examples/Category}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../openapi.yaml#/components/responses/Forbidden}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
+      '415': {$ref: ../openapi.yaml#/components/responses/UnsupportedMediaType}
     parameters:
-    - {$ref: ../../openapi.yaml#/components/parameters/CategoryName}
+    - {$ref: ../openapi.yaml#/components/parameters/CategoryName}
     description: Administrator only. Change description while preserving the category name. An explicit null clears
       the description; an empty patch is invalid. Repeating the same patch has the same effect.
     operationId: updateCategory
@@ -120,12 +120,12 @@ categories/{categoryName}:
     security:
     - bearerAuth: []
     parameters:
-    - {$ref: ../../openapi.yaml#/components/parameters/CategoryName}
+    - {$ref: ../openapi.yaml#/components/parameters/CategoryName}
     responses:
-      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
-      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../openapi.yaml#/components/responses/Forbidden}
       '204': {description: Category deleted}
-      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
-      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
     operationId: deleteCategory
     description: Administrator access.

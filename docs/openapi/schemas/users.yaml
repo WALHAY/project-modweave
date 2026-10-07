@@ -6,7 +6,7 @@ User:
     name: {type: string}
     registerDate: {type: string, pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,9})?$', description: 'Local
         server date-time, without offset.'}
-    _links: {$ref: ../../openapi.yaml#/components/schemas/Links}
+    _links: {$ref: ../openapi.yaml#/components/schemas/Links}
   examples:
   - username: author
     name: Author
@@ -39,12 +39,12 @@ UserUpdateRequest:
   - {name: Updated Author}
 UserPage:
   allOf:
-  - {$ref: ../../openapi.yaml#/components/schemas/PageMetadata}
+  - {$ref: ../openapi.yaml#/components/schemas/PageMetadata}
   - type: object
     properties:
       content:
         type: array
-        items: {$ref: ../../openapi.yaml#/components/schemas/User}
+        items: {$ref: ../openapi.yaml#/components/schemas/User}
     required: [content]
   examples:
   - page: 0

@@ -14,7 +14,7 @@ Mod:
     categories:
       type: array
       items: {type: string}
-    _links: {$ref: ../../openapi.yaml#/components/schemas/Links}
+    _links: {$ref: ../openapi.yaml#/components/schemas/Links}
   examples:
   - id: example-mod
     name: Example Mod
@@ -56,12 +56,12 @@ ModUploadRequest:
     categories: [Utility]
 ModPage:
   allOf:
-  - {$ref: ../../openapi.yaml#/components/schemas/PageMetadata}
+  - {$ref: ../openapi.yaml#/components/schemas/PageMetadata}
   - type: object
     properties:
       content:
         type: array
-        items: {$ref: ../../openapi.yaml#/components/schemas/Mod}
+        items: {$ref: ../openapi.yaml#/components/schemas/Mod}
     required: [content]
   examples:
   - page: 0

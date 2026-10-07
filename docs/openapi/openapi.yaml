@@ -1,0 +1,144 @@
+# Entry point; edit resource paths and reusable components under openapi/.
+openapi: 3.1.0
+info:
+  title: ModWeave API
+  version: 2.1.0
+  description: Public REST API for ModWeave. API v1 remains available for existing clients. Public reads need no
+    token; mutations require a bearer access token unless stated otherwise. Form bodies and multipart uploads are
+    supported directly by Swagger UI. Successful resource and collection representations expose HAL-style HATEOAS
+    links in `_links`; clients should follow relation links instead of constructing dependent URLs. Safe GET
+    representations expose `Cache-Control`, `ETag`, and `Last-Modified`; clients may send `If-None-Match` and
+    receive `304 Not Modified`. Timestamps are local server date-times without a UTC offset (legacy domain model).
+  license: {name: MIT, identifier: MIT}
+servers:
+- {url: /, description: 'Same origin as the API documentation (locally http://localhost:8080)'}
+tags:
+- {name: Authentication, description: Authentication resources and operations.}
+- {name: Users, description: Users resources and operations.}
+- {name: Games, description: Games resources and operations.}
+- {name: Categories, description: Categories resources and operations.}
+- {name: Mods, description: Mods resources and operations.}
+- {name: Versions, description: Versions resources and operations.}
+- {name: Moderation, description: Moderation resources and operations.}
+- {name: Comments, description: Comments resources and operations.}
+- {name: Collections, description: Collections resources and operations.}
+- {name: Files, description: Files resources and operations.}
+security: []
+paths:
+  /api/v2/auth/login: {$ref: ./paths/auth.yaml#/auth~1login}
+  /api/v2/auth/refresh: {$ref: ./paths/auth.yaml#/auth~1refresh}
+  /api/v2/users/{username}: {$ref: './paths/users.yaml#/users~1{username}'}
+  /api/v2/users/{username}/mods: {$ref: './paths/users.yaml#/users~1{username}~1mods'}
+  /api/v2/users/{username}/collections: {$ref: './paths/users.yaml#/users~1{username}~1collections'}
+  /api/v2/users: {$ref: ./paths/users.yaml#/users}
+  /api/v2/games: {$ref: ./paths/games.yaml#/games}
+  /api/v2/games/{gameId}: {$ref: './paths/games.yaml#/games~1{gameId}'}
+  /api/v2/categories: {$ref: ./paths/categories.yaml#/categories}
+  /api/v2/mods: {$ref: ./paths/mods.yaml#/mods}
+  /api/v2/mods/{modId}: {$ref: './paths/mods.yaml#/mods~1{modId}'}
+  /api/v2/mods/{modId}/versions: {$ref: './paths/versions.yaml#/mods~1{modId}~1versions'}
+  /api/v2/mods/{modId}/versions/{versionId}: {$ref: './paths/versions.yaml#/mods~1{modId}~1versions~1{versionId}'}
+  /api/v2/comments: {$ref: ./paths/comments.yaml#/comments}
+  /api/v2/comments/{commentId}: {$ref: './paths/comments.yaml#/comments~1{commentId}'}
+  /api/v2/collections: {$ref: ./paths/collections.yaml#/collections}
+  /api/v2/collections/{collectionId}: {$ref: './paths/collections.yaml#/collections~1{collectionId}'}
+  /api/v2/collections/{collectionId}/mods: {$ref: './paths/collections.yaml#/collections~1{collectionId}~1mods'}
+  /api/v2/collections/{collectionId}/mods/{modId}: {$ref: './paths/collections.yaml#/collections~1{collectionId}~1mods~1{modId}'}
+  /api/v2/categories/{categoryName}: {$ref: './paths/categories.yaml#/categories~1{categoryName}'}
+  /api/v2/users/me: {$ref: ./paths/users.yaml#/users~1me}
+  /api/v2/files/{fileId}: {$ref: './paths/files.yaml#/files~1{fileId}'}
+components:
+  securitySchemes:
+    bearerAuth: {$ref: ./securitySchemes/securitySchemes.yaml#/bearerAuth}
+  parameters:
+    IfNoneMatch: {$ref: ./parameters/parameters.yaml#/IfNoneMatch}
+    Page: {$ref: ./parameters/parameters.yaml#/Page}
+    Size: {$ref: ./parameters/parameters.yaml#/Size}
+    SortName: {$ref: ./parameters/parameters.yaml#/SortName}
+    SortUsername: {$ref: ./parameters/parameters.yaml#/SortUsername}
+    SortIdDesc: {$ref: ./parameters/parameters.yaml#/SortIdDesc}
+    SortIndex: {$ref: ./parameters/parameters.yaml#/SortIndex}
+    Username: {$ref: ./parameters/parameters.yaml#/Username}
+    GameId: {$ref: ./parameters/parameters.yaml#/GameId}
+    ModId: {$ref: ./parameters/parameters.yaml#/ModId}
+    VersionId: {$ref: ./parameters/parameters.yaml#/VersionId}
+    CommentId: {$ref: ./parameters/parameters.yaml#/CommentId}
+    CollectionId: {$ref: ./parameters/parameters.yaml#/CollectionId}
+    FileId: {$ref: ./parameters/parameters.yaml#/FileId}
+    CategoryName: {$ref: ./parameters/parameters.yaml#/CategoryName}
+  responses:
+    NotModified: {$ref: ./responses/responses.yaml#/NotModified}
+    Unauthorized: {$ref: ./responses/responses.yaml#/Unauthorized}
+    Forbidden: {$ref: ./responses/responses.yaml#/Forbidden}
+    NotFound: {$ref: ./responses/responses.yaml#/NotFound}
+    Conflict: {$ref: ./responses/responses.yaml#/Conflict}
+    BadRequest: {$ref: ./responses/responses.yaml#/BadRequest}
+    UnsupportedMediaType: {$ref: ./responses/responses.yaml#/UnsupportedMediaType}
+    PayloadTooLarge: {$ref: ./responses/responses.yaml#/PayloadTooLarge}
+  schemas:
+    Link: {$ref: ./schemas/links.yaml#/Link}
+    Links: {$ref: ./schemas/links.yaml#/Links}
+    PageLinks: {$ref: ./schemas/links.yaml#/PageLinks}
+    CategoryCollection: {$ref: ./schemas/categories.yaml#/CategoryCollection}
+    AuthRequest: {$ref: ./schemas/auth.yaml#/AuthRequest}
+    RefreshTokenRequest: {$ref: ./schemas/auth.yaml#/RefreshTokenRequest}
+    TokenResponse: {$ref: ./schemas/auth.yaml#/TokenResponse}
+    User: {$ref: ./schemas/users.yaml#/User}
+    UserCreateRequest: {$ref: ./schemas/users.yaml#/UserCreateRequest}
+    UserUpdateRequest: {$ref: ./schemas/users.yaml#/UserUpdateRequest}
+    Game: {$ref: ./schemas/games.yaml#/Game}
+    GameCreateRequest: {$ref: ./schemas/games.yaml#/GameCreateRequest}
+    Category: {$ref: ./schemas/categories.yaml#/Category}
+    CategoryRequest: {$ref: ./schemas/categories.yaml#/CategoryRequest}
+    Mod: {$ref: ./schemas/mods.yaml#/Mod}
+    ModUploadRequest: {$ref: ./schemas/mods.yaml#/ModUploadRequest}
+    VersionStatus: {$ref: ./schemas/versions.yaml#/VersionStatus}
+    File: {$ref: ./schemas/files.yaml#/File}
+    Version: {$ref: ./schemas/versions.yaml#/Version}
+    VersionUploadRequest: {$ref: ./schemas/versions.yaml#/VersionUploadRequest}
+    Comment: {$ref: ./schemas/comments.yaml#/Comment}
+    CommentCreateRequest: {$ref: ./schemas/comments.yaml#/CommentCreateRequest}
+    Collection: {$ref: ./schemas/collections.yaml#/Collection}
+    CollectionCreateRequest: {$ref: ./schemas/collections.yaml#/CollectionCreateRequest}
+    CollectionModRequest: {$ref: ./schemas/collections.yaml#/CollectionModRequest}
+    PageMetadata: {$ref: ./schemas/paging.yaml#/PageMetadata}
+    UserPage: {$ref: ./schemas/users.yaml#/UserPage}
+    GamePage: {$ref: ./schemas/games.yaml#/GamePage}
+    ModPage: {$ref: ./schemas/mods.yaml#/ModPage}
+    VersionPage: {$ref: ./schemas/versions.yaml#/VersionPage}
+    CollectionPage: {$ref: ./schemas/collections.yaml#/CollectionPage}
+    CategoryPatchRequest: {$ref: ./schemas/categories.yaml#/CategoryPatchRequest}
+    CommentPage: {$ref: ./schemas/comments.yaml#/CommentPage}
+    VersionPatchRequest: {$ref: ./schemas/versions.yaml#/VersionPatchRequest}
+  headers:
+    CacheControl: {$ref: ./responses/responses.yaml#/CacheControl}
+    ETag: {$ref: ./responses/responses.yaml#/ETag}
+    LastModified: {$ref: ./responses/responses.yaml#/LastModified}
+    Link: {$ref: ./responses/responses.yaml#/Link}
+  examples:
+    AuthRequest: {$ref: ./examples/auth.yaml#/AuthRequest}
+    RefreshTokenRequest: {$ref: ./examples/auth.yaml#/RefreshTokenRequest}
+    TokenResponse: {$ref: ./examples/auth.yaml#/TokenResponse}
+    User: {$ref: ./examples/users.yaml#/User}
+    UserCreateRequest: {$ref: ./examples/users.yaml#/UserCreateRequest}
+    UserUpdateRequest: {$ref: ./examples/users.yaml#/UserUpdateRequest}
+    Game: {$ref: ./examples/games.yaml#/Game}
+    GameCreateRequest: {$ref: ./examples/games.yaml#/GameCreateRequest}
+    Category: {$ref: ./examples/categories.yaml#/Category}
+    CategoryRequest: {$ref: ./examples/categories.yaml#/CategoryRequest}
+    CategoryPatchRequest: {$ref: ./examples/categories.yaml#/CategoryPatchRequest}
+    Mod: {$ref: ./examples/mods.yaml#/Mod}
+    ModUploadRequest: {$ref: ./examples/mods.yaml#/ModUploadRequest}
+    VersionUploadRequest: {$ref: ./examples/versions.yaml#/VersionUploadRequest}
+    Comment: {$ref: ./examples/comments.yaml#/Comment}
+    CommentCreateRequest: {$ref: ./examples/comments.yaml#/CommentCreateRequest}
+    Collection: {$ref: ./examples/collections.yaml#/Collection}
+    CollectionCreateRequest: {$ref: ./examples/collections.yaml#/CollectionCreateRequest}
+    CollectionModRequest: {$ref: ./examples/collections.yaml#/CollectionModRequest}
+    Version: {$ref: ./examples/versions.yaml#/Version}
+    UserPage: {$ref: ./examples/users.yaml#/UserPage}
+    GamePage: {$ref: ./examples/games.yaml#/GamePage}
+    ModPage: {$ref: ./examples/mods.yaml#/ModPage}
+    VersionPage: {$ref: ./examples/versions.yaml#/VersionPage}
+    CollectionPage: {$ref: ./examples/collections.yaml#/CollectionPage}
+    CommentPage: {$ref: ./examples/comments.yaml#/CommentPage}

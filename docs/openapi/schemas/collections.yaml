@@ -6,7 +6,7 @@ Collection:
     name: {type: string}
     description:
       type: [string, 'null']
-    _links: {$ref: ../../openapi.yaml#/components/schemas/Links}
+    _links: {$ref: ../openapi.yaml#/components/schemas/Links}
   examples:
   - id: 00000000-0000-0000-0000-000000000001
     name: Favorites
@@ -34,12 +34,12 @@ CollectionModRequest:
   - {modId: example-mod, index: 0}
 CollectionPage:
   allOf:
-  - {$ref: ../../openapi.yaml#/components/schemas/PageMetadata}
+  - {$ref: ../openapi.yaml#/components/schemas/PageMetadata}
   - type: object
     properties:
       content:
         type: array
-        items: {$ref: ../../openapi.yaml#/components/schemas/Collection}
+        items: {$ref: ../openapi.yaml#/components/schemas/Collection}
     required: [content]
   examples:
   - page: 0
