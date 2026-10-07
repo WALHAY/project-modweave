@@ -17,6 +17,7 @@ import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
+import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -50,12 +51,14 @@ class CollectionController(
       @SortDefault(sort = ["index"]) sort: Sort,
   ): Page<ModResponseDto> {
     logger.info { "GET /collections/$collectionId/mods - page: $page, size: $size" }
+    collectionService.getCollectionById(CollectionId(collectionId))
     return modService.findModsInCollection(CollectionId(collectionId), page, size, sort).map {
       ModResponseDto.fromMod(it)
     }
   }
 
-  @PostMapping(version = "1")
+  @PostMapping(
+      version = "1", consumes = ["application/x-www-form-urlencoded", "multipart/form-data"])
   fun createCollection(
       @Valid @ModelAttribute dto: CollectionCreateDto,
       @AuthenticationPrincipal user: UserDetails?,
@@ -98,7 +101,7 @@ class CollectionController(
       @AuthenticationPrincipal user: UserDetails?,
   ): CollectionResponseDto = addModToCollection(collectionId, modId, index, user)
 
-  @DeleteMapping("/{collectionId}")
+  @DeleteMapping("/{collectionId}", version = "1")
   fun deleteCollection(
       @PathVariable collectionId: UUID,
       @AuthenticationPrincipal user: UserDetails?,
@@ -108,7 +111,14 @@ class CollectionController(
     collectionService.deleteCollection(UserId(username), CollectionId(collectionId))
   }
 
-  @DeleteMapping("/{collectionId}/mods/{modId}")
+  @DeleteMapping("/{collectionId}", version = "2")
+  @ResponseStatus(NO_CONTENT)
+  fun removeCollection(
+      @PathVariable collectionId: UUID,
+      @AuthenticationPrincipal user: UserDetails?,
+  ) = deleteCollection(collectionId, user)
+
+  @DeleteMapping("/{collectionId}/mods/{modId}", version = "1")
   fun deleteModFromCollection(
       @PathVariable collectionId: UUID,
       @PathVariable modId: String,
@@ -119,6 +129,14 @@ class CollectionController(
     return collectionService.deleteModFromCollection(
         UserId(username), CollectionId(collectionId), ModId(modId))
   }
+
+  @DeleteMapping("/{collectionId}/mods/{modId}", version = "2")
+  @ResponseStatus(NO_CONTENT)
+  fun removeCollectionMod(
+      @PathVariable collectionId: UUID,
+      @PathVariable modId: String,
+      @AuthenticationPrincipal user: UserDetails?,
+  ) = deleteModFromCollection(collectionId, modId, user)
 
   private fun requireUsername(user: UserDetails?): String =
       user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")

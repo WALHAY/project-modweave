@@ -62,7 +62,7 @@ class CategoryController(
           ?.let { CategoryResponseDto.fromCategory(it) }
           ?: throw CategoryNotFoundException(CategoryId(categoryName))
 
-  @PostMapping(version = "2", consumes = ["application/json"])
+  @PostMapping(version = "2")
   fun createCategory(@RequestBody body: Map<String, Any?>): ResponseEntity<CategoryResponseDto> {
     require(body.keys.all { it in setOf("name", "description") }) { "Unknown category field" }
     val name = body["name"]
@@ -79,7 +79,7 @@ class CategoryController(
     return ResponseEntity.created(location).body(result)
   }
 
-  @PatchMapping("/{categoryName}", version = "2", consumes = ["application/json"])
+  @PatchMapping("/{categoryName}", version = "2")
   fun patchCategory(
       @PathVariable categoryName: String,
       @RequestBody body: Map<String, Any?>,

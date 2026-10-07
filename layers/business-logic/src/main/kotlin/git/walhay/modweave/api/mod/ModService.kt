@@ -56,10 +56,11 @@ class ModService(
       sort: Sort,
   ): Page<Mod> {
     val pageRequest = PageRequest.of(page, pageSizePolicy.normalize(size), sort)
+    val visibleStatus = if (accessSecurity.isAdmin()) null else VersionStatus.APPROVED
     if (name == null) {
-      return modRepository.findAll(pageRequest, VersionStatus.APPROVED)
+      return modRepository.findAll(pageRequest, visibleStatus)
     }
-    return modRepository.findAll(name, pageRequest, VersionStatus.APPROVED)
+    return modRepository.findAll(name, pageRequest, visibleStatus)
   }
 
   override fun findModsOfUser(
@@ -69,7 +70,9 @@ class ModService(
       sort: Sort,
   ): Page<Mod> =
       modRepository.findAllByUser(
-          id, PageRequest.of(page, pageSizePolicy.normalize(size), sort), VersionStatus.APPROVED)
+          id,
+          PageRequest.of(page, pageSizePolicy.normalize(size), sort),
+          if (accessSecurity.isSelfOrAdmin(id.value)) null else VersionStatus.APPROVED)
 
   override fun findModsInCollection(
       id: CollectionId,

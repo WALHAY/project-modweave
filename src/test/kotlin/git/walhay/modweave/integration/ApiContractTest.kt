@@ -143,6 +143,17 @@ class ApiContractTest {
       } else {
         val value = mapper.readTree(response.body())
         validateResponse(responseContract["content"][media]["schema"], value)
+        if (expected == 201) {
+          val location = response.headers().firstValue("Location").orElseThrow()
+          assertTrue(location.startsWith("/api/v2/"), location)
+          val retrieved = raw("GET", location, token = token)
+          assertEquals(200, retrieved.statusCode(), "$id Location must be readable: $location")
+          val stored = mapper.readTree(retrieved.body())
+          validateResponse(responseContract["content"][media]["schema"], stored)
+          for (key in listOf("id", "username", "name")) {
+            if (value.has(key)) assertEquals(value[key], stored[key], "$id Location identity")
+          }
+        }
         return value
       }
     }
@@ -237,6 +248,22 @@ class ApiContractTest {
     call("deleteCategory", 404, category, token = admin)
     call("listGames", 400, query = mapOf("page" to "-1", "size" to "20"))
     call("getCollection", 400, mapOf("collectionId" to "invalid-uuid"))
+    call("listUserMods", 404, mapOf("username" to "missing"), query = page())
+    call("listUserCollections", 404, mapOf("username" to "missing"), query = page())
+    call("listModVersions", 404, mapOf("modId" to "missing"), query = page())
+    call(
+        "listCollectionMods",
+        404,
+        mapOf("collectionId" to "00000000-0000-0000-0000-000000000099"),
+        query = page())
+    assertEquals(
+        415,
+        raw("POST", "/api/v2/categories", "name=Utility".toByteArray(), "text/plain", admin)
+            .statusCode())
+    assertEquals(
+        400,
+        raw("PATCH", "/api/v2/categories/Utility", "{".toByteArray(), "application/json", admin)
+            .statusCode())
     call("login", 401, body = mapOf("username" to "admin", "password" to "wrong-password"))
   }
 
@@ -291,9 +318,20 @@ class ApiContractTest {
             upload(emptyMap(), "files", "mod.zip", "mod archive".toByteArray())
     val mod = call("createMod", 201, token = author, multipart = modUpload)["id"].asText()
     val modPath = mapOf("modId" to mod)
-    call("listMods", query = page(), token = admin)
+    assertEquals(mod, call("listMods", query = page(), token = admin)["content"][0]["id"].asText())
+    assertTrue(call("listMods", query = page())["content"].isEmpty)
     call("getMod", pathValues = modPath, token = author)
-    call("listUserMods", pathValues = mapOf("username" to "author"), query = page(), token = author)
+    assertEquals(
+        mod,
+        call(
+                "listUserMods",
+                pathValues = mapOf("username" to "author"),
+                query = page(),
+                token = author)["content"][0]["id"]
+            .asText())
+    assertTrue(
+        call("listUserMods", pathValues = mapOf("username" to "author"), query = page())["content"]
+            .isEmpty)
     val versions = call("listModVersions", pathValues = modPath, query = page(), token = author)
     val version = versions["content"][0]
     assertEquals("PENDING", version["status"].asText())
@@ -301,14 +339,35 @@ class ApiContractTest {
     val filePath = mapOf("fileId" to version["files"][0]["id"].asText())
     assertTrue(call("listModVersions", pathValues = modPath, query = page())["content"].isEmpty)
     call("downloadFile", 403, filePath, token = outsider)
-    call("moderateVersion", 403, versionPath, mapOf("status" to "APPROVED"), token = author)
-    call("moderateVersion", 400, versionPath, mapOf("status" to "PENDING"), token = admin)
+    call("getModVersion", pathValues = versionPath, token = author)
+    call("getModVersion", 403, versionPath, token = outsider)
+    call("getModVersion", 404, versionPath + ("modId" to "another-mod"), token = author)
+    call(
+        "getModVersion", 404, versionPath + ("versionId" to "00000000-0000-0000-0000-000000000099"))
+    call("moderateVersion", 403, versionPath, body = mapOf("status" to "APPROVED"), token = author)
+    call("moderateVersion", 400, versionPath, body = mapOf("status" to "PENDING"), token = admin)
+    call("moderateVersion", 400, versionPath, body = emptyMap(), token = admin)
+    call(
+        "moderateVersion",
+        400,
+        versionPath,
+        body = mapOf("status" to "APPROVED", "name" to "Renamed"),
+        token = admin)
     call(
         "moderateVersion",
         pathValues = versionPath,
-        query = mapOf("status" to "APPROVED"),
+        body = mapOf("status" to "APPROVED"),
         token = admin)
+    call("getModVersion", pathValues = versionPath)
     call("downloadFile", pathValues = filePath)
+    assertEquals(200, raw("GET", "/api/v1/files/${filePath["fileId"]}/download").statusCode())
+    assertEquals(
+        200,
+        raw(
+                "PATCH",
+                "/api/v1/mods/$mod/versions/${version["id"].asText()}?status=APPROVED",
+                token = admin)
+            .statusCode())
     val anotherVersion =
         call(
             "createVersion",
@@ -344,15 +403,23 @@ class ApiContractTest {
         mod,
         call("listCollectionMods", pathValues = collectionPath, query = page())["content"][0]["id"]
             .asText())
-    call("removeCollectionMod", pathValues = collectionPath + ("modId" to mod), token = author)
-    call("deleteCollection", pathValues = collectionPath, token = author)
-    call("deleteComment", pathValues = commentPath, token = author)
+    call("removeCollectionMod", 204, pathValues = collectionPath + ("modId" to mod), token = author)
+    call("removeCollectionMod", 204, pathValues = collectionPath + ("modId" to mod), token = author)
+    call("deleteCollection", 204, pathValues = collectionPath, token = author)
+    call("getCollection", 404, pathValues = collectionPath)
+    call("deleteComment", 204, pathValues = commentPath, token = author)
+    call("getComment", 404, pathValues = commentPath)
     call(
         "deleteVersion",
+        204,
         pathValues = modPath + ("versionId" to anotherVersion["id"].asText()),
         token = author)
-    call("deleteMod", pathValues = modPath, token = author)
-    call("deleteGame", pathValues = mapOf("gameId" to game), token = admin)
+    call(
+        "getModVersion", 404, pathValues = modPath + ("versionId" to anotherVersion["id"].asText()))
+    call("deleteMod", 204, pathValues = modPath, token = author)
+    call("getMod", 404, pathValues = modPath)
+    call("deleteGame", 204, pathValues = mapOf("gameId" to game), token = admin)
+    call("getGame", 404, pathValues = mapOf("gameId" to game))
     call("deleteCategory", 204, mapOf("categoryName" to "Utility"), token = admin)
     val allOperations =
         contract["paths"]

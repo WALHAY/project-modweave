@@ -27,7 +27,7 @@ class FileController(
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @GetMapping("/{fileId}/download", "/mods/{fileId}/download")
+  @GetMapping(value = ["/{fileId}/download", "/mods/{fileId}/download"], version = "1")
   fun downloadFile(
       @PathVariable fileId: UUID,
       response: HttpServletResponse,
@@ -52,4 +52,8 @@ class FileController(
     }
     fileRepository.incrementDownloads(file.id)
   }
+
+  @GetMapping("/{fileId}", version = "2")
+  fun getFile(@PathVariable fileId: UUID, response: HttpServletResponse) =
+      downloadFile(fileId, response)
 }

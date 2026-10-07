@@ -29,7 +29,7 @@ class AuthController(
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @PostMapping("/login")
+  @PostMapping("/login", version = "1", consumes = ["application/x-www-form-urlencoded"])
   fun login(
       @Valid @ModelAttribute dto: AuthRequestDto,
   ): TokenResponseDto {
@@ -40,7 +40,10 @@ class AuthController(
     return createTokenResponse(authentication.principal as UserDetails)
   }
 
-  @PostMapping("/refresh")
+  @PostMapping("/login", version = "2", consumes = ["application/x-www-form-urlencoded"])
+  fun loginV2(@Valid @ModelAttribute dto: AuthRequestDto): TokenResponseDto = login(dto)
+
+  @PostMapping("/refresh", version = "1", consumes = ["application/x-www-form-urlencoded"])
   fun refresh(
       @Valid @ModelAttribute dto: RefreshTokenRequestDto,
   ): TokenResponseDto {
@@ -62,6 +65,9 @@ class AuthController(
         }
     return createTokenResponse(userDetails)
   }
+
+  @PostMapping("/refresh", version = "2", consumes = ["application/x-www-form-urlencoded"])
+  fun refreshV2(@Valid @ModelAttribute dto: RefreshTokenRequestDto): TokenResponseDto = refresh(dto)
 
   private fun createTokenResponse(
       userDetails: UserDetails,

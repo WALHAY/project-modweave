@@ -60,6 +60,7 @@ class UserController(
       @SortDefault(sort = ["name"]) sort: Sort,
   ): Page<ModResponseDto> {
     logger.info { "GET /users/$id/mods - page: $page, size: $size" }
+    userService.findUserByUsername(UserId(id))
     return modService.findModsOfUser(UserId(id), page, size, sort).map {
       ModResponseDto.fromMod(it)
     }
@@ -73,12 +74,14 @@ class UserController(
       @SortDefault(sort = ["name"]) sort: Sort,
   ): Page<CollectionResponseDto> {
     logger.info { "GET /users/$id/collections - page: $page, size: $size" }
+    userService.findUserByUsername(UserId(id))
     return collectionService.findCollectionsOfUser(UserId(id), page, size, sort).map {
       CollectionResponseDto.fromCollection(it)
     }
   }
 
-  @PostMapping(version = "1")
+  @PostMapping(
+      version = "1", consumes = ["application/x-www-form-urlencoded", "multipart/form-data"])
   fun createUser(
       @ModelAttribute @Valid dto: UserCreateDto,
   ): UserResponseDto {

@@ -5,14 +5,17 @@ import git.walhay.modweave.api.user.UserId
 import git.walhay.modweave.api.version.IVersionService
 import git.walhay.modweave.api.version.VersionId
 import git.walhay.modweave.api.version.VersionStatus
+import git.walhay.modweave.api.version.exception.VersionNotFoundException
 import git.walhay.modweave.api.version.http.dto.VersionResponseDto
 import git.walhay.modweave.api.version.http.dto.VersionUploadDto
 import jakarta.validation.Valid
+import java.net.URI
 import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.UNAUTHORIZED
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
@@ -25,7 +28,7 @@ class VersionController(
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @PostMapping
+  @PostMapping(version = "1", consumes = ["multipart/form-data"])
   @ResponseStatus(HttpStatus.CREATED)
   fun uploadModVersion(
       @PathVariable modId: String,
@@ -35,6 +38,23 @@ class VersionController(
     return versionService.createModVersion(ModId(modId), dto.toVersionCreateCommand()).let {
       VersionResponseDto.fromVersion(it)
     }
+  }
+
+  @PostMapping(version = "2", consumes = ["multipart/form-data"])
+  fun createVersion(
+      @PathVariable modId: String,
+      @Valid @ModelAttribute dto: VersionUploadDto,
+  ): ResponseEntity<VersionResponseDto> {
+    val result = uploadModVersion(modId, dto)
+    return ResponseEntity.created(URI.create("/api/v2/mods/$modId/versions/${result.id}"))
+        .body(result)
+  }
+
+  @GetMapping("/{versionId}", version = "2")
+  fun getVersion(@PathVariable modId: String, @PathVariable versionId: UUID): VersionResponseDto {
+    val version = versionService.getModVersion(VersionId(versionId))
+    if (version.modId != ModId(modId)) throw VersionNotFoundException(VersionId(versionId))
+    return VersionResponseDto.fromVersion(version)
   }
 
   @PatchMapping("/{versionId}", version = "1")
@@ -55,16 +75,18 @@ class VersionController(
   fun moderateVersion(
       @PathVariable modId: String,
       @PathVariable versionId: UUID,
-      @RequestParam status: VersionStatus,
+      @RequestBody body: Map<String, Any?>,
       @AuthenticationPrincipal user: UserDetails?,
   ): VersionResponseDto {
-    require(status == VersionStatus.APPROVED || status == VersionStatus.REJECTED) {
+    require(body.keys == setOf("status")) { "Exactly the status field is required" }
+    val status = body["status"]
+    require(status == "APPROVED" || status == "REJECTED") {
       "Moderation status must be APPROVED or REJECTED"
     }
-    return changeVersionStatus(modId, versionId, status, user)
+    return changeVersionStatus(modId, versionId, VersionStatus.valueOf(status as String), user)
   }
 
-  @DeleteMapping("/{versionId}")
+  @DeleteMapping("/{versionId}", version = "1")
   fun deleteVersion(
       @PathVariable modId: String,
       @PathVariable versionId: UUID,
@@ -72,6 +94,11 @@ class VersionController(
     logger.info { "DELETE /mods/$modId/versions/$versionId" }
     versionService.deleteModVersion(ModId(modId), VersionId(versionId))
   }
+
+  @DeleteMapping("/{versionId}", version = "2")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  fun removeVersion(@PathVariable modId: String, @PathVariable versionId: UUID) =
+      deleteVersion(modId, versionId)
 
   private fun requireUser(user: UserDetails?): UserDetails =
       user ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
