@@ -1,0 +1,46 @@
+Mod:
+  value:
+    id: example-mod
+    name: Example Mod
+    description: null
+    imagePath: mod.png
+    creationDate: '2026-10-06T12:00:00'
+    publisherId: author
+    gameId: example-game
+    categories: [Utility]
+    _links:
+      self: {href: /api/v2/mods/example-mod, method: GET}
+      game: {href: /api/v2/games/example-game, method: GET}
+      publisher: {href: /api/v2/users/author, method: GET}
+      versions: {href: /api/v2/mods/example-mod/versions, method: GET}
+      comments: {href: /api/v2/comments?modId=example-mod, method: GET}
+ModUploadRequest:
+  value:
+    name: Example Mod
+    image: PNG binary
+    versionName: '1.0'
+    files: [ZIP binary]
+    gameId: example-game
+    categories: [Utility]
+ModPage:
+  value:
+    page: 0
+    size: 20
+    totalElements: 1
+    totalPages: 1
+    empty: false
+    content:
+    - id: example-mod
+      name: Example Mod
+      description: null
+      imagePath: mod.png
+      creationDate: '2026-10-06T12:00:00'
+      publisherId: author
+      gameId: example-game
+      categories: [Utility]
+      _links:
+        self: {href: /api/v2/mods/example-mod, method: GET}
+    _links:
+      self: {href: /api/v2/mods?page=0&size=20, method: GET}
+      first: {href: /api/v2/mods?page=0&size=20, method: GET}
+      last: {href: /api/v2/mods?page=0&size=20, method: GET}

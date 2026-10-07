@@ -1,0 +1,59 @@
+Collection:
+  type: object
+  required: [id, name, _links]
+  properties:
+    id: {type: string, format: uuid}
+    name: {type: string}
+    description:
+      type: [string, 'null']
+    _links: {$ref: ../../openapi.yaml#/components/schemas/Links}
+  examples:
+  - id: 00000000-0000-0000-0000-000000000001
+    name: Favorites
+    description: null
+    _links:
+      self: {href: /api/v2/collections/00000000-0000-0000-0000-000000000001, method: GET}
+      mods: {href: /api/v2/collections/00000000-0000-0000-0000-000000000001/mods, method: GET}
+CollectionCreateRequest:
+  type: object
+  required: [name]
+  properties:
+    name: {type: string, minLength: 1, pattern: .*\S.*}
+    description: {type: string}
+  examples:
+  - {name: Favorites}
+CollectionModRequest:
+  type: object
+  required: [modId]
+  additionalProperties: false
+  properties:
+    modId: {type: string, minLength: 1}
+    index: {type: integer, minimum: 0}
+  description: Mod to insert and optional zero-based position; omitted index appends to the collection.
+  examples:
+  - {modId: example-mod, index: 0}
+CollectionPage:
+  allOf:
+  - {$ref: ../../openapi.yaml#/components/schemas/PageMetadata}
+  - type: object
+    properties:
+      content:
+        type: array
+        items: {$ref: ../../openapi.yaml#/components/schemas/Collection}
+    required: [content]
+  examples:
+  - page: 0
+    size: 20
+    totalElements: 1
+    totalPages: 1
+    empty: false
+    content:
+    - id: 00000000-0000-0000-0000-000000000001
+      name: Favorites
+      description: null
+      _links:
+        self: {href: /api/v2/collections/00000000-0000-0000-0000-000000000001, method: GET}
+    _links:
+      self: {href: /api/v2/collections?page=0&size=20, method: GET}
+      first: {href: /api/v2/collections?page=0&size=20, method: GET}
+      last: {href: /api/v2/collections?page=0&size=20, method: GET}

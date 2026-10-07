@@ -1,0 +1,172 @@
+users/{username}:
+  get:
+    tags: [Users]
+    summary: Get a user
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/Username}
+    responses:
+      '200':
+        description: User
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/User}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/User}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+    operationId: getUser
+    security: []
+    description: Public operation.
+users/{username}/mods:
+  get:
+    tags: [Users]
+    summary: List a user's mods
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/Username}
+    - {$ref: ../../openapi.yaml#/components/parameters/Page}
+    - {$ref: ../../openapi.yaml#/components/parameters/Size}
+    - {$ref: ../../openapi.yaml#/components/parameters/SortName}
+    responses:
+      '200':
+        description: Mod page
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/ModPage}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/ModPage}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+    operationId: listUserMods
+    security:
+    - {}
+    - bearerAuth: []
+    description: Public catalogue includes mods with an approved version. The user viewing their own mods and administrators
+      also see pending and rejected publications.
+users/{username}/collections:
+  get:
+    tags: [Users]
+    summary: List a user's collections
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/Username}
+    - {$ref: ../../openapi.yaml#/components/parameters/Page}
+    - {$ref: ../../openapi.yaml#/components/parameters/Size}
+    - {$ref: ../../openapi.yaml#/components/parameters/SortName}
+    responses:
+      '200':
+        description: Collection page
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/CollectionPage}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/CollectionPage}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+    operationId: listUserCollections
+    security: []
+    description: Public operation.
+users:
+  get:
+    tags: [Users]
+    summary: List users
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/Page}
+    - {$ref: ../../openapi.yaml#/components/parameters/Size}
+    - name: username
+      in: query
+      schema: {type: string}
+    - {$ref: ../../openapi.yaml#/components/parameters/SortUsername}
+    responses:
+      '200':
+        description: User page
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/UserPage}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/UserPage}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+    operationId: listUsers
+    security: []
+    description: Public operation.
+  post:
+    tags: [Users]
+    summary: Register a user
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema: {$ref: ../../openapi.yaml#/components/schemas/UserCreateRequest}
+          examples:
+            default: {$ref: ../../openapi.yaml#/components/examples/UserCreateRequest}
+    responses:
+      '409': {$ref: ../../openapi.yaml#/components/responses/Conflict}
+      '201':
+        description: Created user
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/User}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/User}
+        headers:
+          Location:
+            description: URI of the created resource.
+            required: true
+            schema: {type: string}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+    operationId: registerUser
+    security: []
+    description: Public operation.
+users/me:
+  patch:
+    tags: [Users]
+    summary: Update the authenticated user
+    security:
+    - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema: {$ref: ../../openapi.yaml#/components/schemas/UserUpdateRequest}
+          examples:
+            default: {$ref: ../../openapi.yaml#/components/examples/UserUpdateRequest}
+    responses:
+      '200':
+        description: Updated user
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/User}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/User}
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+      '409': {$ref: ../../openapi.yaml#/components/responses/Conflict}
+    operationId: updateCurrentUser
+    description: Authenticated user updating their own profile access.

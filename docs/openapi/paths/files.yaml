@@ -1,0 +1,32 @@
+files/{fileId}:
+  get:
+    tags: [Files]
+    summary: Get the file contents
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/FileId}
+    responses:
+      '200':
+        description: Binary mod file
+        headers:
+          Content-Disposition:
+            schema: {type: string}
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+          Link: {$ref: ../../openapi.yaml#/components/headers/Link}
+        content:
+          application/octet-stream:
+            schema: {type: string, format: binary}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+    operationId: downloadFile
+    security:
+    - {}
+    - bearerAuth: []
+    description: Guests may download approved versions. Pending/rejected files require the mod owner or an administrator.
+      Download increments an informational counter; it does not change the resource representation. The file itself
+      is the resource; Content-Disposition requests a download.

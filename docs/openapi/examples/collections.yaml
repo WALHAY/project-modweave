@@ -1,0 +1,29 @@
+Collection:
+  value:
+    id: 00000000-0000-0000-0000-000000000001
+    name: Favorites
+    description: null
+    _links:
+      self: {href: /api/v2/collections/00000000-0000-0000-0000-000000000001, method: GET}
+      mods: {href: /api/v2/collections/00000000-0000-0000-0000-000000000001/mods, method: GET}
+CollectionCreateRequest:
+  value: {name: Favorites}
+CollectionModRequest:
+  value: {modId: example-mod, index: 0}
+CollectionPage:
+  value:
+    page: 0
+    size: 20
+    totalElements: 1
+    totalPages: 1
+    empty: false
+    content:
+    - id: 00000000-0000-0000-0000-000000000001
+      name: Favorites
+      description: null
+      _links:
+        self: {href: /api/v2/collections/00000000-0000-0000-0000-000000000001, method: GET}
+    _links:
+      self: {href: /api/v2/collections?page=0&size=20, method: GET}
+      first: {href: /api/v2/collections?page=0&size=20, method: GET}
+      last: {href: /api/v2/collections?page=0&size=20, method: GET}

@@ -1,0 +1,50 @@
+auth/login:
+  post:
+    tags: [Authentication]
+    summary: Log in
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema: {$ref: ../../openapi.yaml#/components/schemas/AuthRequest}
+          examples:
+            default: {$ref: ../../openapi.yaml#/components/examples/AuthRequest}
+    responses:
+      '200':
+        description: Access and refresh tokens
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/TokenResponse}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/TokenResponse}
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+    operationId: login
+    security: []
+    description: Public operation.
+auth/refresh:
+  post:
+    tags: [Authentication]
+    summary: Refresh access and refresh tokens
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema: {$ref: ../../openapi.yaml#/components/schemas/RefreshTokenRequest}
+          examples:
+            default: {$ref: ../../openapi.yaml#/components/examples/RefreshTokenRequest}
+    responses:
+      '200':
+        description: Refreshed tokens
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/TokenResponse}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/TokenResponse}
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+    operationId: refreshTokens
+    security: []
+    description: Public operation.

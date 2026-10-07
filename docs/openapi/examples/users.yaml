@@ -1,0 +1,30 @@
+User:
+  value:
+    username: author
+    name: Author
+    registerDate: '2026-10-06T12:00:00'
+    _links:
+      self: {href: /api/v2/users/author, method: GET}
+      mods: {href: /api/v2/users/author/mods, method: GET}
+      collections: {href: /api/v2/users/author/collections, method: GET}
+UserCreateRequest:
+  value: {username: author, name: Author, password: demo-password, email: author@example.test}
+UserUpdateRequest:
+  value: {name: Updated Author}
+UserPage:
+  value:
+    page: 0
+    size: 20
+    totalElements: 1
+    totalPages: 1
+    empty: false
+    content:
+    - username: author
+      name: Author
+      registerDate: '2026-10-06T12:00:00'
+      _links:
+        self: {href: /api/v2/users/author, method: GET}
+    _links:
+      self: {href: /api/v2/users?page=0&size=20, method: GET}
+      first: {href: /api/v2/users?page=0&size=20, method: GET}
+      last: {href: /api/v2/users?page=0&size=20, method: GET}

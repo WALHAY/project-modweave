@@ -1,0 +1,53 @@
+Game:
+  type: object
+  required: [id, name, imagePath, _links]
+  properties:
+    id: {type: string}
+    name: {type: string}
+    description:
+      type: [string, 'null']
+    imagePath: {type: string}
+    _links: {$ref: ../../openapi.yaml#/components/schemas/Links}
+  examples:
+  - id: example-game
+    name: Example Game
+    description: null
+    imagePath: game.png
+    _links:
+      self: {href: /api/v2/games/example-game, method: GET}
+      mods: {href: /api/v2/mods, method: GET}
+GameCreateRequest:
+  type: object
+  required: [name, image]
+  properties:
+    name: {type: string, minLength: 1, pattern: .*\S.*}
+    description: {type: string}
+    image: {type: string, format: binary, description: 'Non-empty PNG or JPEG image, at most 100 MB.'}
+  examples:
+  - {name: Example Game, image: PNG binary}
+GamePage:
+  allOf:
+  - {$ref: ../../openapi.yaml#/components/schemas/PageMetadata}
+  - type: object
+    properties:
+      content:
+        type: array
+        items: {$ref: ../../openapi.yaml#/components/schemas/Game}
+    required: [content]
+  examples:
+  - page: 0
+    size: 20
+    totalElements: 1
+    totalPages: 1
+    empty: false
+    content:
+    - id: example-game
+      name: Example Game
+      description: null
+      imagePath: game.png
+      _links:
+        self: {href: /api/v2/games/example-game, method: GET}
+    _links:
+      self: {href: /api/v2/games?page=0&size=20, method: GET}
+      first: {href: /api/v2/games?page=0&size=20, method: GET}
+      last: {href: /api/v2/games?page=0&size=20, method: GET}

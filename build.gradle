@@ -117,3 +117,20 @@ subprojects {
 tasks.named('processResources') {
   from('sql') { include 'init.sql', 'storage-cleanup.sql' }
 }
+
+// Redocly is the single validator and bundler for the modular OpenAPI source.
+// Node.js 22.12+ is required; npx caches this pinned CLI version.
+tasks.register('lintOpenApi', Exec) {
+  commandLine 'npx', '--yes', '@redocly/cli@2.58.2', 'lint', '--lint-config', 'error'
+}
+
+tasks.register('bundleOpenApi', Exec) {
+  dependsOn 'lintOpenApi'
+  inputs.files(fileTree('docs') { include 'openapi.yaml', 'openapi/**/*.yaml' }, 'redocly.yaml')
+  outputs.file layout.buildDirectory.file('generated/openapi/openapi.yaml')
+  doFirst { layout.buildDirectory.dir('generated/openapi').get().asFile.mkdirs() }
+  commandLine 'npx', '--yes', '@redocly/cli@2.58.2', 'bundle', 'docs/openapi.yaml',
+      '--output', layout.buildDirectory.file('generated/openapi/openapi.yaml').get().asFile.absolutePath
+}
+
+tasks.named('check') { dependsOn 'lintOpenApi' }

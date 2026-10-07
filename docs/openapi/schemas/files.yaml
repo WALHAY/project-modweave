@@ -1,0 +1,15 @@
+File:
+  type: object
+  required: [id, filename, downloads, _links]
+  properties:
+    id: {type: string, format: uuid}
+    filename: {type: string}
+    downloads: {type: integer, minimum: 0}
+    _links: {$ref: ../../openapi.yaml#/components/schemas/Links}
+  examples:
+  - id: 00000000-0000-0000-0000-000000000001
+    filename: mod.zip
+    downloads: 0
+    _links:
+      self: {href: /api/v2/files/00000000-0000-0000-0000-000000000001, method: GET}
+      download: {href: /api/v2/files/00000000-0000-0000-0000-000000000001, method: GET}

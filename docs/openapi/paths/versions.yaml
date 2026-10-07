@@ -1,0 +1,145 @@
+mods/{modId}/versions:
+  get:
+    tags: [Versions]
+    summary: List versions for a mod
+    description: Guests receive approved versions. The owner and administrators also receive pending and rejected
+      versions.
+    security:
+    - {}
+    - bearerAuth: []
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/ModId}
+    - {$ref: ../../openapi.yaml#/components/parameters/Page}
+    - {$ref: ../../openapi.yaml#/components/parameters/Size}
+    - {$ref: ../../openapi.yaml#/components/parameters/SortIdDesc}
+    responses:
+      '200':
+        description: Version page
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/VersionPage}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/VersionPage}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+    operationId: listModVersions
+  post:
+    tags: [Versions]
+    summary: Upload a new mod version
+    security:
+    - bearerAuth: []
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/ModId}
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema: {$ref: ../../openapi.yaml#/components/schemas/VersionUploadRequest}
+          examples:
+            default: {$ref: ../../openapi.yaml#/components/examples/VersionUploadRequest}
+    responses:
+      '201':
+        description: Created pending version
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/Version}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/Version}
+        headers:
+          Location:
+            required: true
+            description: URI of the created resource; supports GET.
+            schema: {type: string, format: uri-reference}
+            example: /api/v2/mods/example-mod/versions/00000000-0000-0000-0000-000000000001
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '409': {$ref: ../../openapi.yaml#/components/responses/Conflict}
+      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+      '413': {$ref: ../../openapi.yaml#/components/responses/PayloadTooLarge}
+    operationId: createVersion
+    description: Mod owner or administrator access.
+mods/{modId}/versions/{versionId}:
+  patch:
+    tags: [Moderation]
+    summary: Approve or reject a version
+    security:
+    - bearerAuth: []
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/ModId}
+    - {$ref: ../../openapi.yaml#/components/parameters/VersionId}
+    responses:
+      '200':
+        description: Version status changed
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/Version}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/Version}
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+    operationId: moderateVersion
+    description: Administrator access.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: {$ref: ../../openapi.yaml#/components/schemas/VersionPatchRequest}
+          example: {status: APPROVED}
+  delete:
+    tags: [Versions]
+    summary: Delete a mod version
+    security:
+    - bearerAuth: []
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/ModId}
+    - {$ref: ../../openapi.yaml#/components/parameters/VersionId}
+    responses:
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '204': {description: Version deleted}
+    operationId: deleteVersion
+    description: Mod owner or administrator access.
+  get:
+    tags: [Versions]
+    summary: Get a mod version
+    operationId: getModVersion
+    description: Approved versions are public. Pending and rejected versions are visible only to the mod owner and
+      administrators. A version belonging to another mod returns 404.
+    security:
+    - {}
+    - bearerAuth: []
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/ModId}
+    - {$ref: ../../openapi.yaml#/components/parameters/VersionId}
+    responses:
+      '200':
+        description: Mod version
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/Version}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/Version}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}

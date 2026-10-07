@@ -1,0 +1,29 @@
+Game:
+  value:
+    id: example-game
+    name: Example Game
+    description: null
+    imagePath: game.png
+    _links:
+      self: {href: /api/v2/games/example-game, method: GET}
+      mods: {href: /api/v2/mods, method: GET}
+GameCreateRequest:
+  value: {name: Example Game, image: PNG binary}
+GamePage:
+  value:
+    page: 0
+    size: 20
+    totalElements: 1
+    totalPages: 1
+    empty: false
+    content:
+    - id: example-game
+      name: Example Game
+      description: null
+      imagePath: game.png
+      _links:
+        self: {href: /api/v2/games/example-game, method: GET}
+    _links:
+      self: {href: /api/v2/games?page=0&size=20, method: GET}
+      first: {href: /api/v2/games?page=0&size=20, method: GET}
+      last: {href: /api/v2/games?page=0&size=20, method: GET}

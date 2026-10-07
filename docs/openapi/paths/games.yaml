@@ -1,0 +1,103 @@
+games:
+  get:
+    tags: [Games]
+    summary: List games
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/Page}
+    - {$ref: ../../openapi.yaml#/components/parameters/Size}
+    - name: name
+      in: query
+      schema: {type: string}
+    - {$ref: ../../openapi.yaml#/components/parameters/SortName}
+    responses:
+      '200':
+        description: Game page
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/GamePage}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/GamePage}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+    operationId: listGames
+    security: []
+    description: Public operation.
+  post:
+    tags: [Games]
+    summary: Create a game
+    security:
+    - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema: {$ref: ../../openapi.yaml#/components/schemas/GameCreateRequest}
+          examples:
+            default: {$ref: ../../openapi.yaml#/components/examples/GameCreateRequest}
+    responses:
+      '201':
+        description: Created game
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/Game}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/Game}
+        headers:
+          Location:
+            required: true
+            description: URI of the created resource; supports GET.
+            schema: {type: string, format: uri-reference}
+            example: /api/v2/games/example-game
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '409': {$ref: ../../openapi.yaml#/components/responses/Conflict}
+      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+      '413': {$ref: ../../openapi.yaml#/components/responses/PayloadTooLarge}
+    operationId: createGame
+    description: Administrator access.
+games/{gameId}:
+  get:
+    tags: [Games]
+    summary: Get a game
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/GameId}
+    responses:
+      '200':
+        description: Game
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/Game}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/Game}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+    operationId: getGame
+    security: []
+    description: Public operation.
+  delete:
+    tags: [Games]
+    summary: Delete a game
+    security:
+    - bearerAuth: []
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/GameId}
+    responses:
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '204': {description: Game deleted}
+    operationId: deleteGame
+    description: Administrator access.

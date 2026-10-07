@@ -1,0 +1,49 @@
+Category:
+  type: object
+  required: [name, _links]
+  properties:
+    name: {type: string}
+    description:
+      type: [string, 'null']
+    _links: {$ref: ../../openapi.yaml#/components/schemas/Links}
+  examples:
+  - name: Utility
+    description: Quality-of-life mods
+    _links:
+      self: {href: /api/v2/categories/Utility, method: GET}
+CategoryCollection:
+  type: object
+  required: [items, _links]
+  additionalProperties: false
+  properties:
+    items:
+      type: array
+      items: {$ref: '#/Category'}
+    _links: {$ref: ../../openapi.yaml#/components/schemas/PageLinks}
+  examples:
+  - items:
+    - name: Utility
+      description: Quality-of-life mods
+      _links:
+        self: {href: /api/v2/categories/Utility, method: GET}
+    _links:
+      self: {href: /api/v2/categories, method: GET}
+CategoryRequest:
+  type: object
+  required: [name]
+  properties:
+    name: {type: string, minLength: 1, maxLength: 50, pattern: .*\S.*}
+    description:
+      type: [string, 'null']
+  additionalProperties: false
+  examples:
+  - {name: Utility, description: Quality-of-life mods}
+CategoryPatchRequest:
+  type: object
+  additionalProperties: false
+  required: [description]
+  properties:
+    description:
+      type: [string, 'null']
+  examples:
+  - {description: Updated description}

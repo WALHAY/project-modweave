@@ -1,0 +1,108 @@
+mods:
+  get:
+    tags: [Mods]
+    summary: List mods
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/Page}
+    - {$ref: ../../openapi.yaml#/components/parameters/Size}
+    - name: name
+      in: query
+      schema: {type: string}
+    - {$ref: ../../openapi.yaml#/components/parameters/SortName}
+    responses:
+      '200':
+        description: Mod page
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/ModPage}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/ModPage}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+    operationId: listMods
+    security:
+    - {}
+    - bearerAuth: []
+    description: Public catalogue includes mods with an approved version. Administrators also see mods awaiting
+      their first approval, so moderation can start from this catalogue.
+  post:
+    tags: [Mods]
+    summary: Upload a mod with its first version
+    security:
+    - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema: {$ref: ../../openapi.yaml#/components/schemas/ModUploadRequest}
+          examples:
+            default: {$ref: ../../openapi.yaml#/components/examples/ModUploadRequest}
+    responses:
+      '201':
+        description: Created mod
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/Mod}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/Mod}
+        headers:
+          Location:
+            required: true
+            description: URI of the created resource; supports GET.
+            schema: {type: string, format: uri-reference}
+            example: /api/v2/mods/example-mod
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '409': {$ref: ../../openapi.yaml#/components/responses/Conflict}
+      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+      '413': {$ref: ../../openapi.yaml#/components/responses/PayloadTooLarge}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+    operationId: createMod
+    description: Authenticated author for creation; owner or administrator for deletion access.
+mods/{modId}:
+  get:
+    tags: [Mods]
+    summary: Get a mod
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/ModId}
+    responses:
+      '200':
+        description: Mod
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/Mod}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/Mod}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+    operationId: getMod
+    security: []
+    description: Public operation.
+  delete:
+    tags: [Mods]
+    summary: Delete a mod
+    security:
+    - bearerAuth: []
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/ModId}
+    responses:
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '204': {description: Mod deleted}
+    operationId: deleteMod
+    description: Authenticated author for creation; owner or administrator for deletion access.

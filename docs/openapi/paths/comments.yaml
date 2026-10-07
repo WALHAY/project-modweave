@@ -1,0 +1,102 @@
+comments:
+  post:
+    tags: [Comments]
+    summary: Create a comment
+    security:
+    - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema: {$ref: ../../openapi.yaml#/components/schemas/CommentCreateRequest}
+          examples:
+            default: {$ref: ../../openapi.yaml#/components/examples/CommentCreateRequest}
+    responses:
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '201':
+        description: Created comment
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/Comment}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/Comment}
+        headers:
+          Location:
+            description: URI of the created resource.
+            required: true
+            schema: {type: string}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '409': {$ref: ../../openapi.yaml#/components/responses/Conflict}
+      '415': {$ref: ../../openapi.yaml#/components/responses/UnsupportedMediaType}
+    operationId: createComment
+    description: Authenticated user for creation; comment author or administrator for deletion access.
+  get:
+    tags: [Comments]
+    summary: List comments for a mod
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - name: modId
+      in: query
+      required: true
+      schema: {type: string}
+      example: example-mod
+    - {$ref: ../../openapi.yaml#/components/parameters/Page}
+    - {$ref: ../../openapi.yaml#/components/parameters/Size}
+    responses:
+      '200':
+        description: Comments ordered by publish date, then id
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/CommentPage}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/CommentPage}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+    operationId: listModComments
+    security: []
+    description: Public operation. An unknown modId filter returns an empty page.
+comments/{commentId}:
+  delete:
+    tags: [Comments]
+    summary: Delete a comment
+    security:
+    - bearerAuth: []
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/CommentId}
+    responses:
+      '401': {$ref: ../../openapi.yaml#/components/responses/Unauthorized}
+      '403': {$ref: ../../openapi.yaml#/components/responses/Forbidden}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+      '204': {description: Comment deleted}
+    operationId: deleteComment
+    description: Authenticated user for creation; comment author or administrator for deletion access.
+  get:
+    tags: [Comments]
+    summary: Get a comment
+    parameters:
+    - {$ref: ../../openapi.yaml#/components/parameters/IfNoneMatch}
+    - {$ref: ../../openapi.yaml#/components/parameters/CommentId}
+    responses:
+      '200':
+        description: Comment
+        content:
+          application/json:
+            schema: {$ref: ../../openapi.yaml#/components/schemas/Comment}
+            examples:
+              default: {$ref: ../../openapi.yaml#/components/examples/Comment}
+        headers:
+          Cache-Control: {$ref: ../../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../../openapi.yaml#/components/headers/LastModified}
+      '304': {$ref: ../../openapi.yaml#/components/responses/NotModified}
+      '404': {$ref: ../../openapi.yaml#/components/responses/NotFound}
+      '400': {$ref: ../../openapi.yaml#/components/responses/BadRequest}
+    operationId: getComment
+    security: []
+    description: Public operation.

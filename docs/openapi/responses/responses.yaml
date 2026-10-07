@@ -1,0 +1,30 @@
+CacheControl:
+  description: Cache policy for the representation.
+  schema: {type: string}
+  example: public, max-age=60
+ETag:
+  description: Entity tag for conditional requests.
+  schema: {type: string}
+  example: '"abc123"'
+LastModified:
+  description: Last modification time of the representation.
+  schema: {type: string, format: http-date}
+  example: Wed, 07 Oct 2026 16:00:00 GMT
+Link:
+  description: Hypermedia link to the canonical file resource.
+  schema: {type: string}
+  example: </api/v2/files/00000000-0000-0000-0000-000000000001>; rel="self"
+NotModified:
+  description: The representation has not changed since the supplied validator.
+  headers:
+    Cache-Control: {$ref: '#/CacheControl'}
+    ETag: {$ref: '#/ETag'}
+    Last-Modified: {$ref: '#/LastModified'}
+Unauthorized: {description: Authentication is required or credentials are invalid}
+Forbidden: {description: Authenticated user lacks permission}
+NotFound: {description: Resource not found}
+Conflict: {description: Resource conflicts with an existing resource}
+BadRequest: {description: 'Missing or malformed parameter/body, invalid UUID or enum, failed validation, duplicate
+    collection member or invalid index.'}
+UnsupportedMediaType: {description: Request Content-Type is not supported.}
+PayloadTooLarge: {description: Multipart upload exceeds the configured size limit.}

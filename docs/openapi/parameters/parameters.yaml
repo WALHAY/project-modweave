@@ -1,0 +1,107 @@
+IfNoneMatch:
+  name: If-None-Match
+  in: header
+  required: false
+  schema: {type: string}
+  description: Entity tag previously returned by the server for conditional GET.
+  example: '"abc123"'
+Page:
+  name: page
+  in: query
+  required: true
+  schema: {type: integer, minimum: 0, default: 0}
+  description: Zero-based page number; required.
+  example: 0
+Size:
+  name: size
+  in: query
+  required: true
+  schema: {type: integer, minimum: 1, default: 20}
+  description: Requested page size; required. Values above the configured limit are capped (100 by default).
+  example: 20
+SortName:
+  name: sort
+  in: query
+  schema: {type: string, default: 'name,asc'}
+  description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields. Supported
+    properties: name, id.'
+  example: name,asc
+SortUsername:
+  name: sort
+  in: query
+  schema: {type: string, default: 'username,asc'}
+  description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields. Supported
+    properties: username, name.'
+  example: username,asc
+SortIdDesc:
+  name: sort
+  in: query
+  schema: {type: string, default: 'id,desc'}
+  description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields. Supported
+    properties: id, name, uploadDate.'
+  example: id,desc
+SortIndex:
+  name: sort
+  in: query
+  schema: {type: string, default: 'index,asc'}
+  description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields. Supported
+    properties: index.'
+  example: index,asc
+Username:
+  name: username
+  in: path
+  required: true
+  schema:
+    type: string
+    not: {const: me}
+  description: Username resource identifier; the reserved value `me` is not allowed because `/users/me` is the authenticated-user endpoint.
+  example: author
+GameId:
+  name: gameId
+  in: path
+  required: true
+  schema: {type: string}
+  description: gameId resource identifier.
+  example: example-game
+ModId:
+  name: modId
+  in: path
+  required: true
+  schema: {type: string}
+  description: modId resource identifier.
+  example: example-mod
+VersionId:
+  name: versionId
+  in: path
+  required: true
+  schema: {type: string, format: uuid}
+  description: versionId resource identifier.
+  example: 00000000-0000-0000-0000-000000000001
+CommentId:
+  name: commentId
+  in: path
+  required: true
+  schema: {type: string, format: uuid}
+  description: commentId resource identifier.
+  example: 00000000-0000-0000-0000-000000000001
+CollectionId:
+  name: collectionId
+  in: path
+  required: true
+  schema: {type: string, format: uuid}
+  description: collectionId resource identifier.
+  example: 00000000-0000-0000-0000-000000000001
+FileId:
+  name: fileId
+  in: path
+  required: true
+  schema: {type: string, format: uuid}
+  description: fileId resource identifier.
+  example: 00000000-0000-0000-0000-000000000001
+CategoryName:
+  name: categoryName
+  in: path
+  required: true
+  description: Category name, compared without case; URL-encode special characters.
+  schema: {type: string, minLength: 1, maxLength: 50}
+  example: Utility

@@ -1,0 +1,30 @@
+Comment:
+  value:
+    id: 00000000-0000-0000-0000-000000000001
+    content: Works well
+    publishDate: '2026-10-06T12:00:00'
+    authorId: author
+    _links:
+      self: {href: /api/v2/comments/00000000-0000-0000-0000-000000000001, method: GET}
+      mod: {href: /api/v2/mods/example-mod, method: GET}
+      author: {href: /api/v2/users/author, method: GET}
+CommentCreateRequest:
+  value: {content: Works well, modId: example-mod}
+CommentPage:
+  value:
+    page: 0
+    size: 20
+    totalElements: 1
+    totalPages: 1
+    empty: false
+    content:
+    - id: 00000000-0000-0000-0000-000000000001
+      content: Works well
+      publishDate: '2026-10-06T12:00:00'
+      authorId: author
+      _links:
+        self: {href: /api/v2/comments/00000000-0000-0000-0000-000000000001, method: GET}
+    _links:
+      self: {href: /api/v2/comments?modId=example-mod&page=0&size=20, method: GET}
+      first: {href: /api/v2/comments?modId=example-mod&page=0&size=20, method: GET}
+      last: {href: /api/v2/comments?modId=example-mod&page=0&size=20, method: GET}

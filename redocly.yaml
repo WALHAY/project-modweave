@@ -1,0 +1,14 @@
+extends:
+  - minimal
+apis:
+  modweave:
+    root: docs/openapi.yaml
+    rules:
+      no-unresolved-refs: error
+      operation-operationId: error
+      operation-operationId-unique: error
+      no-invalid-media-type-examples: error
+      no-invalid-parameter-examples: error
+      no-invalid-schema-examples: error
+  mock:
+    root: docs/mock.arazzo.yaml
