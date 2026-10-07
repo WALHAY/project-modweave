@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.AuthenticationException
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
@@ -36,8 +37,7 @@ class AuthController(
     val authentication =
         authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(dto.username, dto.password))
-    return createTokenResponse(
-        authentication.principal as org.springframework.security.core.userdetails.UserDetails)
+    return createTokenResponse(authentication.principal as UserDetails)
   }
 
   @PostMapping("/refresh")
@@ -64,7 +64,7 @@ class AuthController(
   }
 
   private fun createTokenResponse(
-      userDetails: org.springframework.security.core.userdetails.UserDetails,
+      userDetails: UserDetails,
   ): TokenResponseDto =
       TokenResponseDto(
           accessToken = jwtService.generateAccessToken(userDetails),
