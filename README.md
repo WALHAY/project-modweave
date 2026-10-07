@@ -37,11 +37,11 @@ ModWeave - платформа игровых модификаций.
 
 ## Use-Case диаграмма
 
-![Use-Case](./docs/use-case.svg)
+![Use-Case](docs/images/use-case.svg)
 
 ## ER-диаграмма сущностей
 
-![ER](docs/er.svg)
+![ER](docs/images/er.svg)
 
 ## Пользовательские сценарии
 
@@ -67,7 +67,7 @@ ModWeave - платформа игровых модификаций.
 
 ## BPMN
 
-![BPMN](./docs/bpmn.svg)
+![BPMN](docs/images/bpmn.svg)
 
 ## Запуск
 
