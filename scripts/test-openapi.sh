@@ -19,5 +19,5 @@ sleep 3
 echo "Running Arazzo..."
 
 npx --yes @redocly/cli@2.58.2 respect \
-  docs/arazzo.yaml \
+  docs/openapi/arazzo.yaml \
   --server "modweave=http://localhost:$PORT"
