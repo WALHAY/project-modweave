@@ -1,4 +1,4 @@
-rootProject.name = 'modweave'
+rootProject.name = 'ModWeave'
 
 include ':layers:data-access'
 include ':layers:business-logic'
