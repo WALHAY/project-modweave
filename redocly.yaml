@@ -2,7 +2,7 @@ extends:
   - minimal
 apis:
   modweave:
-    root: docs/openapi/openapi.yaml
+    root: openapi/openapi.yaml
     rules:
       no-unresolved-refs: error
       operation-operationId: error
@@ -11,4 +11,4 @@ apis:
       no-invalid-parameter-examples: error
       no-invalid-schema-examples: error
   mock:
-    root: docs/openapi/arazzo.yaml
+    root: openapi/arazzo.yaml
