@@ -79,12 +79,14 @@ class ApiContractTest {
       data: ByteArray? = null,
       contentType: String? = null,
       token: String? = null,
+      headers: Map<String, String> = emptyMap(),
   ): HttpResponse<ByteArray> {
     val request =
         HttpRequest.newBuilder(URI.create("http://127.0.0.1:$port$path"))
             .timeout(Duration.ofSeconds(30))
     if (contentType != null) request.header("Content-Type", contentType)
     if (token != null) request.header("Authorization", "Bearer $token")
+    headers.forEach { (name, value) -> request.header(name, value) }
     request.method(
         method,
         data?.let { HttpRequest.BodyPublishers.ofByteArray(it) }
@@ -129,8 +131,26 @@ class ApiContractTest {
     assertNotNull(declared, "$id does not declare $expected")
     val responseContract = resolve(declared)
     responseContract["headers"]?.properties()?.forEach { (name, header) ->
-      if (header["required"]?.asBoolean() == true)
+      if (resolve(header)["required"]?.asBoolean() == true ||
+          name in setOf("Cache-Control", "ETag", "Last-Modified", "Link"))
           assertTrue(response.headers().firstValue(name).isPresent, name)
+    }
+    if (operationEntry.key == "get" && expected == 200 && operation["responses"].has("304")) {
+      val etag = response.headers().firstValue("ETag").orElseThrow()
+      val cached = raw("GET", path, token = token, headers = mapOf("If-None-Match" to etag))
+      assertEquals(
+          304,
+          cached.statusCode(),
+          "$id must support conditional GET: ${cached.body().decodeToString()}")
+      assertEquals(0, cached.body().size, "$id 304 must have no body")
+      for (header in listOf("Cache-Control", "ETag", "Last-Modified", "Vary")) {
+        assertEquals(
+            response.headers().firstValue(header),
+            cached.headers().firstValue(header),
+            "$id $header")
+      }
+      assertTrue(response.headers().firstValue("Cache-Control").orElse("").contains("private"))
+      assertTrue(response.headers().firstValue("Vary").orElse("").contains("Authorization"))
     }
     visited += id
     if (responseContract.has("content")) {
@@ -143,6 +163,7 @@ class ApiContractTest {
       } else {
         val value = mapper.readTree(response.body())
         validateResponse(responseContract["content"][media]["schema"], value)
+        if (expected in 200..299 && id !in setOf("login", "refreshTokens")) validateLinks(value)
         if (expected == 201) {
           val location = response.headers().firstValue("Location").orElseThrow()
           assertTrue(location.startsWith("/api/v2/"), location)
@@ -170,6 +191,28 @@ class ApiContractTest {
       }
 
   private fun page() = mapOf("page" to "0", "size" to "20")
+
+  private fun validateLinks(value: JsonNode) {
+    val links = value["_links"]
+    assertNotNull(links, "Every resource and collection needs hypermedia")
+    assertEquals("GET", links["self"]["method"].asText())
+    links.properties().forEach { (_, link) ->
+      assertTrue(link["href"].asText().startsWith("/api/v2/"))
+      assertFalse(link["href"].asText().contains("{"), "Links must be directly usable")
+    }
+    for (field in listOf("content", "items", "files")) {
+      value[field]?.takeIf { it.isArray }?.forEach { validateLinks(it) }
+    }
+  }
+
+  private fun follow(value: JsonNode, relation: String, token: String? = null): JsonNode {
+    val link = value["_links"][relation]
+    assertNotNull(link, relation)
+    assertEquals("GET", link["method"].asText())
+    val response = raw("GET", link["href"].asText(), token = token)
+    assertEquals(200, response.statusCode(), "$relation: ${response.body().decodeToString()}")
+    return mapper.readTree(response.body())
+  }
 
   private fun register(username: String, admin: Boolean = false): String {
     call(
@@ -337,7 +380,18 @@ class ApiContractTest {
     assertEquals("PENDING", version["status"].asText())
     val versionPath = modPath + ("versionId" to version["id"].asText())
     val filePath = mapOf("fileId" to version["files"][0]["id"].asText())
-    assertTrue(call("listModVersions", pathValues = modPath, query = page())["content"].isEmpty)
+    call("getMod", 404, modPath)
+    call("getMod", 404, modPath, token = outsider)
+    call("listModVersions", 404, modPath, query = page())
+    val privateMod = raw("GET", "/api/v2/mods/$mod", token = author)
+    assertEquals(
+        404,
+        raw(
+                "GET",
+                "/api/v2/mods/$mod",
+                headers =
+                    mapOf("If-None-Match" to privateMod.headers().firstValue("ETag").orElseThrow()))
+            .statusCode())
     call("downloadFile", 403, filePath, token = outsider)
     call("getModVersion", pathValues = versionPath, token = author)
     call("getModVersion", 403, versionPath, token = outsider)
@@ -360,6 +414,26 @@ class ApiContractTest {
         token = admin)
     call("getModVersion", pathValues = versionPath)
     call("downloadFile", pathValues = filePath)
+    val fileUrl = version["files"][0]["_links"]["download"]["href"].asText()
+    val downloaded = raw("GET", fileUrl)
+    val downloads =
+        jdbc.queryForObject(
+            "select downloads from modweave.files where id = ?::uuid",
+            Int::class.java,
+            filePath["fileId"])
+    val cachedDownload =
+        raw(
+            "GET",
+            fileUrl,
+            headers =
+                mapOf("If-None-Match" to downloaded.headers().firstValue("ETag").orElseThrow()))
+    assertEquals(304, cachedDownload.statusCode())
+    assertEquals(
+        downloads,
+        jdbc.queryForObject(
+            "select downloads from modweave.files where id = ?::uuid",
+            Int::class.java,
+            filePath["fileId"]))
     assertEquals(200, raw("GET", "/api/v1/files/${filePath["fileId"]}/download").statusCode())
     assertEquals(
         200,
@@ -383,6 +457,8 @@ class ApiContractTest {
             body = mapOf("content" to "Works well", "modId" to mod),
             token = author)
     val commentPath = mapOf("commentId" to comment["id"].asText())
+    assertEquals(mod, follow(comment, "mod")["id"].asText())
+    assertEquals("author", follow(comment, "author")["username"].asText())
     call("getComment", pathValues = commentPath)
     assertEquals(
         1, call("listModComments", query = page() + ("modId" to mod))["totalElements"].asInt())
@@ -390,21 +466,59 @@ class ApiContractTest {
     val collection =
         call("createCollection", 201, body = mapOf("name" to "Favorites"), token = author)
     val collectionPath = mapOf("collectionId" to collection["id"].asText())
+    assertTrue(follow(collection, "mods")["content"].isEmpty)
     call("getCollection", pathValues = collectionPath)
     call("listUserCollections", pathValues = mapOf("username" to "author"), query = page())
-    call("addCollectionMod", 403, collectionPath, mapOf("modId" to mod), token = outsider)
+    call("addCollectionMod", 403, collectionPath, body = mapOf("modId" to mod), token = outsider)
+    for (body in
+        listOf(
+            emptyMap(),
+            mapOf("modId" to mod, "index" to -1),
+            mapOf("modId" to mod, "index" to 0.5),
+            mapOf("modId" to mod, "index" to null),
+            mapOf("modId" to mod, "extra" to true),
+            mapOf("modId" to 123))) {
+      call("addCollectionMod", 400, collectionPath, body = body, token = author)
+    }
     call(
         "addCollectionMod",
         pathValues = collectionPath,
-        query = mapOf("modId" to mod),
+        body = mapOf("modId" to mod),
         token = author)
-    call("addCollectionMod", 400, collectionPath, mapOf("modId" to mod), token = author)
+    call("addCollectionMod", 400, collectionPath, body = mapOf("modId" to mod), token = author)
     assertEquals(
         mod,
         call("listCollectionMods", pathValues = collectionPath, query = page())["content"][0]["id"]
             .asText())
     call("removeCollectionMod", 204, pathValues = collectionPath + ("modId" to mod), token = author)
     call("removeCollectionMod", 204, pathValues = collectionPath + ("modId" to mod), token = author)
+    call(
+        "moderateVersion",
+        pathValues = versionPath,
+        body = mapOf("status" to "REJECTED"),
+        token = admin)
+    assertEquals(
+        403,
+        raw(
+                "GET",
+                fileUrl,
+                headers =
+                    mapOf("If-None-Match" to downloaded.headers().firstValue("ETag").orElseThrow()))
+            .statusCode())
+    call("getMod", 404, modPath)
+    call("getMod", pathValues = modPath, token = author)
+    call("getComment", 404, commentPath)
+    assertTrue(call("listModComments", query = page() + ("modId" to mod))["content"].isEmpty)
+    call(
+        "createComment",
+        404,
+        body = mapOf("content" to "Hidden mod", "modId" to mod),
+        token = outsider)
+    call(
+        "moderateVersion",
+        pathValues = versionPath,
+        body = mapOf("status" to "APPROVED"),
+        token = admin)
     call("deleteCollection", 204, pathValues = collectionPath, token = author)
     call("getCollection", 404, pathValues = collectionPath)
     call("deleteComment", 204, pathValues = commentPath, token = author)
@@ -433,6 +547,73 @@ class ApiContractTest {
   }
 
   @Test
+  fun `hypermedia pagination and conditional requests remain usable after changes`() {
+    val admin = register("admin", true)
+    val alpha = register("alpha")
+    register("alpine")
+    call("updateCurrentUser", body = mapOf("name" to "Different display name"), token = alpha)
+    val firstResponse =
+        raw("GET", "/api/v2/users?page=0&size=1&username=al&sort=name,asc&sort=username,desc")
+    assertEquals(200, firstResponse.statusCode())
+    val first = mapper.readTree(firstResponse.body())
+    validateLinks(first)
+    assertEquals(
+        2, first["totalElements"].asInt(), "username filters the login, not the display name")
+    assertFalse(first["_links"].has("previous"))
+    val nextUrl = first["_links"]["next"]["href"].asText()
+    assertTrue(nextUrl.contains("username=al"))
+    assertTrue(nextUrl.contains("sort=name,asc&sort=username,desc"))
+    val second = follow(first, "next")
+    assertEquals(1, second["page"].asInt())
+    assertFalse(second["_links"].has("next"))
+    assertNotEquals(first["content"][0]["username"], second["content"][0]["username"])
+    assertEquals(first, follow(second, "previous"))
+    val user = follow(first["content"][0], "self")
+    assertTrue(follow(user, "mods")["content"].isEmpty)
+    assertTrue(follow(user, "collections")["content"].isEmpty)
+    val capped = call("listUsers", query = mapOf("page" to "0", "size" to "9999"))
+    assertEquals(100, capped["size"].asInt())
+    assertTrue(capped["_links"]["self"]["href"].asText().contains("size=100"))
+    val empty = call("listUsers", query = page() + ("username" to "missing"))
+    assertFalse(empty["_links"].has("next"))
+    assertEquals(empty, follow(empty, "last"))
+    call("listUsers", 400, query = page() + ("sort" to "password,asc"))
+    call("listGames", 400, query = page() + ("sort" to "missing,asc"))
+    call("listMods", 400, query = page() + ("sort" to "publisher.password,asc"))
+
+    val category =
+        call("createCategory", 201, body = mapOf("name" to "Моды + утилиты"), token = admin)
+    val self = category["_links"]["self"]["href"].asText()
+    assertEquals("Моды + утилиты", follow(category, "self")["name"].asText())
+    assertEquals("PATCH", category["_links"]["update"]["method"].asText())
+    val guestResponse = raw("GET", self)
+    val guest = mapper.readTree(guestResponse.body())
+    assertFalse(guest["_links"].has("update"))
+    assertFalse(guest["_links"].has("delete"))
+    val etag = guestResponse.headers().firstValue("ETag").orElseThrow()
+    for (validator in listOf(etag, etag.removePrefix("W/"), "\"unrelated\", $etag", "*")) {
+      val cached = raw("GET", self, headers = mapOf("If-None-Match" to validator))
+      assertEquals(304, cached.statusCode())
+      assertEquals(0, cached.body().size)
+    }
+    assertEquals(
+        200,
+        raw("GET", self, token = admin, headers = mapOf("If-None-Match" to etag)).statusCode(),
+        "Admin representation has additional action links")
+    call(
+        "updateCategory",
+        pathValues = mapOf("categoryName" to "Моды + утилиты"),
+        body = mapOf("description" to "Changed"),
+        token = admin)
+    val changed = raw("GET", self, headers = mapOf("If-None-Match" to etag))
+    assertEquals(200, changed.statusCode())
+    assertNotEquals(etag, changed.headers().firstValue("ETag").orElseThrow())
+    assertEquals("Changed", mapper.readTree(changed.body())["description"].asText())
+    call("deleteCategory", 204, mapOf("categoryName" to "Моды + утилиты"), token = admin)
+    assertEquals(404, raw("GET", self, headers = mapOf("If-None-Match" to "*")).statusCode())
+  }
+
+  @Test
   fun `v1 remains usable and Swagger serves the authoritative contract and local assets`() {
     val admin = register("admin", true)
     val legacy =
@@ -444,6 +625,9 @@ class ApiContractTest {
             admin)
     assertEquals(201, legacy.statusCode())
     assertEquals(200, raw("GET", "/api/v1/categories").statusCode())
+    val v1Categories = mapper.readTree(raw("GET", "/api/v1/categories").body())
+    assertTrue(v1Categories.isArray)
+    assertFalse(v1Categories[0].has("_links"))
     assertEquals(
         "FromV1",
         call("getCategory", pathValues = mapOf("categoryName" to "Legacy"))["description"].asText())
@@ -487,6 +671,9 @@ class ApiContractTest {
         valid.deepCopy<com.fasterxml.jackson.databind.node.ObjectNode>().apply { remove("name") }
     val schema = mapper.readTree("""{"${'$'}ref":"#/components/schemas/Category"}""")
     assertThrows(AssertionError::class.java) { validateResponse(schema, broken) }
+    val withoutLinks =
+        valid.deepCopy<com.fasterxml.jackson.databind.node.ObjectNode>().apply { remove("_links") }
+    assertThrows(AssertionError::class.java) { validateResponse(schema, withoutLinks) }
     validateResponse(schema, valid)
   }
 }

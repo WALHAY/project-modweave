@@ -19,13 +19,17 @@ class CategoryController(
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  @GetMapping
+  @GetMapping(version = "1")
   fun getCategories(): List<CategoryResponseDto> {
     logger.debug { "GET /categories" }
     return categoryService.getCategories().map { CategoryResponseDto.fromCategory(it) }
   }
 
-  @PostMapping(version = "1")
+  @GetMapping(version = "2")
+  fun listCategories(): CategoryCollectionDto = CategoryCollectionDto(getCategories())
+
+  @PostMapping(
+      version = "1", consumes = ["application/x-www-form-urlencoded", "multipart/form-data"])
   @ResponseStatus(HttpStatus.CREATED)
   fun uploadCategory(
       @Valid @ModelAttribute dto: CategoryUploadDto,
@@ -44,7 +48,8 @@ class CategoryController(
     categoryService.deleteCategory(CategoryId(category))
   }
 
-  @PatchMapping(version = "1")
+  @PatchMapping(
+      version = "1", consumes = ["application/x-www-form-urlencoded", "multipart/form-data"])
   fun updateCategory(
       @Valid @ModelAttribute dto: CategoryUpdateDto,
   ): CategoryResponseDto {
@@ -62,7 +67,7 @@ class CategoryController(
           ?.let { CategoryResponseDto.fromCategory(it) }
           ?: throw CategoryNotFoundException(CategoryId(categoryName))
 
-  @PostMapping(version = "2")
+  @PostMapping(version = "2", consumes = ["application/json"])
   fun createCategory(@RequestBody body: Map<String, Any?>): ResponseEntity<CategoryResponseDto> {
     require(body.keys.all { it in setOf("name", "description") }) { "Unknown category field" }
     val name = body["name"]
@@ -73,13 +78,13 @@ class CategoryController(
     val result = uploadCategory(CategoryUploadDto(name, description))
     val location =
         UriComponentsBuilder.fromPath("/api/v2/categories/{name}")
-            .buildAndExpand(result.name)
             .encode()
+            .buildAndExpand(result.name)
             .toUri()
     return ResponseEntity.created(location).body(result)
   }
 
-  @PatchMapping("/{categoryName}", version = "2")
+  @PatchMapping("/{categoryName}", version = "2", consumes = ["application/json"])
   fun patchCategory(
       @PathVariable categoryName: String,
       @RequestBody body: Map<String, Any?>,

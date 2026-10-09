@@ -44,7 +44,11 @@ class HttpAndValidationTest {
             .build()
     mvc.perform(delete("/games/example")).andExpect(status().isOk)
     verify(gameService).deleteGame(git.walhay.modweave.api.game.GameId("example"))
-    mvc.perform(post("/comments").param("content", "Hello").param("modId", "example"))
+    mvc.perform(
+            post("/comments")
+                .contentType("application/x-www-form-urlencoded")
+                .param("content", "Hello")
+                .param("modId", "example"))
         .andExpect(status().isUnauthorized)
   }
 

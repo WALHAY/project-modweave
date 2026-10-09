@@ -112,12 +112,7 @@ subprojects {
 }
 
 tasks.named('processResources') {
-  dependsOn 'bundleOpenApi'
   from('sql') { include 'init.sql', 'storage-cleanup.sql' }
-  from('build/generated/openapi') {
-    include 'openapi.yaml'
-    into 'static/api/v2'
-  }
 }
 
 apply from: 'gradle/scripts/openapi.gradle'

@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.collection.http.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import git.walhay.modweave.api.collection.Collection
 import java.util.UUID
 
@@ -7,6 +8,7 @@ data class CollectionResponseDto(
     val id: UUID,
     val name: String,
     val description: String?,
+    @get:JsonIgnore val ownerId: String = "",
 ) {
   companion object {
     fun fromCollection(collection: Collection): CollectionResponseDto =
@@ -14,6 +16,7 @@ data class CollectionResponseDto(
             id = collection.id.value,
             name = collection.name,
             description = collection.description,
+            ownerId = collection.owner.value,
         )
   }
 }

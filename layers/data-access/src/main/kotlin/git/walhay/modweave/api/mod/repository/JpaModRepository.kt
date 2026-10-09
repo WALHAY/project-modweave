@@ -16,8 +16,8 @@ class JpaModRepository(
     private val repository: SpringDataModRepository,
 ) : ModRepository {
   override fun findById(modId: ModId, visibleStatus: VersionStatus?): Mod? =
-      (visibleStatus?.let { repository.findByIdWithVersionStatus(modId.value, it) }
-              ?: repository.findByIdOrNull(modId.value))
+      (if (visibleStatus != null) repository.findByIdWithVersionStatus(modId.value, visibleStatus)
+          else repository.findByIdOrNull(modId.value))
           ?.toDomain()
 
   override fun deleteById(modId: ModId) = repository.deleteById(modId.value)

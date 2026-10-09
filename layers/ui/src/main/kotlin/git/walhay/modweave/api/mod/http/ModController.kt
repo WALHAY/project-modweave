@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.mod.http
 
+import git.walhay.modweave.api.common.http.forApi
 import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
@@ -48,7 +49,9 @@ class ModController(
       @SortDefault(sort = ["name"]) sort: Sort,
   ): Page<ModResponseDto> {
     logger.debug { "GET /mods - page: $page, size: $size, name: $name" }
-    return modService.findModsWithFilter(page, size, name, sort).map { ModResponseDto.fromMod(it) }
+    return modService.findModsWithFilter(page, size, name, sort.forApi("name", "id")).map {
+      ModResponseDto.fromMod(it)
+    }
   }
 
   @GetMapping("/{modId}/versions")
@@ -63,7 +66,9 @@ class ModController(
     modService.findModById(ModId(modId))
     return versionService
         .getModVersions(
-            user?.username?.let { UserId(it) }, ModId(modId), PageRequest.of(page, size, sort))
+            user?.username?.let { UserId(it) },
+            ModId(modId),
+            PageRequest.of(page, size, sort.forApi("id", "name", "uploadDate")))
         .map { VersionResponseDto.fromVersion(it) }
   }
 

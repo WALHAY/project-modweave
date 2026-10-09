@@ -4,6 +4,7 @@ import git.walhay.modweave.api.collection.CollectionId
 import git.walhay.modweave.api.collection.ICollectionService
 import git.walhay.modweave.api.collection.http.dto.CollectionCreateDto
 import git.walhay.modweave.api.collection.http.dto.CollectionResponseDto
+import git.walhay.modweave.api.common.http.forApi
 import git.walhay.modweave.api.common.paging.Page
 import git.walhay.modweave.api.mod.IModService
 import git.walhay.modweave.api.mod.ModId
@@ -52,9 +53,10 @@ class CollectionController(
   ): Page<ModResponseDto> {
     logger.info { "GET /collections/$collectionId/mods - page: $page, size: $size" }
     collectionService.getCollectionById(CollectionId(collectionId))
-    return modService.findModsInCollection(CollectionId(collectionId), page, size, sort).map {
-      ModResponseDto.fromMod(it)
-    }
+    return modService
+        .findModsInCollection(
+            CollectionId(collectionId), page, size, sort.forApi("index", identity = "index"))
+        .map { ModResponseDto.fromMod(it) }
   }
 
   @PostMapping(
@@ -93,13 +95,21 @@ class CollectionController(
         .let { CollectionResponseDto.fromCollection(it) }
   }
 
-  @PostMapping("/{collectionId}/mods", version = "2")
+  @PostMapping("/{collectionId}/mods", version = "2", consumes = ["application/json"])
   fun insertMod(
       @PathVariable collectionId: UUID,
-      @RequestParam modId: String,
-      @RequestParam(required = false) @Min(0) index: Int?,
+      @RequestBody body: Map<String, Any?>,
       @AuthenticationPrincipal user: UserDetails?,
-  ): CollectionResponseDto = addModToCollection(collectionId, modId, index, user)
+  ): CollectionResponseDto {
+    require(body.keys.all { it in setOf("modId", "index") }) { "Unknown collection member field" }
+    val modId = body["modId"]
+    require(modId is String && modId.isNotEmpty()) { "modId is required" }
+    val index = body["index"]
+    require(!body.containsKey("index") || (index is Int && index >= 0)) {
+      "index must be a non-negative integer"
+    }
+    return addModToCollection(collectionId, modId, index as Int?, user)
+  }
 
   @DeleteMapping("/{collectionId}", version = "1")
   fun deleteCollection(

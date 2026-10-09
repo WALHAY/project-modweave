@@ -28,9 +28,10 @@ comments:
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
       '403': {$ref: ../openapi.yaml#/components/responses/Forbidden}
       '409': {$ref: ../openapi.yaml#/components/responses/Conflict}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
       '415': {$ref: ../openapi.yaml#/components/responses/UnsupportedMediaType}
     operationId: createComment
-    description: Authenticated user for creation; comment author or administrator for deletion access.
+    description: Authenticated user with access to the mod for creation; a missing or hidden mod returns 404.
   get:
     tags: [Comments]
     summary: List comments for a mod
@@ -58,8 +59,10 @@ comments:
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: listModComments
-    security: []
-    description: Public operation. An unknown modId filter returns an empty page.
+    security:
+    - {}
+    - bearerAuth: []
+    description: Comments of visible mods. An unknown or hidden modId filter returns an empty page.
 comments/{commentId}:
   delete:
     tags: [Comments]
@@ -98,5 +101,7 @@ comments/{commentId}:
       '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: getComment
-    security: []
-    description: Public operation.
+    security:
+    - {}
+    - bearerAuth: []
+    description: Comments of visible mods. A missing comment or hidden parent mod returns 404.

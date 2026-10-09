@@ -56,7 +56,10 @@ class ApiRoutingTest {
     mvc.perform(delete("/api/v1/games/example")).andExpect(status().isUnauthorized)
     mvc.perform(delete("/api/v1/mods/example/versions/00000000-0000-0000-0000-000000000000"))
         .andExpect(status().isUnauthorized)
-    mvc.perform(post("/api/v1/auth/refresh").param("refreshToken", "invalid"))
+    mvc.perform(
+            post("/api/v1/auth/refresh")
+                .contentType("application/x-www-form-urlencoded")
+                .param("refreshToken", "invalid"))
         .andExpect(status().isUnauthorized)
   }
 }

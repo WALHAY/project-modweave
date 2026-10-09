@@ -71,7 +71,7 @@ class VersionController(
         .let { VersionResponseDto.fromVersion(it) }
   }
 
-  @PatchMapping("/{versionId}", version = "2")
+  @PatchMapping("/{versionId}", version = "2", consumes = ["application/json"])
   fun moderateVersion(
       @PathVariable modId: String,
       @PathVariable versionId: UUID,

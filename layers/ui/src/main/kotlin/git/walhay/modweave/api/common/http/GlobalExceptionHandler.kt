@@ -2,6 +2,7 @@ package git.walhay.modweave.api.common.http
 
 import git.walhay.modweave.api.collection.exception.CollectionNotFoundException
 import git.walhay.modweave.api.comment.exception.CommentNotFoundException
+import git.walhay.modweave.api.file.FileNotFoundException
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
@@ -24,7 +25,10 @@ class GlobalExceptionHandler {
   fun invalidArgument(e: IllegalArgumentException): ProblemDetail =
       ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.message ?: "Invalid request")
 
-  @ExceptionHandler(CollectionNotFoundException::class, CommentNotFoundException::class)
+  @ExceptionHandler(
+      CollectionNotFoundException::class,
+      CommentNotFoundException::class,
+      FileNotFoundException::class)
   fun notFound(): ProblemDetail =
       ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Resource not found")
 

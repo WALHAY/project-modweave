@@ -1,29 +1,25 @@
 package git.walhay.modweave.api.file.http
 
+import git.walhay.modweave.api.common.http.RepresentationValidators
 import git.walhay.modweave.api.file.FileId
-import git.walhay.modweave.api.file.repository.FileRepository
-import git.walhay.modweave.api.storage.ISimpleStorageService
-import git.walhay.modweave.api.version.IVersionService
+import git.walhay.modweave.api.file.IFileDownloadService
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import java.nio.charset.StandardCharsets
+import java.time.ZoneId
 import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.http.ContentDisposition
-import org.springframework.http.HttpStatus
-import org.springframework.util.StreamUtils
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/files")
 class FileController(
-    private val storageService: ISimpleStorageService,
-    private val fileRepository: FileRepository,
-    private val versionService: IVersionService,
+    private val downloads: IFileDownloadService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
@@ -31,12 +27,26 @@ class FileController(
   fun downloadFile(
       @PathVariable fileId: UUID,
       response: HttpServletResponse,
+  ) = download(fileId, response)
+
+  private fun download(
+      fileId: UUID,
+      response: HttpServletResponse,
+      request: HttpServletRequest? = null
   ) {
     logger.info { "GET /files/$fileId/download" }
-    val file =
-        fileRepository.findById(FileId(fileId))
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "File not found")
-    versionService.getModVersion(file.versionId)
+    val download = downloads.getDownload(FileId(fileId))
+    val file = download.file
+
+    if (request != null) {
+      response.setHeader("Link", "<${request.contextPath}/api/v2/files/$fileId>; rel=\"self\"")
+      // Storage keys are unique and immutable; download counters do not change file contents.
+      val etag =
+          RepresentationValidators.etag(
+              "${file.id}:${file.filePath}:${file.filename}".toByteArray())
+      val modified = download.uploadedAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+      if (RepresentationValidators.check(request, response, etag, modified)) return
+    }
 
     response.contentType = "application/octet-stream"
     response.setHeader(
@@ -47,13 +57,13 @@ class FileController(
             .toString(),
     )
 
-    storageService.downloadVersionFile(file.filePath).use { input ->
-      StreamUtils.copy(input, response.outputStream)
-    }
-    fileRepository.incrementDownloads(file.id)
+    downloads.writeDownload(download, response.outputStream)
   }
 
   @GetMapping("/{fileId}", version = "2")
-  fun getFile(@PathVariable fileId: UUID, response: HttpServletResponse) =
-      downloadFile(fileId, response)
+  fun getFile(
+      @PathVariable fileId: UUID,
+      request: HttpServletRequest,
+      response: HttpServletResponse
+  ) = download(fileId, response, request)
 }

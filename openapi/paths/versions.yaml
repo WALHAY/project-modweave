@@ -3,7 +3,7 @@ mods/{modId}/versions:
     tags: [Versions]
     summary: List versions for a mod
     description: Guests receive approved versions. The owner and administrators also receive pending and rejected
-      versions.
+      versions. A mod without any approved version is hidden from other callers and returns 404.
     security:
     - {}
     - bearerAuth: []

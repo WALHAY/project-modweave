@@ -26,7 +26,9 @@ class JpaUserRepository(
       name: String,
       pageable: Pageable,
   ): Page<User> =
-      repository.findAllByNameContainingIgnoreCase(name, pageable).toDomainPage { it.toDomain() }
+      repository.findAllByUsernameContainingIgnoreCase(name, pageable).toDomainPage {
+        it.toDomain()
+      }
 
   override fun save(user: User): User =
       repository

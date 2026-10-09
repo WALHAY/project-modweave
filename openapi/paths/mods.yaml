@@ -89,8 +89,11 @@ mods/{modId}:
       '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: getMod
-    security: []
-    description: Public operation.
+    security:
+    - {}
+    - bearerAuth: []
+    description: Mods with an approved version are public. Until the first approval, only the owner and administrators
+      can read the mod; other callers receive 404.
   delete:
     tags: [Mods]
     summary: Delete a mod

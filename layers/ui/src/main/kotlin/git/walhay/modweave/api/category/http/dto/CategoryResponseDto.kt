@@ -14,3 +14,5 @@ data class CategoryResponseDto(
         )
   }
 }
+
+data class CategoryCollectionDto(val items: List<CategoryResponseDto>)
