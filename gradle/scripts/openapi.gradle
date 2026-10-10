@@ -6,6 +6,9 @@ tasks.register('lintOpenApi', Exec) {
 tasks.register('buildOpenApi', Exec) {
     dependsOn 'lintOpenApi'
 
+    inputs.files(fileTree('openapi') { include '**/*.yaml' }, 'redocly.yaml')
+    outputs.file layout.buildDirectory.file('generated/openapi/openapi.yaml')
+
     doFirst {
         file('build/generated/openapi').mkdirs()
     }
@@ -18,7 +21,7 @@ tasks.register('buildOpenApi', Exec) {
 tasks.register('mockOpenApi', Exec) {
     dependsOn 'buildOpenApi'
 
-    commandLine 'npx', '--yes', '@stoplight/prism-cli', 'mock',
+    commandLine 'npx', '--yes', '@stoplight/prism-cli@5.16.0', 'mock',
             '-p', '4010',
             'build/generated/openapi/openapi.yaml'
 }
@@ -30,3 +33,14 @@ tasks.register('testOpenApi', Exec) {
             'openapi/arazzo.yaml',
             '--server', 'modweave=http://localhost:4010'
 }
+
+// The bundled contract is also the one served by Swagger UI.
+tasks.named('processResources') {
+    dependsOn 'buildOpenApi'
+    from('build/generated/openapi') {
+        include 'openapi.yaml'
+        into 'static/api/v2'
+    }
+}
+
+tasks.named('check') { dependsOn 'lintOpenApi' }

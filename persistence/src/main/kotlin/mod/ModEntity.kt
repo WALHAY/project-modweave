@@ -1,0 +1,62 @@
+package git.walhay.modweave.persistence.mod
+
+import git.walhay.modweave.domain.category.CategoryId
+import git.walhay.modweave.domain.game.GameId
+import git.walhay.modweave.domain.mod.Mod
+import git.walhay.modweave.domain.mod.ModId
+import git.walhay.modweave.domain.user.UserId
+import git.walhay.modweave.persistence.version.VersionEntity
+import jakarta.persistence.*
+import java.io.Serializable
+import java.time.LocalDateTime
+
+@Entity
+@Table(schema = "modweave", name = "mods")
+class ModEntity(
+    @Id @Column(name = "id", nullable = false, length = 50) val id: String,
+    @Column(name = "name", nullable = false, length = 255) val name: String,
+    @Column(name = "description", columnDefinition = "text") val description: String? = null,
+    @Column(name = "image_path", nullable = false, length = 500) val imagePath: String,
+    @Column(name = "creation_date", nullable = false) val creationDate: LocalDateTime,
+    @Column(name = "publisher_id", nullable = false) val publisherId: String,
+    @Column(name = "game_id", nullable = false) val gameId: String,
+    @ElementCollection
+    @CollectionTable(
+        schema = "modweave",
+        name = "mods_categories",
+        joinColumns = [JoinColumn(name = "mod_id", nullable = false)],
+    )
+    @Column(name = "category_name")
+    val categories: MutableSet<String> = mutableSetOf(),
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mod_id", insertable = false, updatable = false)
+    val versions: MutableList<VersionEntity> = mutableListOf(),
+) : Serializable {
+  constructor() : this("", "", null, "", LocalDateTime.now(), "", "")
+
+  fun toDomain(): Mod =
+      Mod(
+          ModId(id),
+          name,
+          description,
+          imagePath,
+          creationDate,
+          UserId(publisherId),
+          GameId(gameId),
+          categories.map { CategoryId(it) }.toSet(),
+          versions.map { it.toDomain() }.toMutableList())
+
+  companion object {
+    fun fromMod(mod: Mod): ModEntity =
+        ModEntity(
+            mod.id.value,
+            mod.name,
+            mod.description,
+            mod.imagePath,
+            mod.creationDate,
+            mod.publisherId.value,
+            mod.gameId.value,
+            mod.categories.map { it.value }.toMutableSet(),
+            mod.versions.map { VersionEntity.fromVersion(it) }.toMutableList())
+  }
+}

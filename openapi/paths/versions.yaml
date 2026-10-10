@@ -24,7 +24,6 @@ mods/{modId}/versions:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
       '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
@@ -137,7 +136,6 @@ mods/{modId}/versions/{versionId}:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
       '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}

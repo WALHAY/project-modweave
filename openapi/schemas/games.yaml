@@ -15,7 +15,7 @@ Game:
     imagePath: game.png
     _links:
       self: {href: /api/v2/games/example-game, method: GET}
-      mods: {href: /api/v2/mods, method: GET}
+      mods: {href: /api/v2/mods?page=0&size=20, method: GET}
 GameCreateRequest:
   type: object
   required: [name, image]

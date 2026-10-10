@@ -13,7 +13,7 @@ Collection:
     description: null
     _links:
       self: {href: /api/v2/collections/00000000-0000-0000-0000-000000000001, method: GET}
-      mods: {href: /api/v2/collections/00000000-0000-0000-0000-000000000001/mods, method: GET}
+      mods: {href: /api/v2/collections/00000000-0000-0000-0000-000000000001/mods?page=0&size=20, method: GET}
 CollectionCreateRequest:
   type: object
   required: [name]
@@ -54,6 +54,6 @@ CollectionPage:
       _links:
         self: {href: /api/v2/collections/00000000-0000-0000-0000-000000000001, method: GET}
     _links:
-      self: {href: /api/v2/collections?page=0&size=20, method: GET}
-      first: {href: /api/v2/collections?page=0&size=20, method: GET}
-      last: {href: /api/v2/collections?page=0&size=20, method: GET}
+      self: {href: /api/v2/users/author/collections?page=0&size=20, method: GET}
+      first: {href: /api/v2/users/author/collections?page=0&size=20, method: GET}
+      last: {href: /api/v2/users/author/collections?page=0&size=20, method: GET}

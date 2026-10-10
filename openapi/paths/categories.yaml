@@ -5,6 +5,7 @@ categories:
     parameters:
     - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
     responses:
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '200':
         description: Categories
         content:
@@ -21,10 +22,11 @@ categories:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
     operationId: listCategories
-    security: []
+    security:
+    - {}
+    - bearerAuth: []
     description: Public operation.
   post:
     tags: [Categories]
@@ -67,6 +69,7 @@ categories/{categoryName}:
     - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
     - {$ref: ../openapi.yaml#/components/parameters/CategoryName}
     responses:
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '200':
         description: Category
         content:
@@ -77,12 +80,13 @@ categories/{categoryName}:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: getCategory
-    security: []
+    security:
+    - {}
+    - bearerAuth: []
     description: Public operation.
   patch:
     tags: [Categories]

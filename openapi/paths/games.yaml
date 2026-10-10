@@ -11,6 +11,7 @@ games:
       schema: {type: string}
     - {$ref: ../openapi.yaml#/components/parameters/SortName}
     responses:
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '200':
         description: Game page
         content:
@@ -21,11 +22,12 @@ games:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: listGames
-    security: []
+    security:
+    - {}
+    - bearerAuth: []
     description: Public operation.
   post:
     tags: [Games]
@@ -69,6 +71,7 @@ games/{gameId}:
     - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
     - {$ref: ../openapi.yaml#/components/parameters/GameId}
     responses:
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '200':
         description: Game
         content:
@@ -79,12 +82,13 @@ games/{gameId}:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: getGame
-    security: []
+    security:
+    - {}
+    - bearerAuth: []
     description: Public operation.
   delete:
     tags: [Games]

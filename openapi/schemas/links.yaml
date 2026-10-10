@@ -27,7 +27,7 @@ Links:
     $ref: '#/Link'
   examples:
   - self: {href: /api/v2/mods/example-mod, method: GET, title: Mod}
-    versions: {href: /api/v2/mods/example-mod/versions, method: GET, title: Versions}
+    versions: {href: /api/v2/mods/example-mod/versions?page=0&size=20, method: GET, title: Versions}
 PageLinks:
   allOf:
   - {$ref: '#/Links'}

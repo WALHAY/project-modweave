@@ -45,6 +45,7 @@ comments:
     - {$ref: ../openapi.yaml#/components/parameters/Page}
     - {$ref: ../openapi.yaml#/components/parameters/Size}
     responses:
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '200':
         description: Comments ordered by publish date, then id
         content:
@@ -55,7 +56,6 @@ comments:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: listModComments
@@ -86,6 +86,7 @@ comments/{commentId}:
     - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
     - {$ref: ../openapi.yaml#/components/parameters/CommentId}
     responses:
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '200':
         description: Comment
         content:
@@ -96,7 +97,6 @@ comments/{commentId}:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}

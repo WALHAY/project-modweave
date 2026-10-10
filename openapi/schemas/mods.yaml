@@ -28,8 +28,8 @@ Mod:
       self: {href: /api/v2/mods/example-mod, method: GET}
       game: {href: /api/v2/games/example-game, method: GET}
       publisher: {href: /api/v2/users/author, method: GET}
-      versions: {href: /api/v2/mods/example-mod/versions, method: GET}
-      comments: {href: /api/v2/comments?modId=example-mod, method: GET}
+      versions: {href: /api/v2/mods/example-mod/versions?page=0&size=20, method: GET}
+      comments: {href: /api/v2/comments?modId=example-mod&page=0&size=20, method: GET}
 ModUploadRequest:
   type: object
   required: [name, image, versionName, files, gameId]

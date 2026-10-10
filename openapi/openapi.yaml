@@ -2,13 +2,13 @@
 openapi: 3.1.0
 info:
   title: ModWeave API
-  version: 2.1.0
+  version: 2.1.1
   description: Public REST API for ModWeave. API v1 remains available for existing clients. Public reads need no
     token; mutations require a bearer access token unless stated otherwise. Form bodies and multipart uploads are
     supported directly by Swagger UI. Successful resource and collection representations expose HAL-style HATEOAS
     links in `_links`; clients should follow relation links instead of constructing dependent URLs. Safe GET
-    representations expose `Cache-Control`, `ETag`, and `Last-Modified`; clients may send `If-None-Match` and
-    receive `304 Not Modified`. Timestamps are local server date-times without a UTC offset (legacy domain model).
+    representations expose `Cache-Control` and `ETag`; files also expose their upload date in `Last-Modified`. Clients may send `If-None-Match` and
+    receive `304 Not Modified`. Responses use `private, no-cache` and `Vary` set to `Authorization`; authorization is checked before conditional responses. A supplied invalid or expired bearer token returns 401. Timestamps are local server date-times without a UTC offset (legacy domain model).
   license: {name: MIT, identifier: MIT}
 servers:
 - {url: /, description: 'Same origin as the API documentation (locally http://localhost:8080)'}
