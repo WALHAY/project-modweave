@@ -2,7 +2,7 @@
 openapi: 3.1.0
 info:
   title: ModWeave API
-  version: 2.1.1
+  version: 2.1.2
   description: Public REST API for ModWeave. API v1 remains available for existing clients. Public reads need no
     token; mutations require a bearer access token unless stated otherwise. Form bodies and multipart uploads are
     supported directly by Swagger UI. Successful resource and collection representations expose HAL-style HATEOAS
@@ -76,6 +76,7 @@ components:
     UnsupportedMediaType: {$ref: ./responses/responses.yaml#/UnsupportedMediaType}
     PayloadTooLarge: {$ref: ./responses/responses.yaml#/PayloadTooLarge}
   schemas:
+    Problem: {$ref: ./schemas/errors.yaml#/Problem}
     Link: {$ref: ./schemas/links.yaml#/Link}
     Links: {$ref: ./schemas/links.yaml#/Links}
     PageLinks: {$ref: ./schemas/links.yaml#/PageLinks}

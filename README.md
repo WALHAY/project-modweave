@@ -76,7 +76,7 @@ ModWeave - платформа игровых модификаций.
 
 ```text
 api/src/main/kotlin/          HTTP-контроллеры, DTO, HATEOAS, security
-  category/                  CategoryController, DTO, обработчик ошибок
+  category/                  CategoryController и DTO категории
   common/                    пагинация ссылок, HTTP-валидаторы, ошибки
   security/                  стандартный Spring Security Resource Server
   …                          остальные предметные разделы
@@ -116,6 +116,8 @@ curl http://localhost:8080/api/v2/categories
 
 В v1 категории — массив; в v2 — `{items, _links}`. В v2 создание адресуемого ресурса возвращает 201 с `Location`, удаление — 204. Категория создаётся JSON, PATCH принимает ровно `description` (строка или null). Вставка мода в коллекцию — POST `/api/v2/collections/{id}/mods` с JSON `{"modId":"example-mod","index":0}`; пропуск `index` добавляет в конец. Модерация — PATCH версии с JSON `{"status":"APPROVED"}` или `REJECTED`. Остальные формы и multipart описаны в Swagger UI. TUI и GUI в текущем репозитории отсутствуют.
 
+Ошибки возвращаются как `application/problem+json` (Spring `ProblemDetail`): `title`, `status`, `instance` и при наличии `detail`. Если `type` отсутствует, по RFC 9457 он равен `about:blank`. Это касается также ошибок bearer-аутентификации; стандартный `WWW-Authenticate` сохранён. Доменные исключения обрабатываются в одном `GlobalExceptionHandler`, ошибки HTTP и валидации — его базовым классом Spring. Коды ошибок v1 сохранены, тела приведены к тому же формату.
+
 ## HATEOAS, видимость и кэширование
 
 Ресурсы v2 содержат `_links` с `href` и `method`; вложенные элементы и файлы также имеют ссылки. Каждый DTO описывает свои связи через `ApiResource`, страницы представлены `PageResponseDto`. Ссылки на списки сразу включают обязательные `page` и `size`. Пагинация возвращает `self`, `first`, `last`, а при наличии соседней страницы — `previous` и `next`; фильтры и повторяющийся `sort` сохраняются. Действия управления отображаются с учётом пользователя. V1 сохраняет прежнюю форму ответа.
@@ -138,7 +140,7 @@ Redis-кэши используют новый префикс `modweave:domain-v
 ./gradlew testOpenApi
 
 # Полная проверка с изолированными PostgreSQL и SeaweedFS через Testcontainers:
-./gradlew test ktfmtCheck bootJar
+./gradlew check ktfmtCheck bootJar
 
 # Только HTTP-контракт:
 ./gradlew test --tests 'git.walhay.modweave.integration.ApiContractTest'
@@ -146,6 +148,8 @@ Redis-кэши используют новый префикс `modweave:domain-v
 ./gradlew test --tests 'git.walhay.modweave.regression.*' ktfmtCheck
 ```
 
-Отчёт JUnit: `build/reports/tests/test/index.html`. Контрактный тест проверяет все 37 operationId по YAML на настоящем сервере, статусы, обязательные поля/заголовки, CRUD, PATCH/null, ошибки и роли, HATEOAS, пагинацию, 304, видимость после модерации, JWT, v1/v2 и Swagger. Есть проверка чувствительности валидатора: удаление обязательного `name` или `_links` из реального ответа обязано провалить проверку схемы.
+Отчёт JUnit: `build/reports/tests/test/index.html`. Контрактный тест выполняет все 37 operationId на настоящем сервере. Стандартный OpenAPI-валидатор проверяет статусы, JSON-схемы ответов, обязательные заголовки, пути, query-параметры и JSON/urlencoded-запросы по собранному YAML. Multipart обрабатывает настоящий сервер: сценарии проверяют загрузку и скачивание байтов, повреждённые изображения и превышение лимита. Проверяются CRUD, PATCH/null, ошибки и роли, HATEOAS, пагинация, 304, видимость после модерации, JWT, v1/v2 и Swagger.
+
+Проверка чувствительности удаляет обязательные поля и заголовки, меняет тип поля, Content-Type и статус, добавляет запрещённое поле вложенной ссылки. Все эти нарушения должны быть обнаружены; допустимые дополнительные поля остаются допустимыми. Отдельный эксперимент с намеренно неверным статусом в контроллере описан в отчёте.
 
 [Проверка требований, сценарии и решения](docs/lab-review.md). Лабораторные №4 и далее и необязательный GraphQL не входят в эту работу.

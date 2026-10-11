@@ -35,6 +35,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
         ["security.jwt.secret=ZmFrZS1zZWNyZXQtc2VjdXJlLWtleS1mb3ItanVzdC1kZXZlbG9wbWVudA=="])
 @Import(
     SecurityConfiguration::class,
+    BearerProblemHandler::class,
     JwtConfiguration::class,
     CurrentUserJwtConverter::class,
     JwtService::class,

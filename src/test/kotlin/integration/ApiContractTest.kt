@@ -1,9 +1,11 @@
 package git.walhay.modweave.integration
 
+import com.atlassian.oai.validator.model.Request
+import com.atlassian.oai.validator.model.SimpleRequest
+import com.atlassian.oai.validator.model.SimpleResponse
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.networknt.schema.JsonSchemaFactory
-import com.networknt.schema.SpecVersion
+import git.walhay.modweave.testutils.OpenApiContract
 import git.walhay.modweave.testutils.StorageTestInfrastructure
 import java.io.ByteArrayOutputStream
 import java.net.URI
@@ -21,7 +23,6 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import org.yaml.snakeyaml.Yaml
 
 /** Real HTTP -> security -> controller -> service -> repository -> PostgreSQL/S3, without mocks. */
 @SpringBootTest(
@@ -36,6 +37,8 @@ import org.yaml.snakeyaml.Yaml
         ])
 class ApiContractTest {
   companion object {
+    private val contract = OpenApiContract()
+
     @JvmStatic
     @DynamicPropertySource
     fun properties(registry: DynamicPropertyRegistry) {
@@ -50,10 +53,6 @@ class ApiContractTest {
   @Autowired private lateinit var jdbc: JdbcTemplate
   private val http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build()
   private val mapper = ObjectMapper()
-  private val contract: JsonNode =
-      mapper.valueToTree(
-          Yaml().load<Any>(javaClass.getResourceAsStream("/static/api/v2/openapi.yaml")))
-  private val schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012)
   private val visited = mutableSetOf<String>()
 
   @BeforeEach
@@ -61,17 +60,6 @@ class ApiContractTest {
     jdbc.execute(
         "truncate modweave.users, modweave.games, modweave.categories, modweave.storage_cleanup_tasks cascade")
     visited.clear()
-  }
-
-  private fun resolve(node: JsonNode): JsonNode =
-      if (node.has("\$ref")) contract.at(node["\$ref"].asText().removePrefix("#")) else node
-
-  private fun validateResponse(schema: JsonNode, value: JsonNode) {
-    val root = mapper.createObjectNode()
-    root.set<JsonNode>("components", contract["components"])
-    root.set<JsonNode>("allOf", mapper.createArrayNode().add(schema))
-    val errors = schemaFactory.getSchema(root).validate(value)
-    assertTrue(errors.isEmpty(), errors.joinToString("\n"))
   }
 
   private fun raw(
@@ -92,7 +80,18 @@ class ApiContractTest {
         method,
         data?.let { HttpRequest.BodyPublishers.ofByteArray(it) }
             ?: HttpRequest.BodyPublishers.noBody())
-    return http.send(request.build(), HttpResponse.BodyHandlers.ofByteArray())
+    val sent = request.build()
+    val response = http.send(sent, HttpResponse.BodyHandlers.ofByteArray())
+    val uriPath = sent.uri().path
+    if (uriPath.startsWith("/api/v2/") &&
+        uriPath !in setOf("/api/v2/docs", "/api/v2/openapi.yaml") &&
+        !uriPath.startsWith("/api/v2/swagger-ui/")) {
+      contract.validate(sent, data, response)
+      if (response.statusCode() >= 400) {
+        assertEquals(response.statusCode(), mapper.readTree(response.body())["status"].asInt())
+      }
+    }
+    return response
   }
 
   private fun call(
@@ -104,20 +103,15 @@ class ApiContractTest {
       token: String? = null,
       multipart: ByteArray? = null,
   ): JsonNode {
-    val pathEntry =
-        contract["paths"].properties().first { (_, item) ->
-          item.properties().any { (_, op) -> op["operationId"].asText() == id }
-        }
-    val operationEntry =
-        pathEntry.value.properties().first { (_, op) -> op["operationId"].asText() == id }
-    val operation = operationEntry.value
-    var path = pathEntry.key
+    val endpoint = contract.operations.getValue(id)
+    val operation = endpoint.operation
+    var path = endpoint.path
     pathValues.forEach { (key, value) -> path = path.replace("{$key}", encode(value)) }
     if (query.isNotEmpty()) path += "?" + form(query)
     var contentType: String? = null
     var data: ByteArray? = null
     if (body != null) {
-      contentType = operation["requestBody"]["content"].fieldNames().next()
+      contentType = operation.requestBody.content.keys.single()
       data =
           if (contentType == "application/json") mapper.writeValueAsBytes(body)
           else form(body).toByteArray()
@@ -126,18 +120,14 @@ class ApiContractTest {
       contentType = "multipart/form-data; boundary=modweave-test-boundary"
       data = multipart
     }
-    val response = raw(operationEntry.key.uppercase(), path, data, contentType, token)
+    val response = raw(endpoint.method, path, data, contentType, token)
     assertEquals(expected, response.statusCode(), "$id: ${response.body().decodeToString()}")
-    val declared = operation["responses"][expected.toString()]
-    assertNotNull(declared, "$id does not declare $expected")
-    val responseContract = resolve(declared)
-    responseContract["headers"]?.properties()?.forEach { (name, header) ->
-      if (resolve(header)["required"]?.asBoolean() == true ||
-          name in setOf("Cache-Control", "ETag", "Last-Modified", "Link"))
-          assertTrue(response.headers().firstValue(name).isPresent, name)
-    }
-    if (operationEntry.key == "get" && expected == 200 && operation["responses"].has("304")) {
+    if (endpoint.method == "GET" && expected == 200 && operation.responses.containsKey("304")) {
       if (id != "downloadFile") assertTrue(response.headers().firstValue("Last-Modified").isEmpty)
+      else {
+        assertTrue(response.headers().firstValue("Last-Modified").isPresent)
+        assertTrue(response.headers().firstValue("Link").isPresent)
+      }
       val etag = response.headers().firstValue("ETag").orElseThrow()
       val cached = raw("GET", path, token = token, headers = mapOf("If-None-Match" to etag))
       assertEquals(
@@ -155,16 +145,14 @@ class ApiContractTest {
       assertTrue(response.headers().firstValue("Vary").orElse("").contains("Authorization"))
     }
     visited += id
-    if (responseContract.has("content")) {
+    if (response.body().isNotEmpty()) {
       val media = response.headers().firstValue("Content-Type").orElse("").substringBefore(';')
-      assertTrue(responseContract["content"].has(media), "$id: undeclared Content-Type $media")
       if (media == "application/octet-stream") {
         assertEquals("mod archive", response.body().decodeToString())
         assertTrue(
             response.headers().firstValue("Content-Disposition").orElse("").contains("attachment"))
       } else {
         val value = mapper.readTree(response.body())
-        validateResponse(responseContract["content"][media]["schema"], value)
         if (expected in 200..299 && id !in setOf("login", "refreshTokens")) validateLinks(value)
         if (expected == 201) {
           val location = response.headers().firstValue("Location").orElseThrow()
@@ -172,7 +160,6 @@ class ApiContractTest {
           val retrieved = raw("GET", location, token = token)
           assertEquals(200, retrieved.statusCode(), "$id Location must be readable: $location")
           val stored = mapper.readTree(retrieved.body())
-          validateResponse(responseContract["content"][media]["schema"], stored)
           for (key in listOf("id", "username", "name")) {
             if (value.has(key)) assertEquals(value[key], stored[key], "$id Location identity")
           }
@@ -225,7 +212,7 @@ class ApiContractTest {
                 "username" to username,
                 "name" to username,
                 "password" to "test-password",
-                "email" to "$username@example.test"))
+                "email" to "$username@example.com"))
     if (admin) jdbc.update("update modweave.users set is_admin = true where username = ?", username)
     return call("login", body = mapOf("username" to username, "password" to "test-password"))[
             "accessToken"]
@@ -579,15 +566,10 @@ class ApiContractTest {
     call("deleteGame", 204, pathValues = mapOf("gameId" to game), token = admin)
     call("getGame", 404, pathValues = mapOf("gameId" to game))
     call("deleteCategory", 204, mapOf("categoryName" to "Utility"), token = admin)
-    val allOperations =
-        contract["paths"]
-            .properties()
-            .flatMap { (_, item) ->
-              item.properties().map { (_, op) -> op["operationId"].asText() }
-            }
-            .toSet()
     assertEquals(
-        allOperations, visited, "Every declared operation must run against the real server")
+        contract.operations.keys,
+        visited,
+        "Every declared operation must run against the real server")
   }
 
   @Test
@@ -750,17 +732,68 @@ class ApiContractTest {
   }
 
   @Test
-  fun `schema validation detects a missing required field in an actual server response`() {
+  fun `OpenAPI validator rejects broken status headers and bodies from a real response`() {
     val admin = register("admin", true)
     call("createCategory", 201, body = mapOf("name" to "Utility"), token = admin)
     val valid = call("getCategory", pathValues = mapOf("categoryName" to "Utility"))
-    val broken =
-        valid.deepCopy<com.fasterxml.jackson.databind.node.ObjectNode>().apply { remove("name") }
-    val schema = mapper.readTree("""{"${'$'}ref":"#/components/schemas/Category"}""")
-    assertThrows(AssertionError::class.java) { validateResponse(schema, broken) }
-    val withoutLinks =
-        valid.deepCopy<com.fasterxml.jackson.databind.node.ObjectNode>().apply { remove("_links") }
-    assertThrows(AssertionError::class.java) { validateResponse(schema, withoutLinks) }
-    validateResponse(schema, valid)
+    fun report(body: JsonNode, status: Int = 200, mediaType: String = "application/json") =
+        contract.validator.validateResponse(
+            "/api/v2/categories/Utility",
+            Request.Method.GET,
+            SimpleResponse.Builder(status)
+                .withContentType(mediaType)
+                .withHeader("Cache-Control", "private, no-cache")
+                .withHeader("ETag", "\"test\"")
+                .withBody(mapper.writeValueAsBytes(body))
+                .build())
+    contract.assertValid(report(valid))
+    for (field in listOf("name", "_links")) {
+      val broken =
+          valid.deepCopy<com.fasterxml.jackson.databind.node.ObjectNode>().apply { remove(field) }
+      assertTrue(report(broken).hasErrors(), "Missing $field must violate the contract")
+    }
+    val wrongType =
+        valid.deepCopy<com.fasterxml.jackson.databind.node.ObjectNode>().apply {
+          put("description", 42)
+        }
+    assertTrue(report(wrongType).hasErrors(), "OpenAPI 3.1 string/null must reject a number")
+    assertTrue(report(valid, status = 418).hasErrors(), "Undeclared status must be rejected")
+    assertTrue(
+        report(valid, mediaType = "text/plain").hasErrors(), "Wrong content type must be rejected")
+    val brokenLink = valid.deepCopy<com.fasterxml.jackson.databind.node.ObjectNode>()
+    (brokenLink["_links"]["self"] as com.fasterxml.jackson.databind.node.ObjectNode).put(
+        "extra", true)
+    assertTrue(
+        report(brokenLink).hasErrors(), "Explicit additionalProperties false must be enforced")
+    val extended =
+        valid.deepCopy<com.fasterxml.jackson.databind.node.ObjectNode>().put("extra", true)
+    contract.assertValid(report(extended))
+
+    val missingLocation =
+        contract.validator.validateResponse(
+            "/api/v2/categories",
+            Request.Method.POST,
+            SimpleResponse.Builder(201)
+                .withContentType("application/json")
+                .withBody(mapper.writeValueAsBytes(valid))
+                .build())
+    assertTrue(missingLocation.hasErrors(), "Required Location must be checked")
+    val missingCacheHeaders =
+        contract.validator.validateResponse(
+            "/api/v2/categories/Utility",
+            Request.Method.GET,
+            SimpleResponse.Builder(200)
+                .withContentType("application/json")
+                .withBody(mapper.writeValueAsBytes(valid))
+                .build())
+    assertTrue(missingCacheHeaders.hasErrors(), "Required cache headers must be checked")
+    val invalidPage =
+        contract.validator.validateRequest(
+            SimpleRequest.Builder.get("/api/v2/users")
+                .withQueryParam("page", "-1")
+                .withQueryParam("size", "20")
+                .withQueryParam("sort", "name,asc", "username,desc")
+                .build())
+    assertTrue(invalidPage.hasErrors(), "Query constraints must be checked")
   }
 }
