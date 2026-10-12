@@ -72,22 +72,23 @@ ModWeave - платформа игровых модификаций.
 
 ## Структура проекта
 
-Три Gradle-модуля сохраняют границы слоёв лабораторной №3:
+Три Gradle-модуля в каталоге `layers` сохраняют границы слоёв лабораторной №3:
 
 ```text
-api/src/main/kotlin/          HTTP-контроллеры, DTO, HATEOAS, security
-  category/                  CategoryController и DTO категории
-  common/                    пагинация ссылок, HTTP-валидаторы, ошибки
-  security/                  стандартный Spring Security Resource Server
-  …                          остальные предметные разделы
-domain/src/main/kotlin/      доменные модели, сервисы, команды, интерфейсы Repository
-persistence/src/main/kotlin/ JPA-сущности, реализации Repository, S3 и outbox
-src/main/kotlin/             запуск приложения и конфигурация кэша
-src/test/kotlin/             HTTP-контракт, регрессии, репозитории, хранилище
-openapi/                    единственный исходный контракт и Arazzo-сценарий
+layers/
+  api/src/main/kotlin/         HTTP-контроллеры, DTO, HATEOAS, security
+    category/                 CategoryController и DTO категории
+    common/                   пагинация ссылок, HTTP-валидаторы, ошибки
+    security/                 стандартный Spring Security Resource Server
+    …                         остальные предметные разделы
+  domain/src/main/kotlin/      доменные модели, сервисы, команды, интерфейсы Repository
+  persistence/src/main/kotlin/ JPA-сущности, реализации Repository, S3 и outbox
+src/main/kotlin/               запуск приложения и конфигурация кэша
+src/test/kotlin/               HTTP-контракт, регрессии, репозитории, хранилище
+openapi/                      единственный исходный контракт и Arazzo-сценарий
 ```
 
-Общий префикс `git.walhay.modweave` сохранён в Kotlin-пакетах, но не повторяется каталогами внутри каждого source root. Например, файл `api/src/main/kotlin/category/CategoryController.kt` имеет пакет `git.walhay.modweave.api.category`. Внутри предметного раздела DTO и контроллер лежат рядом; служебные уровни `http/dto/command/exception/repository` убраны. `api` и `persistence` зависят от `domain`, друг от друга не зависят. Приложение собирает все три модуля.
+Общий префикс `git.walhay.modweave` сохранён в Kotlin-пакетах, но не повторяется каталогами внутри каждого source root. Например, файл `layers/api/src/main/kotlin/category/CategoryController.kt` имеет пакет `git.walhay.modweave.api.category`. Внутри предметного раздела DTO и контроллер лежат рядом; служебные уровни `http/dto/command/exception/repository` убраны. `api` и `persistence` зависят от `domain`, друг от друга не зависят. Приложение собирает все три модуля. Gradle-пути `:api`, `:domain`, `:persistence` сохранены: `layers` группирует каталоги и не является отдельным подпроектом.
 
 ## Запуск
 
