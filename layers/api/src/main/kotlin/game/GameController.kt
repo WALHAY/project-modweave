@@ -1,12 +1,12 @@
 package git.walhay.modweave.api.game
 
+import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.api.common.forApi
 import git.walhay.modweave.domain.common.paging.Page
 import git.walhay.modweave.domain.game.GameId
 import git.walhay.modweave.domain.game.IGameService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
-import java.net.URI
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.data.domain.Sort
@@ -55,7 +55,8 @@ class GameController(
   @PostMapping(version = "2", consumes = ["multipart/form-data"])
   fun createGame(@Valid @ModelAttribute dto: GameUploadDto): ResponseEntity<GameResponseDto> {
     val result = addGame(dto)
-    return ResponseEntity.created(URI.create("/api/v2/games/${result.id}")).body(result)
+    return ResponseEntity.created(apiLink(GameController::getGame, result.id).link.toUri())
+        .body(result)
   }
 
   @DeleteMapping("/{gameId}", version = "1")

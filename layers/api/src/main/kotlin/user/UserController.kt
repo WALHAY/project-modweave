@@ -1,6 +1,7 @@
 package git.walhay.modweave.api.user
 
 import git.walhay.modweave.api.collection.CollectionResponseDto
+import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.api.common.forApi
 import git.walhay.modweave.api.mod.ModResponseDto
 import git.walhay.modweave.domain.collection.ICollectionService
@@ -20,7 +21,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import org.springframework.web.util.UriComponentsBuilder
 
 @RestController
 @RequestMapping("/users")
@@ -93,12 +93,8 @@ class UserController(
   @PostMapping(version = "2", consumes = ["application/x-www-form-urlencoded"])
   fun registerUser(@ModelAttribute @Valid dto: UserCreateDto): ResponseEntity<UserResponseDto> {
     val result = createUser(dto)
-    val location =
-        UriComponentsBuilder.fromPath("/api/v2/users/{username}")
-            .buildAndExpand(result.username)
-            .encode()
-            .toUri()
-    return ResponseEntity.created(location).body(result)
+    return ResponseEntity.created(apiLink(UserController::getUser, result.username).link.toUri())
+        .body(result)
   }
 
   @PatchMapping(version = "1")

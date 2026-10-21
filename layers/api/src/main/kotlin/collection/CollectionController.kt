@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.collection
 
+import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.api.common.forApi
 import git.walhay.modweave.api.mod.ModResponseDto
 import git.walhay.modweave.domain.collection.CollectionId
@@ -10,7 +11,6 @@ import git.walhay.modweave.domain.mod.ModId
 import git.walhay.modweave.domain.user.UserId
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
-import java.net.URI
 import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
@@ -76,7 +76,9 @@ class CollectionController(
       @AuthenticationPrincipal user: UserDetails?,
   ): ResponseEntity<CollectionResponseDto> {
     val result = createCollection(dto, user)
-    return ResponseEntity.created(URI.create("/api/v2/collections/${result.id}")).body(result)
+    return ResponseEntity.created(
+            apiLink(CollectionController::getCollection, result.id).link.toUri())
+        .body(result)
   }
 
   @PutMapping("/{collectionId}", version = "1")

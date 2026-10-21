@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.comment
 
+import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.domain.comment.CommentId
 import git.walhay.modweave.domain.comment.CommentNotFoundException
 import git.walhay.modweave.domain.comment.ICommentService
@@ -8,7 +9,6 @@ import git.walhay.modweave.domain.mod.ModId
 import git.walhay.modweave.domain.user.UserId
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
-import java.net.URI
 import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
@@ -61,7 +61,8 @@ class CommentController(
       @AuthenticationPrincipal user: UserDetails?,
   ): ResponseEntity<CommentResponseDto> {
     val result = createComment(dto, user)
-    return ResponseEntity.created(URI.create("/api/v2/comments/${result.id}")).body(result)
+    return ResponseEntity.created(apiLink(CommentController::getComment, result.id).link.toUri())
+        .body(result)
   }
 
   @DeleteMapping("/{id}", version = "1")

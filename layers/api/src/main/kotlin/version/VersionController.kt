@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.version
 
+import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.domain.mod.ModId
 import git.walhay.modweave.domain.user.UserId
 import git.walhay.modweave.domain.version.IVersionService
@@ -7,7 +8,6 @@ import git.walhay.modweave.domain.version.VersionId
 import git.walhay.modweave.domain.version.VersionNotFoundException
 import git.walhay.modweave.domain.version.VersionStatus
 import jakarta.validation.Valid
-import java.net.URI
 import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
@@ -31,7 +31,7 @@ class VersionController(
   fun uploadModVersion(
       @PathVariable modId: String,
       @Valid @ModelAttribute dto: VersionUploadDto,
-  ): VersionResponseDto {
+  ): VersionResponseDto<FileResponseDto> {
     logger.info { "POST /mods/$modId/versions - uploading version: ${dto.name}" }
     return versionService.createModVersion(ModId(modId), dto.toVersionCreateCommand()).let {
       VersionResponseDto.fromVersion(it)
@@ -42,14 +42,18 @@ class VersionController(
   fun createVersion(
       @PathVariable modId: String,
       @Valid @ModelAttribute dto: VersionUploadDto,
-  ): ResponseEntity<VersionResponseDto> {
+  ): ResponseEntity<VersionResponseDto<FileResponseDto>> {
     val result = uploadModVersion(modId, dto)
-    return ResponseEntity.created(URI.create("/api/v2/mods/$modId/versions/${result.id}"))
+    return ResponseEntity.created(
+            apiLink(VersionController::getVersion, modId, result.id).link.toUri())
         .body(result)
   }
 
   @GetMapping("/{versionId}", version = "2")
-  fun getVersion(@PathVariable modId: String, @PathVariable versionId: UUID): VersionResponseDto {
+  fun getVersion(
+      @PathVariable modId: String,
+      @PathVariable versionId: UUID
+  ): VersionResponseDto<FileResponseDto> {
     val version = versionService.getModVersion(VersionId(versionId))
     if (version.modId != ModId(modId)) throw VersionNotFoundException(VersionId(versionId))
     return VersionResponseDto.fromVersion(version)
@@ -61,7 +65,7 @@ class VersionController(
       @PathVariable versionId: UUID,
       @RequestParam status: VersionStatus,
       @AuthenticationPrincipal user: UserDetails?,
-  ): VersionResponseDto {
+  ): VersionResponseDto<FileResponseDto> {
     val authUser = requireUser(user)
     logger.info { "PATCH /mods/$modId/versions/$versionId" }
     return versionService
@@ -77,7 +81,8 @@ class VersionController(
       @PathVariable versionId: UUID,
       @RequestBody dto: VersionModerationDto,
       @AuthenticationPrincipal user: UserDetails?,
-  ): VersionResponseDto = changeVersionStatus(modId, versionId, dto.status.versionStatus, user)
+  ): VersionResponseDto<FileResponseDto> =
+      changeVersionStatus(modId, versionId, dto.status.versionStatus, user)
 
   @DeleteMapping("/{versionId}", version = "1")
   fun deleteVersion(

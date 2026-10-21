@@ -10,14 +10,15 @@ import org.springframework.http.server.ServerHttpRequest
 import org.springframework.http.server.ServerHttpResponse
 import org.springframework.http.server.ServletServerHttpRequest
 import org.springframework.http.server.ServletServerHttpResponse
-import org.springframework.security.authentication.AnonymousAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
 import tools.jackson.databind.ObjectMapper
 
 @RestControllerAdvice(basePackages = ["git.walhay.modweave.api"])
-class ApiRepresentationAdvice(private val mapper: ObjectMapper) : ResponseBodyAdvice<Any> {
+class ApiRepresentationAdvice(
+    private val mapper: ObjectMapper,
+    private val assembler: ApiResourceAssembler,
+) : ResponseBodyAdvice<Any> {
   override fun supports(
       returnType: MethodParameter,
       converterType: Class<out HttpMessageConverter<*>>
@@ -46,19 +47,10 @@ class ApiRepresentationAdvice(private val mapper: ObjectMapper) : ResponseBodyAd
         .removePrefix(servletRequest.contextPath)
         .startsWith("/api/v2/") || servletResponse.status !in 200..299)
         return body
-    val auth =
-        SecurityContextHolder.getContext().authentication?.takeIf {
-          it.isAuthenticated && it !is AnonymousAuthenticationToken
-        }
-    val context =
-        ApiLinkContext(
-            servletRequest.contextPath,
-            auth?.name,
-            auth?.authorities?.any { it.authority == "ROLE_ADMIN" } == true)
     val representation =
         when (body) {
-          is ApiResource -> body.withLinks(context)
-          is Page<*> -> PageResponseDto.from(body, request.uri, context)
+          is ApiResource -> assembler.toModel(body)
+          is Page<*> -> PageResponseDto.from(body, request.uri, assembler)
           else -> return body
         }
     if (servletRequest.method in setOf("GET", "HEAD")) {

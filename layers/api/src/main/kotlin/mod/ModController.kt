@@ -1,6 +1,8 @@
 package git.walhay.modweave.api.mod
 
+import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.api.common.forApi
+import git.walhay.modweave.api.version.FileResponseDto
 import git.walhay.modweave.api.version.VersionResponseDto
 import git.walhay.modweave.domain.common.paging.Page
 import git.walhay.modweave.domain.mod.IModService
@@ -9,7 +11,6 @@ import git.walhay.modweave.domain.user.UserId
 import git.walhay.modweave.domain.version.IVersionService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
-import java.net.URI
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.data.domain.PageRequest
@@ -59,7 +60,7 @@ class ModController(
       @RequestParam @Min(1) size: Int,
       @SortDefault(sort = ["id"], direction = Sort.Direction.DESC) sort: Sort,
       @AuthenticationPrincipal user: UserDetails?,
-  ): Page<VersionResponseDto> {
+  ): Page<VersionResponseDto<FileResponseDto>> {
     logger.info { "GET /mods/$modId/versions - page: $page, size: $size" }
     modService.findModById(ModId(modId))
     return versionService
@@ -91,7 +92,8 @@ class ModController(
       @AuthenticationPrincipal user: UserDetails?,
   ): ResponseEntity<ModResponseDto> {
     val result = uploadMod(dto, user)
-    return ResponseEntity.created(URI.create("/api/v2/mods/${result.id}")).body(result)
+    return ResponseEntity.created(apiLink(ModController::getMod, result.id).link.toUri())
+        .body(result)
   }
 
   @DeleteMapping("/{modId}", version = "1")

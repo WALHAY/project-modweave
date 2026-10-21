@@ -1,6 +1,7 @@
 package git.walhay.modweave.api.file
 
 import git.walhay.modweave.api.common.HttpCache
+import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.domain.file.FileId
 import git.walhay.modweave.domain.file.IFileDownloadService
 import jakarta.servlet.http.HttpServletRequest
@@ -39,7 +40,7 @@ class FileController(
     val file = download.file
 
     if (request != null) {
-      response.setHeader("Link", "<${request.contextPath}/api/v2/files/$fileId>; rel=\"self\"")
+      response.setHeader("Link", apiLink(FileController::getFile, fileId).link.toString())
       // Storage keys are unique and immutable; download counters do not change file contents.
       val etag = HttpCache.etag("${file.id}:${file.filePath}:${file.filename}".toByteArray())
       val modified = download.uploadedAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()

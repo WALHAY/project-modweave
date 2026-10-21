@@ -1,6 +1,7 @@
 package git.walhay.modweave.regression
 
 import git.walhay.modweave.api.auth.AuthController
+import git.walhay.modweave.api.common.ApiResourceAssembler
 import git.walhay.modweave.api.config.*
 import git.walhay.modweave.api.game.GameController
 import git.walhay.modweave.api.mod.ModController
@@ -39,7 +40,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
     JwtConfiguration::class,
     CurrentUserJwtConverter::class,
     JwtService::class,
-    WebConfiguration::class)
+    WebConfiguration::class,
+    ApiResourceAssembler::class)
 @EnableConfigurationProperties(JwtProperties::class)
 class ApiRoutingTest {
   @Autowired lateinit var mvc: MockMvc

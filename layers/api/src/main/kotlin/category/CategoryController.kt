@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.category
 
+import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.domain.category.CategoryId
 import git.walhay.modweave.domain.category.CategoryNotFoundException
 import git.walhay.modweave.domain.category.ICategoryService
@@ -9,7 +10,6 @@ import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.util.UriComponentsBuilder
 
 @RestController
 @RequestMapping("/categories")
@@ -25,7 +25,8 @@ class CategoryController(
   }
 
   @GetMapping(version = "2")
-  fun listCategories(): CategoryCollectionDto = CategoryCollectionDto(getCategories())
+  fun listCategories(): CategoryCollectionDto<CategoryResponseDto> =
+      CategoryCollectionDto(getCategories())
 
   @PostMapping(
       version = "1", consumes = ["application/x-www-form-urlencoded", "multipart/form-data"])
@@ -71,12 +72,9 @@ class CategoryController(
       @Valid @RequestBody dto: CategoryUploadDto
   ): ResponseEntity<CategoryResponseDto> {
     val result = uploadCategory(dto)
-    val location =
-        UriComponentsBuilder.fromPath("/api/v2/categories/{name}")
-            .encode()
-            .buildAndExpand(result.name)
-            .toUri()
-    return ResponseEntity.created(location).body(result)
+    return ResponseEntity.created(
+            apiLink(CategoryController::getCategory, result.name).link.toUri())
+        .body(result)
   }
 
   @PatchMapping("/{categoryName}", version = "2", consumes = ["application/json"])
