@@ -3,11 +3,12 @@ package git.walhay.modweave.api.collection
 import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.api.common.forApi
 import git.walhay.modweave.api.mod.ModResponseDto
+import git.walhay.modweave.api.security.requireUser
 import git.walhay.modweave.domain.collection.CollectionId
-import git.walhay.modweave.domain.collection.ICollectionService
+import git.walhay.modweave.domain.collection.CollectionService
 import git.walhay.modweave.domain.common.paging.Page
-import git.walhay.modweave.domain.mod.IModService
 import git.walhay.modweave.domain.mod.ModId
+import git.walhay.modweave.domain.mod.ModService
 import git.walhay.modweave.domain.user.UserId
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
@@ -17,18 +18,16 @@ import mu.KotlinLogging
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus.NO_CONTENT
-import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/collections")
 class CollectionController(
-    private val collectionService: ICollectionService,
-    private val modService: IModService,
+    private val collectionService: CollectionService,
+    private val modService: ModService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
@@ -63,7 +62,7 @@ class CollectionController(
       @Valid @ModelAttribute dto: CollectionCreateDto,
       @AuthenticationPrincipal user: UserDetails?,
   ): CollectionResponseDto {
-    val username = requireUsername(user)
+    val username = requireUser(user).username
     logger.info { "POST /collections - creating collection: ${dto.name} for user: $username" }
     return collectionService
         .createCollection(UserId(username), dto.toCollectionCreateCommand())
@@ -88,7 +87,7 @@ class CollectionController(
       @RequestParam(required = false) @Min(0) index: Int?,
       @AuthenticationPrincipal user: UserDetails?,
   ): CollectionResponseDto {
-    val username = requireUsername(user)
+    val username = requireUser(user).username
     logger.info { "PUT /collections/$collectionId - adding mod: $modId for user: $username" }
     return collectionService
         .addModToCollection(UserId(username), CollectionId(collectionId), ModId(modId), index)
@@ -107,7 +106,7 @@ class CollectionController(
       @PathVariable collectionId: UUID,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
-    val username = requireUsername(user)
+    val username = requireUser(user).username
     logger.info { "DELETE /collections/$collectionId for user: $username" }
     collectionService.deleteCollection(UserId(username), CollectionId(collectionId))
   }
@@ -125,7 +124,7 @@ class CollectionController(
       @PathVariable modId: String,
       @AuthenticationPrincipal user: UserDetails?,
   ) {
-    val username = requireUsername(user)
+    val username = requireUser(user).username
     logger.info { "DELETE /collections/$collectionId/mods/$modId for user: $username" }
     return collectionService.deleteModFromCollection(
         UserId(username), CollectionId(collectionId), ModId(modId))
@@ -138,7 +137,4 @@ class CollectionController(
       @PathVariable modId: String,
       @AuthenticationPrincipal user: UserDetails?,
   ) = deleteModFromCollection(collectionId, modId, user)
-
-  private fun requireUsername(user: UserDetails?): String =
-      user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
 }

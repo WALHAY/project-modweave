@@ -3,7 +3,6 @@ package git.walhay.modweave.persistence.collection
 import git.walhay.modweave.domain.collection.Collection
 import git.walhay.modweave.domain.collection.CollectionId
 import git.walhay.modweave.domain.user.UserId
-import git.walhay.modweave.persistence.mod.ModEntity
 import jakarta.persistence.*
 import java.io.Serializable
 import java.util.UUID
@@ -30,19 +29,4 @@ class CollectionEntity(
           UserId(owner),
           mods.sortedBy { it.index }.map { it.mod.toDomain() }.toMutableList(),
       )
-
-  companion object {
-    fun fromCollection(collection: Collection): CollectionEntity =
-        collection.let { (id, name, description, owner, mods) ->
-          CollectionEntity(
-              id.value,
-              name,
-              description,
-              owner.value,
-              mods.mapIndexed { index, mod ->
-                CollectionItemEntity(index, id.value, ModEntity.fromMod(mod))
-              },
-          )
-        }
-  }
 }

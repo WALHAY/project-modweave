@@ -4,30 +4,29 @@ import git.walhay.modweave.api.collection.CollectionResponseDto
 import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.api.common.forApi
 import git.walhay.modweave.api.mod.ModResponseDto
-import git.walhay.modweave.domain.collection.ICollectionService
+import git.walhay.modweave.api.security.requireUser
+import git.walhay.modweave.domain.collection.CollectionService
 import git.walhay.modweave.domain.common.paging.Page
-import git.walhay.modweave.domain.mod.IModService
-import git.walhay.modweave.domain.user.IUserService
+import git.walhay.modweave.domain.mod.ModService
 import git.walhay.modweave.domain.user.UserId
+import git.walhay.modweave.domain.user.UserService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
-import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/users")
 class UserController(
-    private val userService: IUserService,
-    private val collectionService: ICollectionService,
-    private val modService: IModService,
+    private val userService: UserService,
+    private val collectionService: CollectionService,
+    private val modService: ModService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
@@ -102,7 +101,7 @@ class UserController(
       @ModelAttribute @Valid dto: UserUpdateDto,
       @AuthenticationPrincipal user: UserDetails?,
   ): UserResponseDto {
-    val username = requireUsername(user)
+    val username = requireUser(user).username
     logger.info { "PATCH /users - updating user: $username" }
     return userService.updateUser(UserId(username), dto.toUserUpdateCommand()).let {
       UserResponseDto.fromUser(it)
@@ -120,7 +119,4 @@ class UserController(
     }
     return updateUser(dto, user)
   }
-
-  private fun requireUsername(user: UserDetails?): String =
-      user?.username ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
 }

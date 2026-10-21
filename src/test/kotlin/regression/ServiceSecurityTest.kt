@@ -6,9 +6,8 @@ import git.walhay.modweave.domain.comment.CommentRepository
 import git.walhay.modweave.domain.common.paging.Page
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
 import git.walhay.modweave.domain.config.properties.ModweaveProperties
-import git.walhay.modweave.domain.file.IFileService
+import git.walhay.modweave.domain.file.FileService
 import git.walhay.modweave.domain.game.GameId
-import git.walhay.modweave.domain.mod.IModService
 import git.walhay.modweave.domain.mod.Mod
 import git.walhay.modweave.domain.mod.ModId
 import git.walhay.modweave.domain.mod.ModRepository
@@ -53,9 +52,7 @@ class ServiceSecurityTest {
     fun storage(): git.walhay.modweave.domain.storage.ISimpleStorageService =
         mock(git.walhay.modweave.domain.storage.ISimpleStorageService::class.java)
 
-    @Bean fun files(): IFileService = mock(IFileService::class.java)
-
-    @Bean fun modService(): IModService = mock(IModService::class.java)
+    @Bean fun files(): FileService = mock(FileService::class.java)
 
     @Bean fun pageSizePolicy() = PageSizePolicy(ModweaveProperties())
 

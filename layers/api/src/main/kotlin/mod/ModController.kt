@@ -2,13 +2,14 @@ package git.walhay.modweave.api.mod
 
 import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.api.common.forApi
+import git.walhay.modweave.api.security.requireUser
 import git.walhay.modweave.api.version.FileResponseDto
 import git.walhay.modweave.api.version.VersionResponseDto
 import git.walhay.modweave.domain.common.paging.Page
-import git.walhay.modweave.domain.mod.IModService
 import git.walhay.modweave.domain.mod.ModId
+import git.walhay.modweave.domain.mod.ModService
 import git.walhay.modweave.domain.user.UserId
-import git.walhay.modweave.domain.version.IVersionService
+import git.walhay.modweave.domain.version.VersionService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import mu.KLogger
@@ -17,18 +18,16 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/mods")
 class ModController(
-    private val modService: IModService,
-    private val versionService: IVersionService,
+    private val modService: ModService,
+    private val versionService: VersionService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
@@ -110,7 +109,4 @@ class ModController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   fun removeMod(@PathVariable modId: String, @AuthenticationPrincipal user: UserDetails?) =
       deleteMod(modId, user)
-
-  private fun requireUser(user: UserDetails?): UserDetails =
-      user ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
 }

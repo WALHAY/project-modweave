@@ -19,20 +19,20 @@ class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val pageSizePolicy: PageSizePolicy,
-) : IUserService {
+) {
   private val logger: KLogger = KotlinLogging.logger {}
 
   // Account status and roles must be fresh even when public profile DTOs are cached.
-  override fun findUserForAuthentication(userId: UserId): User =
+  fun findUserForAuthentication(userId: UserId): User =
       userRepository.findByUsername(userId) ?: throw UserNotFoundException(userId)
 
   @Cacheable("users", key = "#p0")
-  override fun findUserByUsername(userId: UserId): User {
+  fun findUserByUsername(userId: UserId): User {
     logger.debug { "Fetching user by username: $userId" }
     return userRepository.findByUsername(userId) ?: throw UserNotFoundException(userId)
   }
 
-  override fun findUsersWithFilter(
+  fun findUsersWithFilter(
       page: Int,
       size: Int,
       name: String?,
@@ -49,7 +49,7 @@ class UserService(
   }
 
   @CacheEvict("users", allEntries = true)
-  override fun createUser(command: UserCreateCommand): User {
+  fun createUser(command: UserCreateCommand): User {
     logger.info { "Creating new user: ${command.username}" }
     if (userRepository.existsByUsername(command.username)) {
       logger.warn { "User creation failed - login already exists: ${command.username}" }
@@ -76,7 +76,7 @@ class UserService(
 
   @CacheEvict("users", allEntries = true)
   @PreAuthorize("@accessSecurity.isSelfOrAdmin(#p0)")
-  override fun updateUser(
+  fun updateUser(
       userId: UserId,
       command: UserUpdateCommand,
   ): User {

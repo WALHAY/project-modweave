@@ -27,7 +27,7 @@ class CollectionAndUploadTest {
   @Test
   fun `insert at index and delete persist the expected collection order`() {
     val repository = mock(CollectionRepository::class.java)
-    val mods = mock(IModService::class.java)
+    val mods = mock(ModService::class.java)
     val first = mod("first")
     val second = mod("second")
     val collection = Collection("favorites", null, owner, mutableListOf(first))

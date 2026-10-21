@@ -21,16 +21,16 @@ class GameService(
     private val gameRepository: GameRepository,
     private val simpleStorageService: ISimpleStorageService,
     private val pageSizePolicy: PageSizePolicy,
-) : IGameService {
+) {
   private val logger: KLogger = KotlinLogging.logger {}
 
   @Cacheable("games", key = "#p0")
-  override fun findGameById(gameId: GameId): Game {
+  fun findGameById(gameId: GameId): Game {
     logger.debug { "Fetching game by id: $gameId" }
     return gameRepository.findById(gameId) ?: throw GameNotFoundException(gameId)
   }
 
-  override fun findGamesWithFilter(
+  fun findGamesWithFilter(
       page: Int,
       size: Int,
       name: String?,
@@ -48,7 +48,7 @@ class GameService(
 
   @CacheEvict(value = ["mods", "games", "users"], allEntries = true)
   @PreAuthorize("@accessSecurity.isAdmin()")
-  override fun uploadGame(command: GameCreateCommand): Game {
+  fun uploadGame(command: GameCreateCommand): Game {
     logger.info { "Creating new game: ${command.id}" }
     if (gameRepository.existsByIdIgnoreCase(command.id)) {
       logger.warn { "Game creation failed - game already exists: ${command.id}" }
@@ -64,7 +64,7 @@ class GameService(
   @CacheEvict(
       value = ["mods", "versions", "games", "collections", "users", "comments"], allEntries = true)
   @PreAuthorize("@accessSecurity.isAdmin()")
-  override fun deleteGame(gameId: GameId): Unit {
+  fun deleteGame(gameId: GameId): Unit {
     logger.info { "Deleting game: $gameId" }
     val game = findGameById(gameId)
     gameRepository.deleteById(gameId)

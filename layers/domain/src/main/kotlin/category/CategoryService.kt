@@ -1,7 +1,5 @@
 package git.walhay.modweave.domain.category
 
-import mu.KLogger
-import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.security.access.prepost.PreAuthorize
@@ -10,67 +8,32 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class CategoryService(
-    val categoryRepository: CategoryRepository,
-) : ICategoryService {
-  private val logger: KLogger = KotlinLogging.logger {}
+class CategoryService(private val categoryRepository: CategoryRepository) {
+  @Cacheable("categories") fun getCategories(): List<Category> = categoryRepository.findAll()
 
-  @Cacheable("categories")
-  override fun getCategories(): List<Category> {
-    logger.debug { "Fetching all categories" }
-    return categoryRepository.findAll()
+  @CacheEvict(value = ["categories", "mods", "games", "users", "collections"], allEntries = true)
+  @PreAuthorize("@accessSecurity.isAdmin()")
+  fun uploadCategory(command: CategoryCommand): Category {
+    if (categoryRepository.existsByNameIgnoreCase(command.name))
+        throw CategoryExistsException(command.name)
+    return categoryRepository.save(Category(command.name, command.description))
   }
 
   @CacheEvict(value = ["categories", "mods", "games", "users", "collections"], allEntries = true)
   @PreAuthorize("@accessSecurity.isAdmin()")
-  override fun uploadCategory(command: CategoryCreateCommand): Category {
-    logger.info { "Creating new category: ${command.name}" }
-    if (categoryRepository.existsByNameIgnoreCase(command.name)) {
-      logger.warn { "Category creation failed - category already exists: ${command.name}" }
-      throw CategoryExistsException(command.name)
-    }
-
-    val category =
-        command
-            .let { (name, description) -> Category(name, description) }
-            .also { categoryRepository.save(it) }
-
-    logger.info { "Category created successfully: ${category.name}" }
-    return category
-  }
-
-  @CacheEvict(value = ["categories", "mods", "games", "users", "collections"], allEntries = true)
-  @PreAuthorize("@accessSecurity.isAdmin()")
-  override fun updateCategory(command: CategoryUpdateCommand): Category {
-    logger.info { "Updating category: ${command.name}" }
+  fun updateCategory(command: CategoryCommand): Category {
     val existing =
         categoryRepository.findAll().firstOrNull {
           it.name.value.equals(command.name.value.trim(), ignoreCase = true)
-        }
-    if (existing == null) {
-      logger.warn { "Category update failed - category not found: ${command.name}" }
-      throw CategoryNotFoundException(command.name)
-    }
-
-    val category =
-        command
-            .let { (name, description) -> Category(existing.name, description) }
-            .let { categoryRepository.save(it) }
-
-    logger.info { "Category updated successfully: ${category.name}" }
-    return category
+        } ?: throw CategoryNotFoundException(command.name)
+    return categoryRepository.save(Category(existing.name, command.description))
   }
 
   @CacheEvict(value = ["categories", "mods", "games", "users", "collections"], allEntries = true)
   @PreAuthorize("@accessSecurity.isAdmin()")
-  override fun deleteCategory(categoryId: CategoryId) {
-    logger.info { "Deleting category: $categoryId" }
-    if (!categoryRepository.existsByNameIgnoreCase(categoryId)) {
-      logger.warn { "Category deletion failed - category not found: $categoryId" }
-      throw CategoryNotFoundException(categoryId)
-    }
-
+  fun deleteCategory(categoryId: CategoryId) {
+    if (!categoryRepository.existsByNameIgnoreCase(categoryId))
+        throw CategoryNotFoundException(categoryId)
     categoryRepository.deleteByNameIgnoreCase(categoryId)
-    logger.info { "Category deleted successfully: $categoryId" }
   }
 }

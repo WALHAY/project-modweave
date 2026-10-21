@@ -16,9 +16,9 @@ data class ModUploadDto(
     @field:NotBlank @field:Size(min = 3, max = 50) val name: String,
     val description: String?,
     @field:NotNull @field:ValidImage val image: MultipartFile,
-    val categories: Set<String> = mutableSetOf(),
+    val categories: Set<String> = emptySet(),
     @field:NotBlank val versionName: String,
-    @field:NotEmpty val files: List<MultipartFile> = mutableListOf(),
+    @field:NotEmpty val files: List<MultipartFile> = emptyList(),
     @field:NotBlank val gameId: String,
 ) {
   fun toModCreateCommand() =

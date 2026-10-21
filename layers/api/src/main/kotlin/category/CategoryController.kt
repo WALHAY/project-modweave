@@ -3,7 +3,7 @@ package git.walhay.modweave.api.category
 import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.domain.category.CategoryId
 import git.walhay.modweave.domain.category.CategoryNotFoundException
-import git.walhay.modweave.domain.category.ICategoryService
+import git.walhay.modweave.domain.category.CategoryService
 import jakarta.validation.Valid
 import mu.KLogger
 import mu.KotlinLogging
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/categories")
 class CategoryController(
-    val categoryService: ICategoryService,
+    val categoryService: CategoryService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
@@ -35,7 +35,7 @@ class CategoryController(
       @Valid @ModelAttribute dto: CategoryUploadDto,
   ): CategoryResponseDto {
     logger.info { "POST /categories - uploading category: ${dto.name}" }
-    return categoryService.uploadCategory(dto.toCategoryCreateCommand()).let {
+    return categoryService.uploadCategory(dto.toCategoryCommand()).let {
       CategoryResponseDto.fromCategory(it)
     }
   }
@@ -54,7 +54,7 @@ class CategoryController(
       @Valid @ModelAttribute dto: CategoryUpdateDto,
   ): CategoryResponseDto {
     logger.info { "PATCH /categories - updating category: ${dto.name}" }
-    return categoryService.updateCategory(dto.toCategoryUpdateCommand()).let {
+    return categoryService.updateCategory(dto.toCategoryCommand()).let {
       CategoryResponseDto.fromCategory(it)
     }
   }

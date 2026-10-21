@@ -1,8 +1,8 @@
 package git.walhay.modweave.api.security
 
-import git.walhay.modweave.domain.user.IUserService
 import git.walhay.modweave.domain.user.UserId
 import git.walhay.modweave.domain.user.UserNotFoundException
+import git.walhay.modweave.domain.user.UserService
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.context.annotation.Bean
@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 
 @Configuration
 class UserDetailsConfiguration(
-    @Lazy private val userService: IUserService,
+    @Lazy private val userService: UserService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 

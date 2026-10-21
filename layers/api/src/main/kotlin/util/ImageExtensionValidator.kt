@@ -1,10 +1,13 @@
 package git.walhay.modweave.api.util
 
+import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
+import jakarta.validation.Payload
 import java.io.IOException
 import java.util.Locale
 import javax.imageio.ImageIO
+import kotlin.reflect.KClass
 import org.springframework.web.multipart.MultipartFile
 
 class ImageExtensionValidator(
@@ -36,3 +39,13 @@ class ImageExtensionValidator(
     }
   }
 }
+
+@MustBeDocumented
+@Constraint(validatedBy = [ImageExtensionValidator::class])
+@Target(AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ValidImage(
+    val message: String = "Only png, jpg or jpeg allowed",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = [],
+)

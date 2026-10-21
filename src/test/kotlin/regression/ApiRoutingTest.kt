@@ -8,9 +8,9 @@ import git.walhay.modweave.api.mod.ModController
 import git.walhay.modweave.api.security.*
 import git.walhay.modweave.api.version.VersionController
 import git.walhay.modweave.domain.common.paging.Page
-import git.walhay.modweave.domain.game.IGameService
-import git.walhay.modweave.domain.mod.IModService
-import git.walhay.modweave.domain.version.IVersionService
+import git.walhay.modweave.domain.game.GameService
+import git.walhay.modweave.domain.mod.ModService
+import git.walhay.modweave.domain.version.VersionService
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -45,9 +45,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 @EnableConfigurationProperties(JwtProperties::class)
 class ApiRoutingTest {
   @Autowired lateinit var mvc: MockMvc
-  @MockitoBean lateinit var games: IGameService
-  @MockitoBean lateinit var mods: IModService
-  @MockitoBean lateinit var versions: IVersionService
+  @MockitoBean lateinit var games: GameService
+  @MockitoBean lateinit var mods: ModService
+  @MockitoBean lateinit var versions: VersionService
   @MockitoBean lateinit var users: UserDetailsService
 
   @Test

@@ -1,7 +1,5 @@
 package git.walhay.modweave.api.security
 
-import mu.KLogger
-import mu.KotlinLogging
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -24,23 +22,14 @@ class SecurityConfiguration(
     private val jwtDecoder: org.springframework.security.oauth2.jwt.JwtDecoder,
     private val bearerProblemHandler: BearerProblemHandler,
 ) {
-  private val logger: KLogger = KotlinLogging.logger {}
+  @Bean fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
   @Bean
-  fun passwordEncoder(): PasswordEncoder {
-    logger.info { "Initializing BCryptPasswordEncoder bean" }
-    return BCryptPasswordEncoder()
-  }
-
-  @Bean
-  fun authenticationManager(auth: AuthenticationConfiguration): AuthenticationManager {
-    logger.info { "Initializing AuthenticationManager bean" }
-    return auth.authenticationManager
-  }
+  fun authenticationManager(auth: AuthenticationConfiguration): AuthenticationManager =
+      auth.authenticationManager
 
   @Bean
   fun filterChain(http: HttpSecurity): SecurityFilterChain {
-    logger.info { "Configuring security filter chain" }
     http {
       csrf { disable() }
       sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS }
@@ -66,7 +55,6 @@ class SecurityConfiguration(
       }
     }
 
-    logger.info { "Security filter chain configured successfully" }
     return http.build()
   }
 }

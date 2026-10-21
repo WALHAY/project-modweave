@@ -1,5 +1,6 @@
 package git.walhay.modweave.api.config
 
+import git.walhay.modweave.api.config.interceptor.UserActionLoggingInterceptor
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.method.HandlerTypePredicate
 import org.springframework.web.servlet.config.annotation.ApiVersionConfigurer
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
@@ -20,6 +22,10 @@ import tools.jackson.databind.type.LogicalType
 
 @Configuration
 class WebConfiguration : WebMvcConfigurer {
+  override fun addInterceptors(registry: InterceptorRegistry) {
+    registry.addInterceptor(UserActionLoggingInterceptor()).addPathPatterns("/api/**")
+  }
+
   private val logger: KLogger = KotlinLogging.logger {}
 
   @Bean

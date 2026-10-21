@@ -9,8 +9,16 @@ data class ModCreateCommand(
     val name: String,
     val description: String?,
     val image: MultipartFile,
-    val categories: Set<CategoryId> = mutableSetOf(),
+    val categories: Set<CategoryId> = emptySet(),
     val versionName: String,
-    val files: List<MultipartFile> = mutableListOf(),
+    val files: List<MultipartFile> = emptyList(),
     val gameId: GameId,
 )
+
+class ModExistsException(
+    modId: ModId,
+) : RuntimeException("Mod with id=\"$modId\" already exists")
+
+class ModNotFoundException(
+    modId: ModId,
+) : RuntimeException("Mod with id=\"$modId\" not found")

@@ -5,16 +5,14 @@ import git.walhay.modweave.domain.category.CategoryRepository
 import git.walhay.modweave.domain.collection.CollectionId
 import git.walhay.modweave.domain.common.paging.Page
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
-import git.walhay.modweave.domain.game.IGameService
+import git.walhay.modweave.domain.game.GameService
 import git.walhay.modweave.domain.security.AccessSecurity
 import git.walhay.modweave.domain.storage.ISimpleStorageService
-import git.walhay.modweave.domain.user.IUserService
 import git.walhay.modweave.domain.user.UserId
-import git.walhay.modweave.domain.version.IVersionService
+import git.walhay.modweave.domain.user.UserService
+import git.walhay.modweave.domain.version.VersionService
 import git.walhay.modweave.domain.version.VersionStatus
 import java.util.UUID
-import mu.KLogger
-import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.data.domain.PageRequest
@@ -28,15 +26,14 @@ import org.springframework.transaction.annotation.Transactional
 class ModService(
     private val modRepository: ModRepository,
     private val accessSecurity: AccessSecurity,
-    private val userService: IUserService,
+    private val userService: UserService,
     private val categoryRepository: CategoryRepository,
-    private val gamerService: IGameService,
-    private val versionService: IVersionService,
+    private val gamerService: GameService,
+    private val versionService: VersionService,
     private val simpleStorageService: ISimpleStorageService,
     private val pageSizePolicy: PageSizePolicy,
-    private val logger: KLogger = KotlinLogging.logger {},
-) : IModService {
-  override fun findModById(modId: ModId): Mod =
+) {
+  fun findModById(modId: ModId): Mod =
       modRepository.findById(modId, VersionStatus.APPROVED)
           ?: if (accessSecurity.canManageMod(modId.value)) {
             modRepository.findById(modId)
@@ -45,7 +42,7 @@ class ModService(
           }
           ?: throw ModNotFoundException(modId)
 
-  override fun findModsWithFilter(
+  fun findModsWithFilter(
       page: Int,
       size: Int,
       name: String?,
@@ -59,7 +56,7 @@ class ModService(
     return modRepository.findAll(name, pageRequest, visibleStatus)
   }
 
-  override fun findModsOfUser(
+  fun findModsOfUser(
       id: UserId,
       page: Int,
       size: Int,
@@ -70,7 +67,7 @@ class ModService(
           PageRequest.of(page, pageSizePolicy.normalize(size), sort),
           if (accessSecurity.isSelfOrAdmin(id.value)) null else VersionStatus.APPROVED)
 
-  override fun findModsInCollection(
+  fun findModsInCollection(
       id: CollectionId,
       page: Int,
       size: Int,
@@ -81,7 +78,7 @@ class ModService(
 
   @CacheEvict(value = ["mods", "games", "users"], allEntries = true)
   @PreAuthorize("@accessSecurity.isSelf(#p0)")
-  override fun uploadMod(
+  fun uploadMod(
       userId: UserId,
       command: ModCreateCommand,
   ): Mod {
@@ -104,13 +101,13 @@ class ModService(
         command
             .let { (id, name, description, image) ->
               Mod(
-                  id,
-                  name,
-                  description,
-                  storedImage,
-                  user.username,
-                  game.id,
-                  categories.map { it.name }.toSet(),
+                  id = id,
+                  name = name,
+                  description = description,
+                  imagePath = storedImage,
+                  publisherId = user.username,
+                  gameId = game.id,
+                  categories = categories.map { it.name }.toSet(),
               )
             }
             .let { modRepository.save(it) }
@@ -122,7 +119,7 @@ class ModService(
   @CacheEvict(
       value = ["mods", "versions", "games", "collections", "users", "comments"], allEntries = true)
   @PreAuthorize("@accessSecurity.isModOwnerOrAdmin(#p0, #p1)")
-  override fun deleteMod(
+  fun deleteMod(
       userId: UserId,
       modId: ModId,
   ) {

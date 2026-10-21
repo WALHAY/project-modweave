@@ -17,25 +17,4 @@ data class Mod(
     val gameId: GameId,
     val categories: Set<CategoryId> = emptySet(),
     val versions: MutableList<Version> = mutableListOf(),
-) : Serializable {
-  constructor(
-      id: ModId,
-      name: String,
-      description: String? = null,
-      imagePath: String,
-      publisherId: UserId,
-      gameId: GameId,
-      categories: Set<CategoryId> = emptySet(),
-      versions: MutableList<Version> = mutableListOf(),
-  ) : this(
-      id = id,
-      name = name,
-      description = description,
-      imagePath = imagePath,
-      creationDate = LocalDateTime.now(),
-      publisherId = publisherId,
-      gameId = gameId,
-      categories = categories,
-      versions = versions,
-  )
-}
+) : Serializable

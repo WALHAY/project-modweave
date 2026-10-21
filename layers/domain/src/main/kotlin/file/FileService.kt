@@ -2,21 +2,21 @@ package git.walhay.modweave.domain.file
 
 import git.walhay.modweave.domain.storage.ISimpleStorageService
 import git.walhay.modweave.domain.version.Version
-import jakarta.transaction.Transactional
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 
 @Service
-@Transactional(rollbackOn = [Exception::class])
+@Transactional(rollbackFor = [Exception::class])
 class FileService(
     private val simpleStorageService: ISimpleStorageService,
     private val fileRepository: FileRepository,
-) : IFileService {
+) {
   private val logger: KLogger = KotlinLogging.logger {}
 
-  override fun uploadVersionFiles(
+  fun uploadVersionFiles(
       version: Version,
       files: List<MultipartFile>,
   ) {

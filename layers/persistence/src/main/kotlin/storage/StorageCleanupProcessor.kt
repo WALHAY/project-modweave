@@ -29,7 +29,7 @@ class StorageCleanupProcessor(
     repeat(properties.batchSize) {
       val task =
           try {
-            transaction.execute { operations.nextTask() }
+            operations.nextTask()
           } catch (e: Exception) {
             logger.warn(e) { "Storage cleanup database unavailable; tasks remain pending" }
             return

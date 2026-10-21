@@ -6,8 +6,8 @@ import git.walhay.modweave.api.game.GameController
 import git.walhay.modweave.api.user.UserCreateDto
 import git.walhay.modweave.api.user.UserUpdateDto
 import git.walhay.modweave.api.util.ImageExtensionValidator
-import git.walhay.modweave.domain.comment.ICommentService
-import git.walhay.modweave.domain.game.IGameService
+import git.walhay.modweave.domain.comment.CommentService
+import git.walhay.modweave.domain.game.GameService
 import jakarta.validation.Validation
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -23,8 +23,8 @@ import org.springframework.web.accept.SemanticApiVersionParser
 class HttpAndValidationTest {
   @Test
   fun `game deletion binds path and comment creation has its own route`() {
-    val gameService = mock(IGameService::class.java)
-    val commentService = mock(ICommentService::class.java)
+    val gameService = mock(GameService::class.java)
+    val commentService = mock(CommentService::class.java)
     val mvc =
         MockMvcBuilders.standaloneSetup(
                 GameController(gameService), CommentController(commentService))

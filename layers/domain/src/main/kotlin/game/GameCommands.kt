@@ -8,3 +8,11 @@ data class GameCreateCommand(
     val description: String?,
     val image: MultipartFile,
 )
+
+class GameExistsException(
+    gameId: GameId,
+) : RuntimeException("Game with id=\"$gameId\" already exists")
+
+class GameNotFoundException(
+    gameId: GameId,
+) : RuntimeException("Game with id=\"$gameId\" not found")

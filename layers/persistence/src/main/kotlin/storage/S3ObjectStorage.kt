@@ -2,7 +2,6 @@ package git.walhay.modweave.persistence.storage
 
 import io.minio.*
 import java.io.InputStream
-import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.event.ApplicationReadyEvent
@@ -15,8 +14,9 @@ class S3ObjectStorage(
     private val minioClient: MinioClient,
     @param:Value($$"${storage.s3.buckets.mods}") private val modsBucket: String,
     @param:Value($$"${storage.s3.buckets.images}") private val imagesBucket: String,
-    private val logger: KLogger = KotlinLogging.logger {},
 ) : ObjectStorageClient {
+  private val logger = KotlinLogging.logger {}
+
   @EventListener(ApplicationReadyEvent::class)
   fun initBuckets() {
     checkBucketExistence(modsBucket)
@@ -51,47 +51,25 @@ class S3ObjectStorage(
     }
   }
 
-  private fun putFileIntoBucket(
-      bucket: String,
-      filename: String,
-      file: MultipartFile,
-  ): String {
-    logger.info(
-        "Uploading file=${file.originalFilename} into bucket=$bucket with filename=$filename")
-    try {
-      file.inputStream.use { input ->
-        minioClient.putObject(
-            PutObjectArgs.builder()
-                .bucket(bucket)
-                .`object`(filename)
-                .stream(input, file.size, -1)
-                .contentType(file.contentType ?: "application/octet-stream")
-                .build(),
-        )
-      }
-
-      return filename
-    } catch (e: Exception) {
-      logger.error(
-          "Failed to upload file=${file.originalFilename} into bucket=$bucket with filename=$filename")
-      throw e
+  override fun upload(bucket: StorageBucket, filename: String, file: MultipartFile): String {
+    logger.info {
+      "Uploading file=${file.originalFilename} into bucket=$bucket with filename=$filename"
     }
+    file.inputStream.use { input ->
+      minioClient.putObject(
+          PutObjectArgs.builder()
+              .bucket(bucketName(bucket))
+              .`object`(filename)
+              .stream(input, file.size, -1)
+              .contentType(file.contentType ?: "application/octet-stream")
+              .build())
+    }
+    return filename
   }
-
-  private fun removeFileFromBucket(
-      bucket: String,
-      filename: String,
-  ) {
-    minioClient.removeObject(
-        RemoveObjectArgs.builder().bucket(bucket).`object`(filename).build(),
-    )
-  }
-
-  override fun upload(bucket: StorageBucket, filename: String, file: MultipartFile): String =
-      putFileIntoBucket(bucketName(bucket), filename, file)
 
   override fun remove(bucket: StorageBucket, filename: String) {
-    removeFileFromBucket(bucketName(bucket), filename)
+    minioClient.removeObject(
+        RemoveObjectArgs.builder().bucket(bucketName(bucket)).`object`(filename).build())
   }
 
   override fun downloadVersionFile(filename: String): InputStream =

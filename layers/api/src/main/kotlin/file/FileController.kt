@@ -2,8 +2,8 @@ package git.walhay.modweave.api.file
 
 import git.walhay.modweave.api.common.HttpCache
 import git.walhay.modweave.api.common.apiLink
+import git.walhay.modweave.domain.file.FileDownloadService
 import git.walhay.modweave.domain.file.FileId
-import git.walhay.modweave.domain.file.IFileDownloadService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import java.nio.charset.StandardCharsets
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/files")
 class FileController(
-    private val downloads: IFileDownloadService,
+    private val downloads: FileDownloadService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 

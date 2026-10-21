@@ -2,44 +2,39 @@ package git.walhay.modweave.domain.version
 
 import git.walhay.modweave.domain.common.paging.Page
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
-import git.walhay.modweave.domain.file.IFileService
-import git.walhay.modweave.domain.mod.IModService
+import git.walhay.modweave.domain.file.FileService
 import git.walhay.modweave.domain.mod.Mod
 import git.walhay.modweave.domain.mod.ModCreateCommand
 import git.walhay.modweave.domain.mod.ModId
+import git.walhay.modweave.domain.mod.ModNotFoundException
+import git.walhay.modweave.domain.mod.ModRepository
 import git.walhay.modweave.domain.security.AccessSecurity
 import git.walhay.modweave.domain.storage.ISimpleStorageService
 import git.walhay.modweave.domain.user.UserId
-import jakarta.transaction.Transactional
-import mu.KLogger
-import mu.KotlinLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional(rollbackOn = [Exception::class])
+@Transactional(rollbackFor = [Exception::class])
 class VersionService(
     private val versionRepository: VersionRepository,
-    private val fileService: IFileService,
+    private val modRepository: ModRepository,
+    private val fileService: FileService,
     private val accessSecurity: AccessSecurity,
     private val pageSizePolicy: PageSizePolicy,
     private val storageService: ISimpleStorageService,
-    private val logger: KLogger = KotlinLogging.logger {},
-) : IVersionService {
-  @Lazy @Autowired private lateinit var modService: IModService
-
+) {
   @Cacheable("versions", key = "#p0")
   @PreAuthorize("@accessSecurity.canReadVersion(#p0)")
-  override fun getModVersion(versionId: VersionId): Version =
+  fun getModVersion(versionId: VersionId): Version =
       versionRepository.findVersionById(versionId) ?: throw VersionNotFoundException(versionId)
 
-  override fun getModVersions(
+  fun getModVersions(
       userId: UserId?,
       modId: ModId,
       pageable: Pageable,
@@ -56,7 +51,7 @@ class VersionService(
 
   @CacheEvict("versions", allEntries = true)
   @PreAuthorize("isAuthenticated()")
-  override fun createModVersion(
+  fun createModVersion(
       mod: Mod,
       command: ModCreateCommand,
   ): Version {
@@ -71,7 +66,7 @@ class VersionService(
 
   @CacheEvict(value = ["versions", "mods", "games", "collections", "users"], allEntries = true)
   @PreAuthorize("@accessSecurity.isAdmin()")
-  override fun changeVersionStatus(
+  fun changeVersionStatus(
       userId: UserId,
       modId: ModId,
       versionId: VersionId,
@@ -89,11 +84,11 @@ class VersionService(
 
   @CacheEvict(value = ["versions", "mods", "games", "collections", "users"], allEntries = true)
   @PreAuthorize("@accessSecurity.canManageMod(#p0)")
-  override fun createModVersion(
+  fun createModVersion(
       modId: ModId,
       command: VersionCreateCommand,
   ): Version {
-    val mod = modService.findModById(modId)
+    val mod = modRepository.findById(modId) ?: throw ModNotFoundException(modId)
 
     if (mod.versions.any { it.name == command.name }) {
       throw VersionExistsException(command.name)
@@ -110,7 +105,7 @@ class VersionService(
 
   @CacheEvict(value = ["versions", "mods", "games", "collections", "users"], allEntries = true)
   @PreAuthorize("@accessSecurity.canManageMod(#p0)")
-  override fun deleteModVersion(modId: ModId, versionId: VersionId) {
+  fun deleteModVersion(modId: ModId, versionId: VersionId) {
     val version = getModVersion(versionId)
 
     if (version.modId != modId) throw VersionNotFoundException(versionId)

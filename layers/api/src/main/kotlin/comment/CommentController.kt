@@ -1,9 +1,9 @@
 package git.walhay.modweave.api.comment
 
 import git.walhay.modweave.api.common.apiLink
+import git.walhay.modweave.api.security.requireUser
 import git.walhay.modweave.domain.comment.CommentId
-import git.walhay.modweave.domain.comment.CommentNotFoundException
-import git.walhay.modweave.domain.comment.ICommentService
+import git.walhay.modweave.domain.comment.CommentService
 import git.walhay.modweave.domain.common.paging.Page
 import git.walhay.modweave.domain.mod.ModId
 import git.walhay.modweave.domain.user.UserId
@@ -13,17 +13,15 @@ import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus.NO_CONTENT
-import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/comments")
 class CommentController(
-    private val service: ICommentService,
+    private val service: CommentService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
@@ -37,8 +35,7 @@ class CommentController(
 
   @GetMapping("/{id}", version = "2")
   fun getComment(@PathVariable id: UUID): CommentResponseDto =
-      service.findCommentById(CommentId(id))?.let { CommentResponseDto.fromComment(it) }
-          ?: throw CommentNotFoundException(CommentId(id))
+      CommentResponseDto.fromComment(service.findCommentById(CommentId(id)))
 
   @PostMapping(
       version = "1", consumes = ["application/x-www-form-urlencoded", "multipart/form-data"])
@@ -79,7 +76,4 @@ class CommentController(
   @ResponseStatus(NO_CONTENT)
   fun removeComment(@PathVariable id: UUID, @AuthenticationPrincipal user: UserDetails?) =
       deleteComment(id, user)
-
-  private fun requireUser(user: UserDetails?): UserDetails =
-      user ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
 }

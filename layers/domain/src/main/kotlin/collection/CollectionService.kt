@@ -2,10 +2,9 @@ package git.walhay.modweave.domain.collection
 
 import git.walhay.modweave.domain.common.paging.Page
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
-import git.walhay.modweave.domain.mod.IModService
 import git.walhay.modweave.domain.mod.ModId
+import git.walhay.modweave.domain.mod.ModService
 import git.walhay.modweave.domain.user.UserId
-import jakarta.transaction.Transactional
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
@@ -14,25 +13,26 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
 class CollectionService(
     private val collectionRepository: CollectionRepository,
     private val pageSizePolicy: PageSizePolicy,
-    private val modService: IModService,
-) : ICollectionService {
+    private val modService: ModService,
+) {
   private val logger: KLogger = KotlinLogging.logger {}
 
   @Cacheable("collections", key = "#p0")
-  override fun getCollectionById(id: CollectionId): Collection {
+  fun getCollectionById(id: CollectionId): Collection {
     logger.debug { "Fetching collection by id: $id" }
     return collectionRepository.findById(id) ?: throw CollectionNotFoundException(id)
   }
 
   @CacheEvict("collections", allEntries = true)
   @PreAuthorize("@accessSecurity.isSelf(#p0)")
-  override fun createCollection(
+  fun createCollection(
       userId: UserId,
       command: CollectionCreateCommand,
   ): Collection {
@@ -45,7 +45,7 @@ class CollectionService(
 
   @CacheEvict("collections", key = "#p1")
   @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#p0, #p1)")
-  override fun deleteCollection(
+  fun deleteCollection(
       userId: UserId,
       collectionId: CollectionId,
   ) {
@@ -56,7 +56,7 @@ class CollectionService(
 
   @CacheEvict("collections", key = "#p1")
   @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#p0, #p1)")
-  override fun addModToCollection(
+  fun addModToCollection(
       userId: UserId,
       collectionId: CollectionId,
       modId: ModId,
@@ -79,7 +79,7 @@ class CollectionService(
 
   @CacheEvict("collections", key = "#p1")
   @PreAuthorize("@accessSecurity.isCollectionOwnerOrAdmin(#p0, #p1)")
-  override fun deleteModFromCollection(
+  fun deleteModFromCollection(
       userId: UserId,
       collectionId: CollectionId,
       modId: ModId,
@@ -90,7 +90,7 @@ class CollectionService(
     collectionRepository.save(collection)
   }
 
-  override fun findCollectionsOfUser(
+  fun findCollectionsOfUser(
       id: UserId,
       page: Int,
       size: Int,

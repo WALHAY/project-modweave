@@ -4,10 +4,8 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import mu.KLogger
 import mu.KotlinLogging
-import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 
-@Component
 class UserActionLoggingInterceptor(
     private val logger: KLogger = KotlinLogging.logger {},
 ) : HandlerInterceptor {

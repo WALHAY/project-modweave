@@ -2,10 +2,10 @@ package git.walhay.modweave.integration
 
 import git.walhay.modweave.domain.game.GameCreateCommand
 import git.walhay.modweave.domain.game.GameId
-import git.walhay.modweave.domain.game.IGameService
-import git.walhay.modweave.domain.mod.IModService
+import git.walhay.modweave.domain.game.GameService
 import git.walhay.modweave.domain.mod.ModCreateCommand
 import git.walhay.modweave.domain.mod.ModId
+import git.walhay.modweave.domain.mod.ModService
 import git.walhay.modweave.domain.storage.*
 import git.walhay.modweave.domain.user.UserId
 import git.walhay.modweave.persistence.storage.*
@@ -85,8 +85,8 @@ class StorageTransactionsTest {
     @Bean @Primary fun failingStorage(storage: S3ObjectStorage) = FailingStorage(storage)
   }
 
-  @Autowired lateinit var mods: IModService
-  @Autowired lateinit var games: IGameService
+  @Autowired lateinit var mods: ModService
+  @Autowired lateinit var games: GameService
   @Autowired lateinit var storage: ISimpleStorageService
   @Autowired lateinit var raw: S3ObjectStorage
   @Autowired lateinit var failing: FailingStorage

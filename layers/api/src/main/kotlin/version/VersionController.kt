@@ -1,28 +1,27 @@
 package git.walhay.modweave.api.version
 
 import git.walhay.modweave.api.common.apiLink
+import git.walhay.modweave.api.security.requireUser
 import git.walhay.modweave.domain.mod.ModId
 import git.walhay.modweave.domain.user.UserId
-import git.walhay.modweave.domain.version.IVersionService
 import git.walhay.modweave.domain.version.VersionId
 import git.walhay.modweave.domain.version.VersionNotFoundException
+import git.walhay.modweave.domain.version.VersionService
 import git.walhay.modweave.domain.version.VersionStatus
 import jakarta.validation.Valid
 import java.util.UUID
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.UNAUTHORIZED
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/mods/{modId}/versions")
 class VersionController(
-    private val versionService: IVersionService,
+    private val versionService: VersionService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
@@ -97,7 +96,4 @@ class VersionController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   fun removeVersion(@PathVariable modId: String, @PathVariable versionId: UUID) =
       deleteVersion(modId, versionId)
-
-  private fun requireUser(user: UserDetails?): UserDetails =
-      user ?: throw ResponseStatusException(UNAUTHORIZED, "Authentication required")
 }

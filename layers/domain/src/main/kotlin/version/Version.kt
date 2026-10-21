@@ -27,6 +27,4 @@ data class Version(
       modId = modId,
       files = mutableListOf(),
   )
-
-  constructor() : this("", null, ModId())
 }

@@ -4,7 +4,7 @@ import git.walhay.modweave.api.common.apiLink
 import git.walhay.modweave.api.common.forApi
 import git.walhay.modweave.domain.common.paging.Page
 import git.walhay.modweave.domain.game.GameId
-import git.walhay.modweave.domain.game.IGameService
+import git.walhay.modweave.domain.game.GameService
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import mu.KLogger
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/games")
 class GameController(
-    private val gameService: IGameService,
+    private val gameService: GameService,
 ) {
   private val logger: KLogger = KotlinLogging.logger {}
 
