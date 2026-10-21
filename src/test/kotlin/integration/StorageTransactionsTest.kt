@@ -10,7 +10,6 @@ import git.walhay.modweave.domain.storage.*
 import git.walhay.modweave.domain.user.UserId
 import git.walhay.modweave.persistence.storage.*
 import git.walhay.modweave.testutils.StorageTestInfrastructure
-import io.minio.*
 import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.CountDownLatch
@@ -34,6 +33,7 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import org.springframework.web.multipart.MultipartFile
+import software.amazon.awssdk.services.s3.S3Client
 
 @SpringBootTest(
     properties =
@@ -95,7 +95,7 @@ class StorageTransactionsTest {
   @Autowired lateinit var cleanupProperties: StorageCleanupProperties
   @Autowired lateinit var transactionManager: PlatformTransactionManager
   @Autowired lateinit var jdbc: JdbcTemplate
-  @Autowired lateinit var client: MinioClient
+  @Autowired lateinit var client: S3Client
 
   private val owner = UserId("owner")
 
@@ -103,10 +103,7 @@ class StorageTransactionsTest {
       MockMultipartFile("files", name, "application/octet-stream", byteArrayOf(1, 2, 3))
 
   private fun keys(bucket: String): Set<String> =
-      client
-          .listObjects(ListObjectsArgs.builder().bucket(bucket).recursive(true).build())
-          .map { it.get().objectName() }
-          .toSet()
+      client.listObjectsV2Paginator { it.bucket(bucket) }.contents().map { it.key() }.toSet()
 
   private fun count(table: String): Int =
       jdbc.queryForObject("select count(*) from modweave.$table", Int::class.java)!!
@@ -130,8 +127,9 @@ class StorageTransactionsTest {
     failing.failAfterPut = 0
     failing.failDelete = false
     failing.afterPut = null
-    for (bucket in listOf("mods", "images")) for (key in keys(bucket)) client.removeObject(
-        RemoveObjectArgs.builder().bucket(bucket).`object`(key).build())
+    for (bucket in listOf("mods", "images")) for (key in keys(bucket)) client.deleteObject {
+      it.bucket(bucket).key(key)
+    }
     jdbc.execute("truncate modweave.users, modweave.games, modweave.storage_cleanup_tasks cascade")
     jdbc.update(
         "insert into modweave.users (username, name, email, password) values ('owner', 'Owner', 'owner@example.com', 'unused')")

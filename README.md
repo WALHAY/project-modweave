@@ -104,6 +104,8 @@ export JWT_SECRET="$(openssl rand -base64 32)"
 
 Swagger UI: **http://localhost:8080/api/v2/docs**. Исходник — [openapi/openapi.yaml](openapi/openapi.yaml); Gradle проверяет и собирает его, затем включает в JAR по адресу `/api/v2/openapi.yaml`. UI и ресурсы Swagger поставляются локальным WebJar.
 
+Для SeaweedFS используется стандартный `S3Client` из AWS SDK for Java v2. Он подключается к `S3_ENDPOINT`, выполняет потоковые PUT/GET/DELETE и управляет политиками бакетов. Нативный Filer/gRPC в этой конфигурации не нужен. Для SeaweedFS 4.48 включён path-style, отключён chunked PUT, optional checksum рассчитывается только для операций, которые его требуют. Повторная попытка загрузки открывает новый multipart-поток; все потоки закрываются. Записи БД и S3 согласуются через прежний журнал компенсации и outbox.
+
 Подключения задаются через `DB_URL`, `DB_USER`, `DB_PASSWORD`, `REDIS_HOST`, `REDIS_PORT`, `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_REGION`. Значения по умолчанию соответствуют Compose. PostgreSQL создаёт схему из `sql/init.sql` и `sql/storage-cleanup.sql` при первом запуске на пустом томе. Загружаемые файлы ограничены 100 МБ, весь multipart-запрос — 500 МБ. Принимаются PNG/JPEG; содержимое изображения проверяется, повреждённое изображение возвращает 400.
 
 Секрет JWT — Base64 не менее 32 случайных байт. Сохраняйте его между перезапусками. Подпись и проверка HS256 выполняются `NimbusJwtEncoder`/`NimbusJwtDecoder`; bearer-аутентификация — встроенным OAuth2 Resource Server. Проверяются issuer, срок, subject и тип токена: access действует 15 минут, refresh — 30 дней и принимается только `/auth/refresh`. Роли и доступность аккаунта перечитываются при аутентификации. Неверный bearer возвращает 401 с `WWW-Authenticate`.

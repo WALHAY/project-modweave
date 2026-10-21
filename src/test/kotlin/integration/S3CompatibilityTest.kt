@@ -1,8 +1,12 @@
 package git.walhay.modweave.integration
 
+import git.walhay.modweave.persistence.config.DataConfiguration
 import git.walhay.modweave.persistence.storage.S3ObjectStorage
 import git.walhay.modweave.persistence.storage.StorageBucket
-import io.minio.MinioClient
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 import java.time.Duration
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -10,6 +14,7 @@ import org.springframework.mock.web.MockMultipartFile
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.MountableFile
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 
 class S3CompatibilityTest {
   @Test
@@ -38,21 +43,44 @@ class S3CompatibilityTest {
                       .repoDigests)
           println("S3_VERSION=" + container.execInContainer("weed", "version").stdout)
           val endpoint = "http://${container.host}:${container.getMappedPort(8333)}"
-          val client =
-              MinioClient.builder().endpoint(endpoint).credentials("username", "password").build()
-          val storage = S3ObjectStorage(client, "mods", "images")
-          storage.initBuckets()
-          val file =
-              MockMultipartFile(
-                  "files", "example.zip", "application/octet-stream", byteArrayOf(1, 2, 3))
-          storage.upload(StorageBucket.MODS, "example.zip", file)
-          assertArrayEquals(
-              byteArrayOf(1, 2, 3),
-              storage.downloadVersionFile("example.zip").use { it.readAllBytes() })
-          storage.remove(StorageBucket.MODS, "example.zip")
-          assertThrows(io.minio.errors.ErrorResponseException::class.java) {
-            storage.downloadVersionFile("example.zip")
-          }
+          DataConfiguration()
+              .s3Client(URI.create(endpoint), "username", "password", "us-east-1")
+              .use { client ->
+                val storage = S3ObjectStorage(client, "mods", "images")
+                storage.initBuckets()
+                // Large enough to catch checksum/trailer issues and accidental truncation.
+                val bytes = ByteArray(256 * 1024) { it.toByte() }
+                val key = "mods/пример + mod/logo.png"
+                val file =
+                    MockMultipartFile("files", "example.zip", "application/octet-stream", bytes)
+                storage.upload(StorageBucket.MODS, key, file)
+                assertArrayEquals(bytes, storage.downloadVersionFile(key).use { it.readAllBytes() })
+                storage.upload(StorageBucket.IMAGES, key, file)
+                val http = HttpClient.newHttpClient()
+                fun anonymous(bucket: String) =
+                    http.send(
+                        HttpRequest.newBuilder(
+                                URI.create(
+                                    endpoint +
+                                        "/" +
+                                        bucket +
+                                        "/" +
+                                        java.net.URLEncoder.encode(key, Charsets.UTF_8)
+                                            .replace("+", "%20")
+                                            .replace("%2F", "/")))
+                            .build(),
+                        HttpResponse.BodyHandlers.ofByteArray())
+                assertEquals(403, anonymous("mods").statusCode())
+                val image = anonymous("images")
+                assertEquals(200, image.statusCode())
+                assertArrayEquals(bytes, image.body())
+                storage.initBuckets() // Existing buckets and absent policies are also supported.
+                storage.remove(StorageBucket.MODS, key)
+                storage.remove(StorageBucket.MODS, key) // Cleanup may repeat after a lost response.
+                storage.remove(StorageBucket.IMAGES, key)
+                assertThrows(NoSuchKeyException::class.java) { storage.downloadVersionFile(key) }
+                assertEquals(404, anonymous("images").statusCode())
+              }
         }
   }
 }
