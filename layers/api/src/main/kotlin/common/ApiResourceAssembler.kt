@@ -10,6 +10,7 @@ import git.walhay.modweave.api.comment.CommentResponseDto
 import git.walhay.modweave.api.file.FileController
 import git.walhay.modweave.api.game.GameController
 import git.walhay.modweave.api.game.GameResponseDto
+import git.walhay.modweave.api.image.ImageController
 import git.walhay.modweave.api.mod.ModController
 import git.walhay.modweave.api.mod.ModResponseDto
 import git.walhay.modweave.api.user.UserController
@@ -55,11 +56,13 @@ class ApiResourceAssembler : RepresentationModelAssembler<ApiResource, ApiModel>
         }
         is GameResponseDto -> {
           put("self", apiLink(GameController::getGame, entity.id))
+          put("image", apiLink(ImageController::getGameImage, entity.id))
           put("mods", apiLink(ModController::getMods, 0, 20))
           if (admin) put("delete", apiLink(GameController::removeGame, entity.id))
         }
         is ModResponseDto -> {
           put("self", apiLink(ModController::getMod, entity.id))
+          put("image", apiLink(ImageController::getModImage, entity.id))
           put("game", apiLink(GameController::getGame, entity.gameId))
           put("publisher", apiLink(UserController::getUser, entity.publisherId))
           put("versions", apiLink(ModController::getModVersions, entity.id, 0, 20))

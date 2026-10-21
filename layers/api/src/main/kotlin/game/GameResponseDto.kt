@@ -1,6 +1,8 @@
 package git.walhay.modweave.api.game
 
 import git.walhay.modweave.api.common.ApiResource
+import git.walhay.modweave.api.common.apiLink
+import git.walhay.modweave.api.image.ImageController
 import git.walhay.modweave.domain.game.Game
 
 data class GameResponseDto(
@@ -15,7 +17,7 @@ data class GameResponseDto(
             id = game.id.value,
             name = game.name,
             description = game.description,
-            imagePath = game.imagePath,
+            imagePath = apiLink(ImageController::getGameImage, game.id.value).href,
         )
   }
 }

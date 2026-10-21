@@ -9,6 +9,7 @@ import git.walhay.modweave.domain.game.GameExistsException
 import git.walhay.modweave.domain.game.GameNotFoundException
 import git.walhay.modweave.domain.mod.ModExistsException
 import git.walhay.modweave.domain.mod.ModNotFoundException
+import git.walhay.modweave.domain.storage.ImageNotFoundException
 import git.walhay.modweave.domain.user.UserEmailExistsException
 import git.walhay.modweave.domain.user.UserLoginExistsException
 import git.walhay.modweave.domain.user.UserNotFoundException
@@ -42,6 +43,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
       CollectionNotFoundException::class,
       CommentNotFoundException::class,
       FileNotFoundException::class,
+      ImageNotFoundException::class,
       GameNotFoundException::class,
       ModNotFoundException::class,
       UserNotFoundException::class,

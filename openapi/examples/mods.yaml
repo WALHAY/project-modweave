@@ -3,7 +3,7 @@ Mod:
     id: example-mod
     name: Example Mod
     description: null
-    imagePath: mod.png
+    imagePath: /api/v2/mods/example-mod/image
     creationDate: '2026-10-06T12:00:00'
     publisherId: author
     gameId: example-game
@@ -33,7 +33,7 @@ ModPage:
     - id: example-mod
       name: Example Mod
       description: null
-      imagePath: mod.png
+      imagePath: /api/v2/mods/example-mod/image
       creationDate: '2026-10-06T12:00:00'
       publisherId: author
       gameId: example-game

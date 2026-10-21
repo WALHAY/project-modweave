@@ -76,6 +76,8 @@ class StorageTransactionsTest {
       delegate.remove(bucket, filename)
     }
 
+    override fun downloadImage(filename: String): InputStream = delegate.downloadImage(filename)
+
     override fun downloadVersionFile(filename: String): InputStream =
         delegate.downloadVersionFile(filename)
   }
@@ -99,8 +101,21 @@ class StorageTransactionsTest {
 
   private val owner = UserId("owner")
 
-  private fun file(name: String = "mod.zip") =
-      MockMultipartFile("files", name, "application/octet-stream", byteArrayOf(1, 2, 3))
+  private fun file(name: String = "mod.zip"): MockMultipartFile {
+    val bytes =
+        if (name.endsWith(".png"))
+            java.io
+                .ByteArrayOutputStream()
+                .also {
+                  javax.imageio.ImageIO.write(
+                      java.awt.image.BufferedImage(1, 1, java.awt.image.BufferedImage.TYPE_INT_RGB),
+                      "png",
+                      it)
+                }
+                .toByteArray()
+        else byteArrayOf(1, 2, 3)
+    return MockMultipartFile("files", name, "application/octet-stream", bytes)
+  }
 
   private fun keys(bucket: String): Set<String> =
       client.listObjectsV2Paginator { it.bucket(bucket) }.contents().map { it.key() }.toSet()

@@ -1,6 +1,8 @@
 package git.walhay.modweave.api.mod
 
 import git.walhay.modweave.api.common.ApiResource
+import git.walhay.modweave.api.common.apiLink
+import git.walhay.modweave.api.image.ImageController
 import git.walhay.modweave.domain.mod.Mod
 import java.time.LocalDateTime
 
@@ -20,7 +22,7 @@ data class ModResponseDto(
             id = mod.id.value,
             name = mod.name,
             description = mod.description,
-            imagePath = mod.imagePath,
+            imagePath = apiLink(ImageController::getModImage, mod.id.value).href,
             creationDate = mod.creationDate,
             publisherId = mod.publisherId.value,
             gameId = mod.gameId.value,

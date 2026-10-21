@@ -2,13 +2,13 @@
 openapi: 3.1.0
 info:
   title: ModWeave API
-  version: 2.1.2
+  version: 2.1.3
   description: Public REST API for ModWeave. API v1 remains available for existing clients. Public reads need no
     token; mutations require a bearer access token unless stated otherwise. Form bodies and multipart uploads are
     supported directly by Swagger UI. Successful resource and collection representations expose HAL-style HATEOAS
     links in `_links`; clients should follow relation links instead of constructing dependent URLs. Safe GET
     representations expose `Cache-Control` and `ETag`; files also expose their upload date in `Last-Modified`. Clients may send `If-None-Match` and
-    receive `304 Not Modified`. Responses use `private, no-cache` and `Vary` set to `Authorization`; authorization is checked before conditional responses. A supplied invalid or expired bearer token returns 401. Timestamps are local server date-times without a UTC offset (legacy domain model).
+    receive `304 Not Modified`. Responses use `private, no-cache` and `Vary` set to `Authorization`; authorization is checked before conditional responses. Image URLs in imagePath use this API; direct S3 reads are private. Mod image visibility follows the mod card. A supplied invalid or expired bearer token returns 401. Timestamps are local server date-times without a UTC offset (legacy domain model).
   license: {name: MIT, identifier: MIT}
 servers:
 - {url: /, description: 'Same origin as the API documentation (locally http://localhost:8080)'}
@@ -32,9 +32,11 @@ paths:
   /api/v2/users/{username}/collections: {$ref: './paths/users.yaml#/users~1{username}~1collections'}
   /api/v2/users: {$ref: ./paths/users.yaml#/users}
   /api/v2/games: {$ref: ./paths/games.yaml#/games}
+  /api/v2/games/{gameId}/image: {$ref: './paths/images.yaml#/games~1{gameId}~1image'}
   /api/v2/games/{gameId}: {$ref: './paths/games.yaml#/games~1{gameId}'}
   /api/v2/categories: {$ref: ./paths/categories.yaml#/categories}
   /api/v2/mods: {$ref: ./paths/mods.yaml#/mods}
+  /api/v2/mods/{modId}/image: {$ref: './paths/images.yaml#/mods~1{modId}~1image'}
   /api/v2/mods/{modId}: {$ref: './paths/mods.yaml#/mods~1{modId}'}
   /api/v2/mods/{modId}/versions: {$ref: './paths/versions.yaml#/mods~1{modId}~1versions'}
   /api/v2/mods/{modId}/versions/{versionId}: {$ref: './paths/versions.yaml#/mods~1{modId}~1versions~1{versionId}'}
@@ -67,6 +69,7 @@ components:
     FileId: {$ref: ./parameters/parameters.yaml#/FileId}
     CategoryName: {$ref: ./parameters/parameters.yaml#/CategoryName}
   responses:
+    Image: {$ref: ./responses/responses.yaml#/Image}
     NotModified: {$ref: ./responses/responses.yaml#/NotModified}
     Unauthorized: {$ref: ./responses/responses.yaml#/Unauthorized}
     Forbidden: {$ref: ./responses/responses.yaml#/Forbidden}

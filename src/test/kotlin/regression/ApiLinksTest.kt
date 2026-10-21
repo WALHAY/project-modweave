@@ -3,6 +3,11 @@ package git.walhay.modweave.regression
 import git.walhay.modweave.api.category.CategoryController
 import git.walhay.modweave.api.comment.CommentController
 import git.walhay.modweave.api.common.apiLink
+import git.walhay.modweave.api.game.GameResponseDto
+import git.walhay.modweave.api.mod.ModResponseDto
+import git.walhay.modweave.domain.game.*
+import git.walhay.modweave.domain.mod.*
+import git.walhay.modweave.domain.user.UserId
 import java.net.URI
 import java.net.URLDecoder
 import org.junit.jupiter.api.Assertions.*
@@ -37,6 +42,21 @@ class ApiLinksTest {
           }
       assertEquals(mapOf("modId" to "example + мод", "page" to "0", "size" to "20"), query)
       assertFalse(comments.href.contains('{'))
+      val mod =
+          Mod(
+              ModId("мод + тест"),
+              "Mod",
+              imagePath = "internal/key.png",
+              publisherId = UserId("owner"),
+              gameId = GameId("game"))
+      val image = ModResponseDto.fromMod(mod).imagePath
+      assertEquals("/gateway/api/v2/mods/мод + тест/image", URI.create(image).path)
+      assertTrue(image.contains("%2B"))
+      assertFalse(image.contains("internal"))
+      assertEquals(
+          "/gateway/api/v2/games/game/image",
+          GameResponseDto.fromGame(Game(GameId("game"), "Game", imagePath = "internal/key.png"))
+              .imagePath)
     } finally {
       RequestContextHolder.resetRequestAttributes()
     }

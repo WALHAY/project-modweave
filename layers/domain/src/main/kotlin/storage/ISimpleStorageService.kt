@@ -4,6 +4,8 @@ import java.io.InputStream
 import org.springframework.web.multipart.MultipartFile
 
 interface ISimpleStorageService {
+  fun downloadImage(filename: String): InputStream
+
   fun downloadVersionFile(filename: String): InputStream
 
   fun uploadImage(

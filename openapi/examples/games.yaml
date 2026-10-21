@@ -3,7 +3,7 @@ Game:
     id: example-game
     name: Example Game
     description: null
-    imagePath: game.png
+    imagePath: /api/v2/games/example-game/image
     _links:
       self: {href: /api/v2/games/example-game, method: GET}
       mods: {href: /api/v2/mods?page=0&size=20, method: GET}
@@ -20,7 +20,7 @@ GamePage:
     - id: example-game
       name: Example Game
       description: null
-      imagePath: game.png
+      imagePath: /api/v2/games/example-game/image
       _links:
         self: {href: /api/v2/games/example-game, method: GET}
     _links:

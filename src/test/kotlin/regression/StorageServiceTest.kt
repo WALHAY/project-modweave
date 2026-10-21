@@ -14,32 +14,23 @@ import software.amazon.awssdk.services.s3.model.*
 
 class StorageServiceTest {
   @Test
-  fun `existing file bucket becomes private while images remain public`() {
+  fun `existing file and image buckets become private`() {
     val client =
         mock(S3Client::class.java) { invocation ->
           if (invocation.arguments.firstOrNull() is Consumer<*>) invocation.callRealMethod()
           else null
         }
     S3ObjectStorage(client, "mods", "images").initBuckets()
-    val policies =
-        mockingDetails(client)
-            .invocations
-            .filter {
-              it.method.name == "putBucketPolicy" && it.arguments[0] is PutBucketPolicyRequest
-            }
-            .map { it.arguments[0] as PutBucketPolicyRequest }
-            .associate { it.bucket() to it.policy() }
-    assertFalse(policies.containsKey("mods"))
     val removed =
         mockingDetails(client)
             .invocations
-            .single {
+            .filter {
               it.method.name == "deleteBucketPolicy" && it.arguments[0] is DeleteBucketPolicyRequest
             }
-            .arguments[0]
-            as DeleteBucketPolicyRequest
-    assertEquals("mods", removed.bucket())
-    assertTrue(policies["images"]!!.contains("s3:GetObject"))
+            .map { (it.arguments[0] as DeleteBucketPolicyRequest).bucket() }
+            .toSet()
+    assertEquals(setOf("mods", "images"), removed)
+    assertFalse(mockingDetails(client).invocations.any { it.method.name == "putBucketPolicy" })
   }
 
   @Test

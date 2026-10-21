@@ -14,5 +14,7 @@ interface ObjectStorageClient {
 
   fun remove(bucket: StorageBucket, filename: String)
 
+  fun downloadImage(filename: String): InputStream
+
   fun downloadVersionFile(filename: String): InputStream
 }

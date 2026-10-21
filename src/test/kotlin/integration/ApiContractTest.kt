@@ -51,6 +51,7 @@ class ApiContractTest {
 
   @LocalServerPort private var port: Int = 0
   @Autowired private lateinit var jdbc: JdbcTemplate
+  @Autowired private lateinit var s3: software.amazon.awssdk.services.s3.S3Client
   private val http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build()
   private val mapper = ObjectMapper()
   private val visited = mutableSetOf<String>()
@@ -83,7 +84,8 @@ class ApiContractTest {
     val sent = request.build()
     val response = http.send(sent, HttpResponse.BodyHandlers.ofByteArray())
     val uriPath = sent.uri().path
-    if (uriPath.startsWith("/api/v2/") &&
+    if (method != "HEAD" &&
+        uriPath.startsWith("/api/v2/") &&
         uriPath !in setOf("/api/v2/docs", "/api/v2/openapi.yaml") &&
         !uriPath.startsWith("/api/v2/swagger-ui/")) {
       contract.validate(sent, data, response)
@@ -151,6 +153,11 @@ class ApiContractTest {
         assertEquals("mod archive", response.body().decodeToString())
         assertTrue(
             response.headers().firstValue("Content-Disposition").orElse("").contains("attachment"))
+      } else if (media in setOf("image/png", "image/jpeg")) {
+        assertEquals("inline", response.headers().firstValue("Content-Disposition").orElseThrow())
+        assertEquals(
+            "nosniff", response.headers().firstValue("X-Content-Type-Options").orElseThrow())
+        assertNotNull(javax.imageio.ImageIO.read(response.body().inputStream()))
       } else {
         val value = mapper.readTree(response.body())
         if (expected in 200..299 && id !in setOf("login", "refreshTokens")) validateLinks(value)
@@ -349,7 +356,14 @@ class ApiContractTest {
     val filteredGames = call("listGames", query = page() + ("name" to "Пример + Game"))
     assertEquals(game, filteredGames["content"][0]["id"].asText())
     assertEquals(filteredGames, follow(filteredGames, "last"))
-    call("getGame", pathValues = mapOf("gameId" to game))
+    val gameCard = call("getGame", pathValues = mapOf("gameId" to game))
+    call("getGameImage", pathValues = mapOf("gameId" to game))
+    val gameImageUrl = gameCard["imagePath"].asText()
+    assertEquals(gameCard["_links"]["image"]["href"].asText(), gameImageUrl)
+    val gameImage = raw("GET", gameImageUrl)
+    assertArrayEquals(png, gameImage.body())
+    assertEquals(200, raw("HEAD", gameImageUrl).statusCode())
+    assertEquals(0, raw("HEAD", gameImageUrl).body().size)
     val modUpload =
         upload(
                 mapOf(
@@ -369,6 +383,23 @@ class ApiContractTest {
     assertEquals(mod, call("listMods", query = page(), token = admin)["content"][0]["id"].asText())
     assertTrue(call("listMods", query = page())["content"].isEmpty)
     val modCard = call("getMod", pathValues = modPath, token = author)
+    val modImageUrl = modCard["imagePath"].asText()
+    assertEquals(modCard["_links"]["image"]["href"].asText(), modImageUrl)
+    call("getModImage", pathValues = modPath, token = author)
+    call("getModImage", pathValues = modPath, token = admin)
+    call("getModImage", 404, modPath)
+    call("getModImage", 404, modPath, token = outsider)
+    val privateImage = raw("GET", modImageUrl, token = author)
+    assertArrayEquals(png, privateImage.body())
+    val imageTag = privateImage.headers().firstValue("ETag").orElseThrow()
+    assertEquals(
+        404, raw("GET", modImageUrl, headers = mapOf("If-None-Match" to imageTag)).statusCode())
+    assertEquals(
+        401,
+        raw("GET", modImageUrl, token = "invalid", headers = mapOf("If-None-Match" to imageTag))
+            .statusCode())
+    assertEquals(200, raw("HEAD", modImageUrl, token = author).statusCode())
+    assertEquals(404, raw("HEAD", modImageUrl).statusCode())
     assertEquals("пример-mod", mod)
     assertEquals(mod, follow(modCard, "versions", author)["content"][0]["modId"].asText())
     assertEquals(
@@ -432,6 +463,9 @@ class ApiContractTest {
         body = mapOf("status" to "APPROVED"),
         token = admin)
     call("getModVersion", pathValues = versionPath)
+    call("getModImage", pathValues = modPath)
+    assertEquals(
+        304, raw("HEAD", modImageUrl, headers = mapOf("If-None-Match" to imageTag)).statusCode())
     call("downloadFile", pathValues = filePath)
     val fileUrl = version["files"][0]["_links"]["download"]["href"].asText()
     val downloaded = raw("GET", fileUrl)
@@ -537,6 +571,9 @@ class ApiContractTest {
                     mapOf("If-None-Match" to downloaded.headers().firstValue("ETag").orElseThrow()))
             .statusCode())
     call("getMod", 404, modPath)
+    assertEquals(
+        404, raw("GET", modImageUrl, headers = mapOf("If-None-Match" to imageTag)).statusCode())
+    call("getModImage", pathValues = modPath, token = author)
     call("getMod", pathValues = modPath, token = author)
     call("getComment", 404, commentPath)
     assertTrue(call("listModComments", query = page() + ("modId" to mod))["content"].isEmpty)
@@ -562,8 +599,12 @@ class ApiContractTest {
     call(
         "getModVersion", 404, pathValues = modPath + ("versionId" to anotherVersion["id"].asText()))
     call("deleteMod", 204, pathValues = modPath, token = author)
+    assertEquals(
+        404, raw("GET", modImageUrl, headers = mapOf("If-None-Match" to imageTag)).statusCode())
     call("getMod", 404, pathValues = modPath)
     call("deleteGame", 204, pathValues = mapOf("gameId" to game), token = admin)
+    assertEquals(
+        404, raw("GET", gameImageUrl, headers = mapOf("If-None-Match" to "*")).statusCode())
     call("getGame", 404, pathValues = mapOf("gameId" to game))
     call("deleteCategory", 204, mapOf("categoryName" to "Utility"), token = admin)
     assertEquals(
@@ -659,6 +700,46 @@ class ApiContractTest {
         413,
         token = admin,
         multipart = upload(mapOf("name" to "Too large"), "image", "large.png", ByteArray(2048)))
+  }
+
+  @Test
+  fun `JPEG covers use content MIME including legacy objects and missing images return not found`() {
+    val admin = register("image-admin", true)
+    val jpeg =
+        ByteArrayOutputStream()
+            .also {
+              javax.imageio.ImageIO.write(
+                  java.awt.image.BufferedImage(2, 3, java.awt.image.BufferedImage.TYPE_INT_RGB),
+                  "jpeg",
+                  it)
+            }
+            .toByteArray()
+    val game =
+        call(
+            "createGame",
+            201,
+            token = admin,
+            multipart = upload(mapOf("name" to "JPEG Game"), "image", "cover.JPEG", jpeg))
+    val path = game["imagePath"].asText()
+    val image = raw("GET", path)
+    assertEquals(200, image.statusCode())
+    assertEquals("image/jpeg", image.headers().firstValue("Content-Type").orElseThrow())
+    assertArrayEquals(jpeg, image.body())
+    val key =
+        jdbc.queryForObject(
+            "select image_path from modweave.games where id = ?",
+            String::class.java,
+            game["id"].asText())!!
+    assertEquals("image/jpeg", s3.headObject { it.bucket("images").key(key) }.contentType())
+    // An existing object written by the previous version can have an arbitrary MIME value.
+    s3.putObject(
+        { it.bucket("images").key(key).contentType("text/html") },
+        software.amazon.awssdk.core.sync.RequestBody.fromBytes(jpeg))
+    val legacy = raw("GET", path)
+    assertEquals("image/jpeg", legacy.headers().firstValue("Content-Type").orElseThrow())
+    assertArrayEquals(jpeg, legacy.body())
+    s3.deleteObject { it.bucket("images").key(key) }
+    assertEquals(404, raw("GET", path).statusCode())
   }
 
   @Test

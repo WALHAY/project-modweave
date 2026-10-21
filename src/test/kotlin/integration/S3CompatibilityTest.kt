@@ -47,6 +47,13 @@ class S3CompatibilityTest {
               .s3Client(URI.create(endpoint), "username", "password", "us-east-1")
               .use { client ->
                 val storage = S3ObjectStorage(client, "mods", "images")
+                // Simulate an existing public image bucket before the application upgrade.
+                client.createBucket { it.bucket("images") }
+                client.putBucketPolicy {
+                  it.bucket("images")
+                      .policy(
+                          """{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":"*","Action":["s3:GetObject"],"Resource":["arn:aws:s3:::images/*"]}]}""")
+                }
                 storage.initBuckets()
                 // Large enough to catch checksum/trailer issues and accidental truncation.
                 val bytes = ByteArray(256 * 1024) { it.toByte() }
@@ -55,7 +62,24 @@ class S3CompatibilityTest {
                     MockMultipartFile("files", "example.zip", "application/octet-stream", bytes)
                 storage.upload(StorageBucket.MODS, key, file)
                 assertArrayEquals(bytes, storage.downloadVersionFile(key).use { it.readAllBytes() })
-                storage.upload(StorageBucket.IMAGES, key, file)
+                val png =
+                    java.io
+                        .ByteArrayOutputStream()
+                        .also {
+                          javax.imageio.ImageIO.write(
+                              java.awt.image.BufferedImage(
+                                  1, 1, java.awt.image.BufferedImage.TYPE_INT_RGB),
+                              "png",
+                              it)
+                        }
+                        .toByteArray()
+                storage.upload(
+                    StorageBucket.IMAGES,
+                    key,
+                    MockMultipartFile("image", "logo.png", "text/plain", png))
+                assertEquals(
+                    "image/png", client.headObject { it.bucket("images").key(key) }.contentType())
+                assertArrayEquals(png, storage.downloadImage(key).use { it.readAllBytes() })
                 val http = HttpClient.newHttpClient()
                 fun anonymous(bucket: String) =
                     http.send(
@@ -72,14 +96,16 @@ class S3CompatibilityTest {
                         HttpResponse.BodyHandlers.ofByteArray())
                 assertEquals(403, anonymous("mods").statusCode())
                 val image = anonymous("images")
-                assertEquals(200, image.statusCode())
-                assertArrayEquals(bytes, image.body())
+                assertEquals(403, image.statusCode())
                 storage.initBuckets() // Existing buckets and absent policies are also supported.
                 storage.remove(StorageBucket.MODS, key)
                 storage.remove(StorageBucket.MODS, key) // Cleanup may repeat after a lost response.
                 storage.remove(StorageBucket.IMAGES, key)
                 assertThrows(NoSuchKeyException::class.java) { storage.downloadVersionFile(key) }
-                assertEquals(404, anonymous("images").statusCode())
+                assertThrows(
+                    git.walhay.modweave.domain.storage.ImageNotFoundException::class.java) {
+                      storage.downloadImage(key)
+                    }
               }
         }
   }

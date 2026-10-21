@@ -40,6 +40,8 @@ class TransactionalStorageService(
     operations.enqueueDeletion(StorageBucket.IMAGES, filename)
   }
 
+  override fun downloadImage(filename: String): InputStream = storage.downloadImage(filename)
+
   override fun downloadVersionFile(filename: String): InputStream =
       storage.downloadVersionFile(filename)
 }

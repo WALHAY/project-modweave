@@ -81,6 +81,50 @@ class HttpAndValidationTest {
   }
 
   @Test
+  fun `image validation bounds dimensions before decoding and matches extensions to content`() {
+    val output = java.io.ByteArrayOutputStream()
+    javax.imageio.ImageIO.write(
+        java.awt.image.BufferedImage(1, 1, java.awt.image.BufferedImage.TYPE_INT_RGB),
+        "png",
+        output)
+    val png = output.toByteArray()
+    val validator = ImageExtensionValidator()
+    assertTrue(validator.isValid(MockMultipartFile("image", "real.PNG", "text/plain", png), null))
+    assertFalse(validator.isValid(MockMultipartFile("image", "fake.jpg", "image/jpeg", png), null))
+    fun header(width: Int, height: Int): ByteArray {
+      val bytes = png.copyOf()
+      java.nio.ByteBuffer.wrap(bytes).putInt(16, width).putInt(20, height)
+      val crc = java.util.zip.CRC32().apply { update(bytes, 12, 17) }
+      java.nio.ByteBuffer.wrap(bytes).putInt(29, crc.value.toInt())
+      return bytes
+    }
+    // A few bytes with a huge declared image size must be rejected without allocating pixels.
+    for ((width, height) in listOf(Int.MAX_VALUE to 1, 4097 to 1, 4001 to 4000, 0 to 1)) {
+      assertFalse(
+          validator.isValid(
+              MockMultipartFile("image", "large.png", "image/png", header(width, height)), null))
+    }
+    header(4000, 4000).inputStream().use {
+      assertEquals(
+          git.walhay.modweave.domain.storage.ImageFormat.PNG,
+          git.walhay.modweave.domain.storage.ImageFormat.inspect(it))
+    }
+    val jpeg =
+        java.io
+            .ByteArrayOutputStream()
+            .also {
+              javax.imageio.ImageIO.write(
+                  java.awt.image.BufferedImage(2, 2, java.awt.image.BufferedImage.TYPE_INT_RGB),
+                  "jpeg",
+                  it)
+            }
+            .toByteArray()
+    assertTrue(
+        validator.isValid(
+            MockMultipartFile("image", "photo.JPEG", "application/octet-stream", jpeg), null))
+  }
+
+  @Test
   fun `profile updates and registration enforce consistent password and email rules`() {
     Validation.buildDefaultValidatorFactory().use { factory ->
       val validator = factory.validator
