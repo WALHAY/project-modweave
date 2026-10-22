@@ -38,6 +38,7 @@ collections/{collectionId}:
     - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
     - {$ref: ../openapi.yaml#/components/parameters/CollectionId}
     responses:
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '200':
         description: Collection
         content:
@@ -48,12 +49,13 @@ collections/{collectionId}:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: getCollection
-    security: []
+    security:
+    - {}
+    - bearerAuth: []
     description: Public operation.
   delete:
     tags: [Collections]
@@ -81,6 +83,7 @@ collections/{collectionId}/mods:
     - {$ref: ../openapi.yaml#/components/parameters/Size}
     - {$ref: ../openapi.yaml#/components/parameters/SortIndex}
     responses:
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '200':
         description: Mod page
         content:
@@ -91,12 +94,13 @@ collections/{collectionId}/mods:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
       '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
     operationId: listCollectionMods
-    security: []
+    security:
+    - {}
+    - bearerAuth: []
     description: Public operation.
   post:
     tags: [Collections]
@@ -124,6 +128,7 @@ collections/{collectionId}/mods:
       '403': {$ref: ../openapi.yaml#/components/responses/Forbidden}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
       '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
+      '415': {$ref: ../openapi.yaml#/components/responses/UnsupportedMediaType}
     description: Owner or administrator only. Insert at index (zero based), or append when omitted. Duplicate membership
       and an index beyond the current size return 400.
     operationId: addCollectionMod

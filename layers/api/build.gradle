@@ -1,0 +1,11 @@
+dependencies {
+  implementation project(':domain')
+
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'tools.jackson.module:jackson-module-kotlin'
+  implementation 'org.springframework.data:spring-data-commons'
+  implementation 'org.springframework.hateoas:spring-hateoas'
+  implementation 'org.springframework:spring-tx'
+}

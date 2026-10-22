@@ -1,0 +1,16 @@
+Problem:
+  type: object
+  description: RFC 9457 problem details. The status matches the HTTP response status.
+  required: [title, status, instance]
+  properties:
+    type: {type: string, format: uri-reference, default: 'about:blank'}
+    title: {type: string}
+    status: {type: integer, minimum: 400, maximum: 599}
+    detail: {type: string}
+    instance: {type: string, format: uri-reference}
+  examples:
+  - type: about:blank
+    title: Not Found
+    status: 404
+    detail: Resource not found
+    instance: /api/v2/categories/missing

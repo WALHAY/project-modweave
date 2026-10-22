@@ -19,7 +19,12 @@ files/{fileId}:
           application/octet-stream:
             schema: {type: string, format: binary}
       '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
-      '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
+      '304':
+        description: File has not changed.
+        headers:
+          Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
+          ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
+          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
       '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '403': {$ref: ../openapi.yaml#/components/responses/Forbidden}
