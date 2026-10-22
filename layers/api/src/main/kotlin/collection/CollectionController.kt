@@ -1,7 +1,7 @@
 package git.walhay.modweave.api.collection
 
 import git.walhay.modweave.api.common.apiLink
-import git.walhay.modweave.api.common.forApi
+import git.walhay.modweave.api.common.toSortOrders
 import git.walhay.modweave.api.mod.ModResponseDto
 import git.walhay.modweave.api.security.requireUser
 import git.walhay.modweave.domain.collection.CollectionId
@@ -52,7 +52,7 @@ class CollectionController(
     collectionService.getCollectionById(CollectionId(collectionId))
     return modService
         .findModsInCollection(
-            CollectionId(collectionId), page, size, sort.forApi("index", identity = "index"))
+            CollectionId(collectionId), page, size, sort.toSortOrders("index", identity = "index"))
         .map { ModResponseDto.fromMod(it) }
   }
 

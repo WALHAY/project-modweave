@@ -1,7 +1,9 @@
 package git.walhay.modweave.domain.collection
 
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
+import git.walhay.modweave.domain.common.paging.SortOrder
 import git.walhay.modweave.domain.mod.ModId
 import git.walhay.modweave.domain.mod.ModService
 import git.walhay.modweave.domain.user.UserId
@@ -9,8 +11,6 @@ import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -94,8 +94,8 @@ class CollectionService(
       id: UserId,
       page: Int,
       size: Int,
-      sort: Sort,
+      sort: List<SortOrder>,
   ): Page<Collection> =
       collectionRepository.findAllByUser(
-          id, PageRequest.of(page, pageSizePolicy.normalize(size), sort))
+          id, PageRequest(page, pageSizePolicy.normalize(size), sort))
 }

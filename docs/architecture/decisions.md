@@ -43,3 +43,11 @@ RedisCacheManager создаётся автоконфигурацией Boot. TT
 Альтернативы: публичный бакет или presigned URL. Они раскрывают изображение отдельно от текущей видимости карточки; presigned URL продолжает действовать до истечения после отзыва одобрения. API выдаёт 404 сразу по текущим правилам и не требует раскрывать внешний S3 endpoint. Для просмотра закрытой обложки bearer-клиент использует fetch с Authorization и Blob, поскольку обычный img не добавляет bearer-заголовок.
 
 Проверены официальные [ImageReader](https://docs.oracle.com/en/java/javase/25/docs/api/java.desktop/javax/imageio/ImageReader.html), [Spring MVC request mapping](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-requestmapping.html) и AWS S3 API. Регрессии включают upgrade публичного бакета, картинки с неверным MIME, JPEG, Unicode URL/context path, размеры до декодирования и проверку доступа перед 304.
+
+## ADR-006: собственные типы пагинации на границе домена
+
+Принято: убрать Spring Data Commons из domain. Доменные сервисы и интерфейсы Repository используют собственные PageRequest и SortOrder с направлением и признаком сортировки без учёта регистра; результат остаётся Page. PageRequest проверяет неотрицательный номер и положительный размер страницы. PageSizePolicy ограничивает размер в сервисах.
+
+API сохраняет стандартный Spring-разбор query-параметра sort, проверяет разрешённые поля, добавляет уникальное поле для стабильного порядка и преобразует результат в SortOrder. Persistence преобразует PageRequest в Spring Pageable непосредственно перед вызовом Spring Data Repository, а результат — в доменную Page. Параметры HTTP, OpenAPI, сортировки по умолчанию и формат ответов v1/v2 сохранены.
+
+Это уточняет ADR-003: зависимость домена от spring-data-commons удалена; остальные зависимости Spring в домене не затрагиваются. Два преобразования на границах позволяют менять механизм хранения и HTTP-привязку независимо от контрактов доменных Repository. Собственные типы описывают используемые параметры запроса, без копирования всего интерфейса Pageable.

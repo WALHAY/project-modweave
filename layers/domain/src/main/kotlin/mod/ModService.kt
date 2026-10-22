@@ -4,7 +4,9 @@ import git.walhay.modweave.domain.category.CategoryNotFoundException
 import git.walhay.modweave.domain.category.CategoryRepository
 import git.walhay.modweave.domain.collection.CollectionId
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
+import git.walhay.modweave.domain.common.paging.SortOrder
 import git.walhay.modweave.domain.game.GameService
 import git.walhay.modweave.domain.security.AccessSecurity
 import git.walhay.modweave.domain.storage.ISimpleStorageService
@@ -15,8 +17,6 @@ import git.walhay.modweave.domain.version.VersionStatus
 import java.util.UUID
 import org.apache.commons.io.FilenameUtils
 import org.springframework.cache.annotation.CacheEvict
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -46,9 +46,9 @@ class ModService(
       page: Int,
       size: Int,
       name: String?,
-      sort: Sort,
+      sort: List<SortOrder>,
   ): Page<Mod> {
-    val pageRequest = PageRequest.of(page, pageSizePolicy.normalize(size), sort)
+    val pageRequest = PageRequest(page, pageSizePolicy.normalize(size), sort)
     val visibleStatus = if (accessSecurity.isAdmin()) null else VersionStatus.APPROVED
     if (name == null) {
       return modRepository.findAll(pageRequest, visibleStatus)
@@ -60,21 +60,21 @@ class ModService(
       id: UserId,
       page: Int,
       size: Int,
-      sort: Sort,
+      sort: List<SortOrder>,
   ): Page<Mod> =
       modRepository.findAllByUser(
           id,
-          PageRequest.of(page, pageSizePolicy.normalize(size), sort),
+          PageRequest(page, pageSizePolicy.normalize(size), sort),
           if (accessSecurity.isSelfOrAdmin(id.value)) null else VersionStatus.APPROVED)
 
   fun findModsInCollection(
       id: CollectionId,
       page: Int,
       size: Int,
-      sort: Sort,
+      sort: List<SortOrder>,
   ): Page<Mod> =
       modRepository.findModsInCollection(
-          id, PageRequest.of(page, pageSizePolicy.normalize(size), sort), VersionStatus.APPROVED)
+          id, PageRequest(page, pageSizePolicy.normalize(size), sort), VersionStatus.APPROVED)
 
   @CacheEvict(value = ["mods", "games", "users"], allEntries = true)
   @PreAuthorize("@accessSecurity.isSelf(#p0)")

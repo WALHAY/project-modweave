@@ -2,30 +2,30 @@ package git.walhay.modweave.domain.mod
 
 import git.walhay.modweave.domain.collection.CollectionId
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.user.UserId
 import git.walhay.modweave.domain.version.VersionStatus
-import org.springframework.data.domain.Pageable
 
 interface ModRepository {
   fun findById(modId: ModId, visibleStatus: VersionStatus? = null): Mod?
 
-  fun findAll(pageable: Pageable, visibleStatus: VersionStatus? = null): Page<Mod>
+  fun findAll(pageRequest: PageRequest, visibleStatus: VersionStatus? = null): Page<Mod>
 
   fun findAll(
       name: String,
-      pageable: Pageable,
+      pageRequest: PageRequest,
       visibleStatus: VersionStatus? = null,
   ): Page<Mod>
 
   fun findAllByUser(
       username: UserId,
-      pageable: Pageable,
+      pageRequest: PageRequest,
       visibleStatus: VersionStatus? = null,
   ): Page<Mod>
 
   fun findModsInCollection(
       collectionId: CollectionId,
-      pageable: Pageable,
+      pageRequest: PageRequest,
       visibleStatus: VersionStatus? = null,
   ): Page<Mod>
 

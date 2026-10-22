@@ -1,7 +1,9 @@
 package git.walhay.modweave.domain.comment
 
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
+import git.walhay.modweave.domain.common.paging.SortOrder
 import git.walhay.modweave.domain.mod.ModId
 import git.walhay.modweave.domain.mod.ModNotFoundException
 import git.walhay.modweave.domain.mod.ModService
@@ -10,8 +12,6 @@ import git.walhay.modweave.domain.user.UserService
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,7 +32,11 @@ class CommentService(
       return Page(emptyList(), page, pageSizePolicy.normalize(size), 0, 0)
     }
     return commentRepository.findByModId(
-        modId, PageRequest.of(page, pageSizePolicy.normalize(size), Sort.by("publishDate", "id")))
+        modId,
+        PageRequest(
+            page,
+            pageSizePolicy.normalize(size),
+            listOf(SortOrder("publishDate"), SortOrder("id"))))
   }
 
   fun findCommentById(id: CommentId): Comment {

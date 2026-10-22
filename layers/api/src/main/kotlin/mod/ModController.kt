@@ -1,11 +1,12 @@
 package git.walhay.modweave.api.mod
 
 import git.walhay.modweave.api.common.apiLink
-import git.walhay.modweave.api.common.forApi
+import git.walhay.modweave.api.common.toSortOrders
 import git.walhay.modweave.api.security.requireUser
 import git.walhay.modweave.api.version.FileResponseDto
 import git.walhay.modweave.api.version.VersionResponseDto
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.mod.ModId
 import git.walhay.modweave.domain.mod.ModService
 import git.walhay.modweave.domain.user.UserId
@@ -14,7 +15,6 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import mu.KLogger
 import mu.KotlinLogging
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.SortDefault
 import org.springframework.http.HttpStatus
@@ -47,7 +47,7 @@ class ModController(
       @SortDefault(sort = ["name"]) sort: Sort,
   ): Page<ModResponseDto> {
     logger.debug { "GET /mods - page: $page, size: $size, name: $name" }
-    return modService.findModsWithFilter(page, size, name, sort.forApi("name", "id")).map {
+    return modService.findModsWithFilter(page, size, name, sort.toSortOrders("name", "id")).map {
       ModResponseDto.fromMod(it)
     }
   }
@@ -66,7 +66,7 @@ class ModController(
         .getModVersions(
             user?.username?.let { UserId(it) },
             ModId(modId),
-            PageRequest.of(page, size, sort.forApi("id", "name", "uploadDate")))
+            PageRequest(page, size, sort.toSortOrders("id", "name", "uploadDate")))
         .map { VersionResponseDto.fromVersion(it) }
   }
 

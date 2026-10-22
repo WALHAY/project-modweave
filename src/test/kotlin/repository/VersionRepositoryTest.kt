@@ -1,5 +1,6 @@
 package git.walhay.modweave.repository
 
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.game.Game
 import git.walhay.modweave.domain.game.GameRepository
 import git.walhay.modweave.domain.mod.Mod
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
-import org.springframework.data.domain.PageRequest
 
 @Import(
     JpaVersionRepository::class,
@@ -68,7 +68,7 @@ class VersionRepositoryTest : PostgresTestTemplate() {
   fun `read version`() {
     val created = seedVersion()
 
-    val page = versionRepository.findVersionsByModId(created.modId, PageRequest.of(0, 10))
+    val page = versionRepository.findVersionsByModId(created.modId, PageRequest(0, 10))
     assertNotNull(page)
     assertTrue(page.content.any { it.id.value == created.id.value })
   }
@@ -79,7 +79,7 @@ class VersionRepositoryTest : PostgresTestTemplate() {
 
     versionRepository.delete(created.id)
 
-    val page = versionRepository.findVersionsByModId(created.modId, PageRequest.of(0, 10))
+    val page = versionRepository.findVersionsByModId(created.modId, PageRequest(0, 10))
     assertTrue(page.content.none { it.id.value == created.id.value })
   }
 }

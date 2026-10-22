@@ -2,7 +2,7 @@ package git.walhay.modweave.api.user
 
 import git.walhay.modweave.api.collection.CollectionResponseDto
 import git.walhay.modweave.api.common.apiLink
-import git.walhay.modweave.api.common.forApi
+import git.walhay.modweave.api.common.toSortOrders
 import git.walhay.modweave.api.mod.ModResponseDto
 import git.walhay.modweave.api.security.requireUser
 import git.walhay.modweave.domain.collection.CollectionService
@@ -40,7 +40,7 @@ class UserController(
     logger.debug { "GET /users - page: $page, size: $size, username: $username" }
     return userService
         .findUsersWithFilter(
-            page, size, username, sort.forApi("username", "name", identity = "username"))
+            page, size, username, sort.toSortOrders("username", "name", identity = "username"))
         .map { UserResponseDto.fromUser(it) }
   }
 
@@ -61,7 +61,7 @@ class UserController(
   ): Page<ModResponseDto> {
     logger.info { "GET /users/$id/mods - page: $page, size: $size" }
     userService.findUserByUsername(UserId(id))
-    return modService.findModsOfUser(UserId(id), page, size, sort.forApi("name", "id")).map {
+    return modService.findModsOfUser(UserId(id), page, size, sort.toSortOrders("name", "id")).map {
       ModResponseDto.fromMod(it)
     }
   }
@@ -76,7 +76,7 @@ class UserController(
     logger.info { "GET /users/$id/collections - page: $page, size: $size" }
     userService.findUserByUsername(UserId(id))
     return collectionService
-        .findCollectionsOfUser(UserId(id), page, size, sort.forApi("name", "id"))
+        .findCollectionsOfUser(UserId(id), page, size, sort.toSortOrders("name", "id"))
         .map { CollectionResponseDto.fromCollection(it) }
   }
 

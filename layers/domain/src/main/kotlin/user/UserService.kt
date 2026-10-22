@@ -1,13 +1,13 @@
 package git.walhay.modweave.domain.user
 
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
+import git.walhay.modweave.domain.common.paging.SortOrder
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -36,12 +36,12 @@ class UserService(
       page: Int,
       size: Int,
       name: String?,
-      sort: Sort,
+      sort: List<SortOrder>,
   ): Page<User> {
     logger.debug {
       "Fetching users with filter - page: $page, size: $size, name: $name, sort: $sort"
     }
-    val pageRequest = PageRequest.of(page, pageSizePolicy.normalize(size), sort)
+    val pageRequest = PageRequest(page, pageSizePolicy.normalize(size), sort)
     if (name == null) {
       return userRepository.findAll(pageRequest)
     }

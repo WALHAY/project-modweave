@@ -1,7 +1,7 @@
 package git.walhay.modweave.api.game
 
 import git.walhay.modweave.api.common.apiLink
-import git.walhay.modweave.api.common.forApi
+import git.walhay.modweave.api.common.toSortOrders
 import git.walhay.modweave.domain.common.paging.Page
 import git.walhay.modweave.domain.game.GameId
 import git.walhay.modweave.domain.game.GameService
@@ -30,7 +30,7 @@ class GameController(
       @SortDefault(sort = ["name"]) sort: Sort,
   ): Page<GameResponseDto> {
     logger.debug { "GET /games - page: $page, size: $size, name: $name" }
-    return gameService.findGamesWithFilter(page, size, name, sort.forApi("name", "id")).map {
+    return gameService.findGamesWithFilter(page, size, name, sort.toSortOrders("name", "id")).map {
       GameResponseDto.fromGame(it)
     }
   }

@@ -1,11 +1,12 @@
 package git.walhay.modweave.persistence.user
 
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.user.User
 import git.walhay.modweave.domain.user.UserId
 import git.walhay.modweave.domain.user.UserRepository
 import git.walhay.modweave.persistence.common.paging.toDomainPage
-import org.springframework.data.domain.Pageable
+import git.walhay.modweave.persistence.common.paging.toSpringPageable
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -20,16 +21,16 @@ class JpaUserRepository(
   override fun findByUsername(userId: UserId): User? =
       repository.findByUsernameIgnoreCase(userId.value)?.toDomain()
 
-  override fun findAll(pageable: Pageable): Page<User> =
-      repository.findAll(pageable).toDomainPage { it.toDomain() }
+  override fun findAll(pageRequest: PageRequest): Page<User> =
+      repository.findAll(pageRequest.toSpringPageable()).toDomainPage { it.toDomain() }
 
   override fun findAll(
       name: String,
-      pageable: Pageable,
+      pageRequest: PageRequest,
   ): Page<User> =
-      repository.findAllByUsernameContainingIgnoreCase(name, pageable).toDomainPage {
-        it.toDomain()
-      }
+      repository
+          .findAllByUsernameContainingIgnoreCase(name, pageRequest.toSpringPageable())
+          .toDomainPage { it.toDomain() }
 
   override fun save(user: User): User =
       repository

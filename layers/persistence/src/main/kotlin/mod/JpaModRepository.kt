@@ -2,13 +2,14 @@ package git.walhay.modweave.persistence.mod
 
 import git.walhay.modweave.domain.collection.CollectionId
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.mod.Mod
 import git.walhay.modweave.domain.mod.ModId
 import git.walhay.modweave.domain.mod.ModRepository
 import git.walhay.modweave.domain.user.UserId
 import git.walhay.modweave.domain.version.VersionStatus
 import git.walhay.modweave.persistence.common.paging.toDomainPage
-import org.springframework.data.domain.Pageable
+import git.walhay.modweave.persistence.common.paging.toSpringPageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
@@ -25,39 +26,43 @@ class JpaModRepository(
 
   override fun save(mod: Mod): Mod = repository.save(ModEntity.fromMod(mod)).toDomain()
 
-  override fun findAll(pageable: Pageable, visibleStatus: VersionStatus?): Page<Mod> =
-      (visibleStatus?.let { repository.findAllWithVersionStatus(it, pageable) }
-              ?: repository.findAll(pageable))
+  override fun findAll(pageRequest: PageRequest, visibleStatus: VersionStatus?): Page<Mod> =
+      (visibleStatus?.let {
+            repository.findAllWithVersionStatus(it, pageRequest.toSpringPageable())
+          } ?: repository.findAll(pageRequest.toSpringPageable()))
           .toDomainPage { it.toDomain() }
 
   override fun findAll(
       name: String,
-      pageable: Pageable,
+      pageRequest: PageRequest,
       visibleStatus: VersionStatus?,
   ): Page<Mod> =
       (visibleStatus?.let {
-            repository.findAllByNameContainingIgnoreCaseAndVersionStatus(name, it, pageable)
-          } ?: repository.findAllByNameContainingIgnoreCase(name, pageable))
+            repository.findAllByNameContainingIgnoreCaseAndVersionStatus(
+                name, it, pageRequest.toSpringPageable())
+          } ?: repository.findAllByNameContainingIgnoreCase(name, pageRequest.toSpringPageable()))
           .toDomainPage { it.toDomain() }
 
   override fun findAllByUser(
       username: UserId,
-      pageable: Pageable,
+      pageRequest: PageRequest,
       visibleStatus: VersionStatus?,
   ): Page<Mod> =
       (visibleStatus?.let {
-            repository.findAllByPublisherIdAndVersionStatus(username.value, it, pageable)
-          } ?: repository.findAllByPublisherId(username.value, pageable))
+            repository.findAllByPublisherIdAndVersionStatus(
+                username.value, it, pageRequest.toSpringPageable())
+          } ?: repository.findAllByPublisherId(username.value, pageRequest.toSpringPageable()))
           .toDomainPage { it.toDomain() }
 
   override fun findModsInCollection(
       collectionId: CollectionId,
-      pageable: Pageable,
+      pageRequest: PageRequest,
       visibleStatus: VersionStatus?,
   ): Page<Mod> =
       (visibleStatus?.let {
-            repository.findByCollectionIdAndVersionStatus(collectionId.value, it, pageable)
-          } ?: repository.findByCollectionId(collectionId.value, pageable))
+            repository.findByCollectionIdAndVersionStatus(
+                collectionId.value, it, pageRequest.toSpringPageable())
+          } ?: repository.findByCollectionId(collectionId.value, pageRequest.toSpringPageable()))
           .toDomainPage { it.toDomain() }
 
   override fun existsById(modId: ModId): Boolean = repository.existsById(modId.value)

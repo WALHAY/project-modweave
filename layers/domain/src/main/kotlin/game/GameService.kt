@@ -1,7 +1,9 @@
 package git.walhay.modweave.domain.game
 
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
+import git.walhay.modweave.domain.common.paging.SortOrder
 import git.walhay.modweave.domain.storage.ISimpleStorageService
 import java.util.UUID
 import mu.KLogger
@@ -9,8 +11,6 @@ import mu.KotlinLogging
 import org.apache.commons.io.FilenameUtils
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -34,12 +34,12 @@ class GameService(
       page: Int,
       size: Int,
       name: String?,
-      sort: Sort,
+      sort: List<SortOrder>,
   ): Page<Game> {
     logger.debug {
       "Fetching games with filter - page: $page, size: $size, name: $name, sort: $sort"
     }
-    val pageRequest = PageRequest.of(page, pageSizePolicy.normalize(size), sort)
+    val pageRequest = PageRequest(page, pageSizePolicy.normalize(size), sort)
     if (name == null) {
       return gameRepository.findAll(pageRequest)
     }

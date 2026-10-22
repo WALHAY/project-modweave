@@ -1,5 +1,8 @@
 package git.walhay.modweave.repository
 
+import git.walhay.modweave.domain.common.paging.PageRequest
+import git.walhay.modweave.domain.common.paging.SortDirection
+import git.walhay.modweave.domain.common.paging.SortOrder
 import git.walhay.modweave.domain.game.Game
 import git.walhay.modweave.domain.game.GameRepository
 import git.walhay.modweave.domain.mod.Mod
@@ -16,7 +19,6 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Import
-import org.springframework.data.domain.PageRequest
 
 @Import(JpaModRepository::class, JpaUserRepository::class, JpaGameRepository::class)
 class ModRepositoryTest : PostgresTestTemplate() {
@@ -64,9 +66,35 @@ class ModRepositoryTest : PostgresTestTemplate() {
     assertNotNull(found)
     assertTrue(modRepository.existsById(created.id))
 
-    modRepository.findAll(PageRequest.of(0, 10))
-    modRepository.findAll("mod", PageRequest.of(0, 10))
-    modRepository.findAllByUser(UserId("publisher"), PageRequest.of(0, 10))
+    modRepository.findAll(PageRequest(0, 10))
+    modRepository.findAll("mod", PageRequest(0, 10))
+    modRepository.findAllByUser(UserId("publisher"), PageRequest(0, 10))
+  }
+
+  @Test
+  fun `domain pagination preserves offset mixed sorting and page metadata in PostgreSQL`() {
+    val original = seedMod()
+    modRepository.save(original.copy(name = "beta"))
+    modRepository.save(original.copy(id = ModId("mod-2"), name = "Alpha"))
+    modRepository.save(original.copy(id = ModId("mod-3"), name = "Beta"))
+    modRepository.save(original.copy(id = ModId("mod-4"), name = "alpha"))
+    modRepository.save(original.copy(id = ModId("mod-5"), name = "BETA"))
+
+    val page =
+        modRepository.findAll(
+            PageRequest(
+                page = 1,
+                size = 2,
+                sort =
+                    listOf(
+                        SortOrder("name", SortDirection.DESC, ignoreCase = true), SortOrder("id"))))
+
+    assertEquals(listOf(ModId("mod-5"), ModId("mod-2")), page.content.map { it.id })
+    assertEquals(1, page.page)
+    assertEquals(2, page.size)
+    assertEquals(5L, page.totalElements)
+    assertEquals(3, page.totalPages)
+    assertFalse(page.isEmpty)
   }
 
   @Test

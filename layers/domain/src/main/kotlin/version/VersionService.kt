@@ -1,6 +1,7 @@
 package git.walhay.modweave.domain.version
 
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
 import git.walhay.modweave.domain.file.FileService
 import git.walhay.modweave.domain.mod.Mod
@@ -13,8 +14,6 @@ import git.walhay.modweave.domain.storage.ISimpleStorageService
 import git.walhay.modweave.domain.user.UserId
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -37,11 +36,9 @@ class VersionService(
   fun getModVersions(
       userId: UserId?,
       modId: ModId,
-      pageable: Pageable,
+      pageRequest: PageRequest,
   ): Page<Version> {
-    val boundedPage =
-        PageRequest.of(
-            pageable.pageNumber, pageSizePolicy.normalize(pageable.pageSize), pageable.sort)
+    val boundedPage = pageRequest.copy(size = pageSizePolicy.normalize(pageRequest.size))
     if (userId != null && accessSecurity.isModOwnerOrAdmin(userId.value, modId.value)) {
       return versionRepository.findVersionsByModId(modId, boundedPage)
     }

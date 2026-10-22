@@ -2,6 +2,8 @@ package git.walhay.modweave.repository
 
 import git.walhay.modweave.domain.collection.Collection
 import git.walhay.modweave.domain.collection.CollectionRepository
+import git.walhay.modweave.domain.common.paging.PageRequest
+import git.walhay.modweave.domain.common.paging.SortOrder
 import git.walhay.modweave.domain.game.Game
 import git.walhay.modweave.domain.mod.Mod
 import git.walhay.modweave.domain.mod.ModId
@@ -123,9 +125,7 @@ class CollectionRepositoryTest : PostgresTestTemplate() {
         collectionRepository.findById(collection.id)!!.mods.map { it.id })
     val ordered =
         modRepository.findModsInCollection(
-            collection.id,
-            org.springframework.data.domain.PageRequest.of(
-                0, 10, org.springframework.data.domain.Sort.by("index")))
+            collection.id, PageRequest(0, 10, listOf(SortOrder("index"))))
     assertEquals(listOf(second.id, original.id), ordered.content.map { it.id })
     collection.mods.removeAt(1)
     collectionRepository.save(collection)

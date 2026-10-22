@@ -4,7 +4,10 @@ import git.walhay.modweave.api.version.*
 import git.walhay.modweave.domain.collection.CollectionRepository
 import git.walhay.modweave.domain.comment.CommentRepository
 import git.walhay.modweave.domain.common.paging.Page
+import git.walhay.modweave.domain.common.paging.PageRequest
 import git.walhay.modweave.domain.common.paging.PageSizePolicy
+import git.walhay.modweave.domain.common.paging.SortDirection
+import git.walhay.modweave.domain.common.paging.SortOrder
 import git.walhay.modweave.domain.config.properties.ModweaveProperties
 import git.walhay.modweave.domain.file.FileService
 import git.walhay.modweave.domain.game.GameId
@@ -26,7 +29,6 @@ import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.*
-import org.springframework.data.domain.PageRequest
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -144,16 +146,17 @@ class ServiceSecurityTest {
 
   @Test
   fun `guest list is restricted to approved versions and bounded pages`() {
-    val bounded = PageRequest.of(0, 100)
+    val requested = PageRequest(2, 500, listOf(SortOrder("name", SortDirection.DESC)))
+    val bounded = requested.copy(size = 100)
     `when`(versions.findVersionsByModIdAndStatus(modId, VersionStatus.APPROVED, bounded))
-        .thenReturn(Page(emptyList(), page = 0, size = 100, totalElements = 0, totalPages = 0))
-    assertTrue(service.getModVersions(null, modId, PageRequest.of(0, 500)).isEmpty)
+        .thenReturn(Page(emptyList(), page = 2, size = 100, totalElements = 0, totalPages = 0))
+    assertTrue(service.getModVersions(null, modId, requested).isEmpty)
     verify(versions).findVersionsByModIdAndStatus(modId, VersionStatus.APPROVED, bounded)
   }
 
   @Test
   fun `admin list includes pending and rejected versions`() {
-    val bounded = PageRequest.of(0, 100)
+    val bounded = PageRequest(0, 100)
     `when`(versions.findVersionsByModId(modId, bounded))
         .thenReturn(Page(listOf(version), page = 0, size = 100, totalElements = 1, totalPages = 1))
 
@@ -161,7 +164,7 @@ class ServiceSecurityTest {
 
     assertEquals(
         listOf(version),
-        service.getModVersions(UserId("admin"), modId, PageRequest.of(0, 500)).content)
+        service.getModVersions(UserId("admin"), modId, PageRequest(0, 500)).content)
     verify(versions).findVersionsByModId(modId, bounded)
   }
 }

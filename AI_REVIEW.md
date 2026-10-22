@@ -43,3 +43,11 @@ HATEOAS и проверка OpenAPI завершены отдельным ком
 Полный check/ktfmtCheck/bootJar успешен: 75 тестов, без ошибок и пропусков, контрактные проверки всех 39 operationId. Проверены guest/owner/admin для PENDING, approval/revocation/delete, GET/HEAD/304, PNG/JPEG, неверный MIME, missing image, ограничения декодирования, закрытие потока и отсутствие S3-чтения при 304. Новый тест сначала не компилировался из-за nullable ETag в mock-заголовке; исправлен requireNotNull, затем полный прогон успешен. Лог — build/image-fix-final-verification.log.
 
 На изолированных PostgreSQL/SeaweedFS и новом JAR проверены imagePath, запрет прямого S3 (403), гостевые 404 и owner 200/304 для PENDING, гостевой 200 после approval. В Chromium оба img.src из API отображаются; Swagger показывает 39 операций, YAML совпадает с собранным. Логи — build/image-fix-http-results.log и build/image-fix-browser-results.log. Временное окружение удалено, штатные Compose-сервисы сохранены.
+
+## Изоляция доменной пагинации от Spring Data
+
+По запросу пользователя удалены Pageable, Spring PageRequest и Sort из доменных сервисов и шести интерфейсов Repository, а также зависимость domain от spring-data-commons. Добавлены собственные PageRequest, SortOrder и SortDirection. API преобразует стандартную HTTP-сортировку после проверки полей и добавления уникального поля; persistence преобразует доменный запрос в Spring Pageable. Ограничение размера страницы остаётся в домене. Решение — ADR-006; README и AI_CONTEXT актуализированы.
+
+Добавлены проверки передачи повторяемого sort из HTTP в доменный запрос и выполнения пагинации с несколькими направлениями сортировки в PostgreSQL. Проверяются порядок полей, ignoreCase, смещение и метаданные страницы; существующая проверка ограничения размера дополнена сохранением номера и сортировки. При компиляции выявлено, что Sort.map возвращает Streamable; преобразование исправлено через toList().map.
+
+Полный check/ktfmtCheck/bootJar успешен: 77 тестов, без ошибок и пропусков. OpenAPI и поведение v1/v2 сохранены. Gradle dependencyInsight подтверждает отсутствие spring-data в compileClasspath домена. Лог — build/pagination-verification.log.
