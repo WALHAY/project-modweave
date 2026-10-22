@@ -1,0 +1,30 @@
+mods/{modId}/image:
+  get:
+    tags: [Mods]
+    summary: Get the mod cover image
+    operationId: getModImage
+    description: The cover follows mod visibility. Before approval and after revocation, only the owner and administrators can read it. Access is checked before conditional responses.
+    parameters:
+    - {$ref: ../openapi.yaml#/components/parameters/ModId}
+    - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
+    responses:
+      '200': {$ref: ../openapi.yaml#/components/responses/Image}
+      '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
+games/{gameId}/image:
+  get:
+    tags: [Games]
+    summary: Get the game cover image
+    operationId: getGameImage
+    description: Game covers are public through the API. Direct S3 access is private.
+    parameters:
+    - {$ref: ../openapi.yaml#/components/parameters/GameId}
+    - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
+    responses:
+      '200': {$ref: ../openapi.yaml#/components/responses/Image}
+      '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
+      '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
+      '404': {$ref: ../openapi.yaml#/components/responses/NotFound}

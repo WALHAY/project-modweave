@@ -21,7 +21,6 @@ mods:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
       '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
@@ -74,6 +73,7 @@ mods/{modId}:
     - {$ref: ../openapi.yaml#/components/parameters/IfNoneMatch}
     - {$ref: ../openapi.yaml#/components/parameters/ModId}
     responses:
+      '401': {$ref: ../openapi.yaml#/components/responses/Unauthorized}
       '200':
         description: Mod
         content:
@@ -84,13 +84,15 @@ mods/{modId}:
         headers:
           Cache-Control: {$ref: ../openapi.yaml#/components/headers/CacheControl}
           ETag: {$ref: ../openapi.yaml#/components/headers/ETag}
-          Last-Modified: {$ref: ../openapi.yaml#/components/headers/LastModified}
       '304': {$ref: ../openapi.yaml#/components/responses/NotModified}
       '404': {$ref: ../openapi.yaml#/components/responses/NotFound}
       '400': {$ref: ../openapi.yaml#/components/responses/BadRequest}
     operationId: getMod
-    security: []
-    description: Public operation.
+    security:
+    - {}
+    - bearerAuth: []
+    description: Mods with an approved version are public. Until the first approval, only the owner and administrators
+      can read the mod; other callers receive 404.
   delete:
     tags: [Mods]
     summary: Delete a mod

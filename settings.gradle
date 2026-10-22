@@ -1,5 +1,9 @@
 rootProject.name = 'ModWeave'
 
-include ':layers:data-access'
-include ':layers:business-logic'
-include ':layers:ui'
+include ':persistence'
+include ':domain'
+include ':api'
+
+project(':persistence').projectDir = file('layers/persistence')
+project(':domain').projectDir = file('layers/domain')
+project(':api').projectDir = file('layers/api')

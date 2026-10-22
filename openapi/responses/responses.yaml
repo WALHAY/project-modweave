@@ -1,16 +1,20 @@
 CacheControl:
-  description: Cache policy for the representation.
+  required: true
+  description: Private storage with mandatory revalidation; visibility is checked on each request.
   schema: {type: string}
-  example: public, max-age=60
+  example: private, no-cache
 ETag:
+  required: true
   description: Entity tag for conditional requests.
   schema: {type: string}
   example: '"abc123"'
 LastModified:
-  description: Last modification time of the representation.
+  required: true
+  description: Upload time of the immutable file. Only file responses expose this header; JSON responses use ETag.
   schema: {type: string, format: http-date}
   example: Wed, 07 Oct 2026 16:00:00 GMT
 Link:
+  required: true
   description: Hypermedia link to the canonical file resource.
   schema: {type: string}
   example: </api/v2/files/00000000-0000-0000-0000-000000000001>; rel="self"
@@ -19,12 +23,66 @@ NotModified:
   headers:
     Cache-Control: {$ref: '#/CacheControl'}
     ETag: {$ref: '#/ETag'}
-    Last-Modified: {$ref: '#/LastModified'}
-Unauthorized: {description: Authentication is required or credentials are invalid}
-Forbidden: {description: Authenticated user lacks permission}
-NotFound: {description: Resource not found}
-Conflict: {description: Resource conflicts with an existing resource}
-BadRequest: {description: 'Missing or malformed parameter/body, invalid UUID or enum, failed validation, duplicate
-    collection member or invalid index.'}
-UnsupportedMediaType: {description: Request Content-Type is not supported.}
-PayloadTooLarge: {description: Multipart upload exceeds the configured size limit.}
+Unauthorized:
+  description: Authentication is required or credentials are invalid.
+  headers:
+    WWW-Authenticate:
+      description: Bearer challenge when authentication fails in the security filter.
+      schema: {type: string}
+  content:
+    application/problem+json:
+      schema: {$ref: ../schemas/errors.yaml#/Problem}
+      example: {title: Unauthorized, status: 401, detail: Authentication is required, instance: /api/v2/categories}
+Forbidden:
+  description: Authenticated user lacks permission.
+  content:
+    application/problem+json:
+      schema: {$ref: ../schemas/errors.yaml#/Problem}
+      example: {title: Forbidden, status: 403, detail: Access denied, instance: /api/v2/categories}
+NotFound:
+  description: Resource not found.
+  content:
+    application/problem+json:
+      schema: {$ref: ../schemas/errors.yaml#/Problem}
+      example: {title: Not Found, status: 404, detail: Resource not found, instance: /api/v2/categories/missing}
+Conflict:
+  description: Resource conflicts with an existing resource.
+  content:
+    application/problem+json:
+      schema: {$ref: ../schemas/errors.yaml#/Problem}
+      example: {title: Conflict, status: 409, detail: Request conflicts with existing data, instance: /api/v2/categories}
+BadRequest:
+  description: Missing or malformed parameter/body, invalid UUID or enum, failed validation, duplicate collection member or invalid index.
+  content:
+    application/problem+json:
+      schema: {$ref: ../schemas/errors.yaml#/Problem}
+      example: {title: Bad Request, status: 400, detail: Invalid request content, instance: /api/v2/categories}
+UnsupportedMediaType:
+  description: Request Content-Type is not supported.
+  content:
+    application/problem+json:
+      schema: {$ref: ../schemas/errors.yaml#/Problem}
+      example: {title: Unsupported Media Type, status: 415, detail: Content-Type is not supported, instance: /api/v2/categories}
+PayloadTooLarge:
+  description: Multipart upload exceeds the configured size limit.
+  content:
+    application/problem+json:
+      schema: {$ref: ../schemas/errors.yaml#/Problem}
+      example: {title: Content Too Large, status: 413, detail: Maximum upload size exceeded, instance: /api/v2/games}
+
+Image:
+  description: PNG or JPEG cover, streamed inline. Content-Type is determined from its contents.
+  headers:
+    Cache-Control: {$ref: '#/CacheControl'}
+    ETag: {$ref: '#/ETag'}
+    Content-Disposition:
+      required: true
+      schema: {type: string, const: inline}
+    X-Content-Type-Options:
+      required: true
+      schema: {type: string, const: nosniff}
+  content:
+    image/png:
+      schema: {type: string, format: binary}
+    image/jpeg:
+      schema: {type: string, format: binary}

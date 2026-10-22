@@ -22,31 +22,39 @@ Size:
 SortName:
   name: sort
   in: query
-  schema: {type: string, default: 'name,asc'}
+  style: form
+  explode: true
+  schema: {type: array, items: {type: string}, default: ['name,asc']}
   description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields. Supported
     properties: name, id.'
-  example: name,asc
+  example: ['name,asc']
 SortUsername:
   name: sort
   in: query
-  schema: {type: string, default: 'username,asc'}
+  style: form
+  explode: true
+  schema: {type: array, items: {type: string}, default: ['username,asc']}
   description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields. Supported
     properties: username, name.'
-  example: username,asc
+  example: ['username,asc']
 SortIdDesc:
   name: sort
   in: query
-  schema: {type: string, default: 'id,desc'}
+  style: form
+  explode: true
+  schema: {type: array, items: {type: string}, default: ['id,desc']}
   description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields. Supported
     properties: id, name, uploadDate.'
-  example: id,desc
+  example: ['id,desc']
 SortIndex:
   name: sort
   in: query
-  schema: {type: string, default: 'index,asc'}
+  style: form
+  explode: true
+  schema: {type: array, items: {type: string}, default: ['index,asc']}
   description: 'Spring sort syntax: property,asc or property,desc. Repeat the parameter for multiple fields. Supported
     properties: index.'
-  example: index,asc
+  example: ['index,asc']
 Username:
   name: username
   in: path

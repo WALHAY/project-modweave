@@ -6,23 +6,23 @@ Game:
     name: {type: string}
     description:
       type: [string, 'null']
-    imagePath: {type: string}
+    imagePath: {type: string, format: uri-reference, description: Same-origin API URL of the cover image.}
     _links: {$ref: ../openapi.yaml#/components/schemas/Links}
   examples:
   - id: example-game
     name: Example Game
     description: null
-    imagePath: game.png
+    imagePath: /api/v2/games/example-game/image
     _links:
       self: {href: /api/v2/games/example-game, method: GET}
-      mods: {href: /api/v2/mods, method: GET}
+      mods: {href: /api/v2/mods?page=0&size=20, method: GET}
 GameCreateRequest:
   type: object
   required: [name, image]
   properties:
     name: {type: string, minLength: 1, pattern: .*\S.*}
     description: {type: string}
-    image: {type: string, format: binary, description: 'Non-empty PNG or JPEG image, at most 100 MB.'}
+    image: {type: string, format: binary, description: 'Non-empty PNG or JPEG image, at most 100 MB, 4096 pixels per side and 16 megapixels. The extension must match the content.'}
   examples:
   - {name: Example Game, image: PNG binary}
 GamePage:
@@ -44,7 +44,7 @@ GamePage:
     - id: example-game
       name: Example Game
       description: null
-      imagePath: game.png
+      imagePath: /api/v2/games/example-game/image
       _links:
         self: {href: /api/v2/games/example-game, method: GET}
     _links:

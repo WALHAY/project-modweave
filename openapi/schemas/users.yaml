@@ -13,8 +13,8 @@ User:
     registerDate: '2026-10-06T12:00:00'
     _links:
       self: {href: /api/v2/users/author, method: GET}
-      mods: {href: /api/v2/users/author/mods, method: GET}
-      collections: {href: /api/v2/users/author/collections, method: GET}
+      mods: {href: /api/v2/users/author/mods?page=0&size=20, method: GET}
+      collections: {href: /api/v2/users/author/collections?page=0&size=20, method: GET}
 UserCreateRequest:
   type: object
   required: [username, name, password, email]
