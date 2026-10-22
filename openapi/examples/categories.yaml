@@ -1,0 +1,10 @@
+Category:
+  value:
+    name: Utility
+    description: Quality-of-life mods
+    _links:
+      self: {href: /api/v2/categories/Utility, method: GET}
+CategoryRequest:
+  value: {name: Utility, description: Quality-of-life mods}
+CategoryPatchRequest:
+  value: {description: Updated description}

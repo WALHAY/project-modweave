@@ -1,0 +1,88 @@
+arazzo: 1.0.1
+info:
+  title: ModWeave mock scenario
+  version: 1.0.0
+  description: >-
+    Registration, login and category CRUD against Prism. The mock validates the
+    contract but does not persist changes or enforce administrator roles.
+sourceDescriptions:
+  - name: modweave
+    type: openapi
+    url: ./openapi.yaml
+workflows:
+  - workflowId: categoryCrud
+    description: Link six operations using the returned access token and category name.
+    steps:
+      - stepId: register
+        operationId: registerUser
+        requestBody:
+          contentType: application/x-www-form-urlencoded
+          payload:
+            username: author
+            name: Author
+            password: demo-password
+            email: author@example.test
+        successCriteria:
+          - condition: $statusCode == 201
+          - condition: $response.header.Location != null
+      - stepId: login
+        operationId: login
+        requestBody:
+          contentType: application/x-www-form-urlencoded
+          payload:
+            username: author
+            password: demo-password
+        successCriteria:
+          - condition: $statusCode == 200
+        outputs:
+          token: $response.body#/accessToken
+      - stepId: create
+        operationId: createCategory
+        parameters:
+          - name: Authorization
+            in: header
+            value: Bearer {$steps.login.outputs.token}
+        requestBody:
+          contentType: application/json
+          payload:
+            name: Utility
+            description: Quality-of-life mods
+        successCriteria:
+          - condition: $statusCode == 201
+          - condition: $response.header.Location != null
+        outputs:
+          name: $response.body#/name
+      - stepId: read
+        operationId: getCategory
+        parameters:
+          - name: categoryName
+            in: path
+            value: $steps.create.outputs.name
+        successCriteria:
+          - condition: $statusCode == 200
+      - stepId: update
+        operationId: updateCategory
+        parameters:
+          - name: categoryName
+            in: path
+            value: $steps.create.outputs.name
+          - name: Authorization
+            in: header
+            value: Bearer {$steps.login.outputs.token}
+        requestBody:
+          contentType: application/json
+          payload:
+            description: Updated description
+        successCriteria:
+          - condition: $statusCode == 200
+      - stepId: delete
+        operationId: deleteCategory
+        parameters:
+          - name: categoryName
+            in: path
+            value: $steps.create.outputs.name
+          - name: Authorization
+            in: header
+            value: Bearer {$steps.login.outputs.token}
+        successCriteria:
+          - condition: $statusCode == 204

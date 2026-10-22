@@ -1,0 +1,6 @@
+AuthRequest:
+  value: {username: author, password: demo-password}
+RefreshTokenRequest:
+  value: {refreshToken: example-refresh-token}
+TokenResponse:
+  value: {accessToken: example-access-token, refreshToken: example-refresh-token}

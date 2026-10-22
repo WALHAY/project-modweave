@@ -1,0 +1,50 @@
+VersionUploadRequest:
+  value:
+    name: '1.1'
+    changes: Bug fixes
+    files: [ZIP binary]
+Version:
+  value:
+    id: 00000000-0000-0000-0000-000000000001
+    files:
+    - id: 00000000-0000-0000-0000-000000000001
+      filename: mod.zip
+      downloads: 0
+      _links:
+        self: {href: /api/v2/files/00000000-0000-0000-0000-000000000001, method: GET}
+        download: {href: /api/v2/files/00000000-0000-0000-0000-000000000001, method: GET}
+    name: '1.0'
+    changes: null
+    uploadDate: '2026-10-06T12:00:00'
+    status: APPROVED
+    modId: example-mod
+    _links:
+      self: {href: /api/v2/mods/example-mod/versions/00000000-0000-0000-0000-000000000001, method: GET}
+      mod: {href: /api/v2/mods/example-mod, method: GET}
+VersionPage:
+  value:
+    page: 0
+    size: 20
+    totalElements: 1
+    totalPages: 1
+    empty: false
+    content:
+    - id: 00000000-0000-0000-0000-000000000001
+      files:
+      - id: 00000000-0000-0000-0000-000000000001
+        filename: mod.zip
+        downloads: 0
+        _links:
+          self: {href: /api/v2/files/00000000-0000-0000-0000-000000000001, method: GET}
+          download: {href: /api/v2/files/00000000-0000-0000-0000-000000000001, method: GET}
+      name: '1.0'
+      changes: null
+      uploadDate: '2026-10-06T12:00:00'
+      status: APPROVED
+      modId: example-mod
+      _links:
+        self: {href: /api/v2/mods/example-mod/versions/00000000-0000-0000-0000-000000000001, method: GET}
+    _links:
+      self: {href: /api/v2/mods/example-mod/versions?page=0&size=20, method: GET}
+      first: {href: /api/v2/mods/example-mod/versions?page=0&size=20, method: GET}
+      last: {href: /api/v2/mods/example-mod/versions?page=0&size=20, method: GET}

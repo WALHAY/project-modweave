@@ -1,0 +1,40 @@
+Link:
+  type: object
+  additionalProperties: false
+  properties:
+    href:
+      type: string
+      format: uri-reference
+      description: URI of the related resource or action.
+    method:
+      type: string
+      minLength: 1
+      enum: [GET, POST, PUT, PATCH, DELETE]
+      description: HTTP method a client may use for the relation.
+    title:
+      type: string
+      description: Human-readable label for the relation.
+    templated:
+      type: boolean
+      default: false
+  required: [href, method]
+  examples:
+  - {href: /api/v2/mods/example-mod, method: GET, title: Mod}
+Links:
+  type: object
+  description: HATEOAS links keyed by relation name.
+  additionalProperties:
+    $ref: '#/Link'
+  examples:
+  - self: {href: /api/v2/mods/example-mod, method: GET, title: Mod}
+    versions: {href: /api/v2/mods/example-mod/versions, method: GET, title: Versions}
+PageLinks:
+  allOf:
+  - {$ref: '#/Links'}
+  description: HATEOAS links for a paginated collection.
+  properties:
+    self: {$ref: '#/Link'}
+    first: {$ref: '#/Link'}
+    last: {$ref: '#/Link'}
+    previous: {$ref: '#/Link'}
+    next: {$ref: '#/Link'}

@@ -1,0 +1,32 @@
+tasks.register('lintOpenApi', Exec) {
+    commandLine 'npx', '--yes', '@redocly/cli@2.58.2',
+            'lint', '--lint-config', 'error'
+}
+
+tasks.register('buildOpenApi', Exec) {
+    dependsOn 'lintOpenApi'
+
+    doFirst {
+        file('build/generated/openapi').mkdirs()
+    }
+
+    commandLine 'npx', '--yes', '@redocly/cli@2.58.2',
+            'bundle', 'openapi/openapi.yaml',
+            '--output', 'build/generated/openapi/openapi.yaml'
+}
+
+tasks.register('mockOpenApi', Exec) {
+    dependsOn 'buildOpenApi'
+
+    commandLine 'npx', '--yes', '@stoplight/prism-cli', 'mock',
+            '-p', '4010',
+            'build/generated/openapi/openapi.yaml'
+}
+
+tasks.register('testOpenApi', Exec) {
+    dependsOn 'buildOpenApi'
+
+    commandLine 'npx', '--yes', '@redocly/cli@2.58.2', 'respect',
+            'openapi/arazzo.yaml',
+            '--server', 'modweave=http://localhost:4010'
+}

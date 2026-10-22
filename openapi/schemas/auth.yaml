@@ -1,0 +1,23 @@
+AuthRequest:
+  type: object
+  required: [username, password]
+  properties:
+    username: {type: string, minLength: 1, pattern: .*\S.*}
+    password: {type: string, format: password, minLength: 1, pattern: .*\S.*}
+  examples:
+  - {username: author, password: demo-password}
+RefreshTokenRequest:
+  type: object
+  required: [refreshToken]
+  properties:
+    refreshToken: {type: string, minLength: 1, pattern: .*\S.*}
+  examples:
+  - {refreshToken: example-refresh-token}
+TokenResponse:
+  type: object
+  required: [accessToken, refreshToken]
+  properties:
+    accessToken: {type: string}
+    refreshToken: {type: string}
+  examples:
+  - {accessToken: example-access-token, refreshToken: example-refresh-token}
